@@ -78,6 +78,7 @@ class StrategyText(Enum):
     STATUS_FAILED = "❌ 策略執行失敗！"
     LOG_SUCCESS = "✅ 策略執行中！"
     LOG_FAILED = "❌ 策略失敗：{error}"
+    ERROR_SYMBOL_NOT_FOUND = "商品代碼錯誤，請輸入正確的商品代碼"
 
 
 LEVEL_LABEL = {
