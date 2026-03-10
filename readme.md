@@ -1,348 +1,144 @@
+# MAS EXE
 
-# MAS EXE 打包與執行說明
+此專案是使用 `PySide6` 開發的 Windows GUI 應用程式。  
+功能包含登入、策略設定、策略執行，並可透過 `PyInstaller` 打包為單一 `.exe`。
 
-本專案為桌面版 Python GUI 程式，使用 `PySide6` 建構介面，並透過 `PyInstaller` 打包為 Windows 可執行檔。
+## 1. 重要檔案
 
----
+- GUI 入口：`main.py`
+- 登入流程：`login.py`、`auth.py`
+- 主視窗：`main_window.py`
+- 策略設定與執行：`strategy_settings.py`、`strategy.py`、`bk_test.py`
+- 打包腳本：`build_pyinstaller.bat`
+- EXE 版本資訊：`static/version.txt`
 
-## 1. 專案目錄
+## 2. 環境需求
 
-建議專案目錄如下：
+- 作業系統：Windows
+- Python：建議 `3.10+`
+- 可使用 `pip`
 
-```
-C:\workplace\mas_exe
-├─ main.py
-├─ main_window.py
-├─ strategy_settings.py
-├─ strategy.py
-├─ bk_test.py
-├─ logo.ico
-├─ logo.png
-├─ static\
-│  └─ version.txt
-├─ mas\
-└─ dist\
-```
+## 3. 安裝相依套件
 
-## 2. 執行環境
+目前專案根目錄沒有統一的 `requirements.txt`，可先安裝目前程式碼用到的套件：
 
-### Python 版本
-
-請先確認目前使用的 Python 版本：
-
-```bash
-python --version
+```powershell
+pip install PySide6 pandas requests cryptography MetaTrader5 numpy plotly quantstats sqlalchemy python-dateutil six pyinstaller
 ```
 
-### 必要套件
+## 4. 本機執行
 
-本專案至少需安裝以下套件：
-
-```bash
-pip install PySide6 pandas python-dateutil six pyinstaller
-```
-
-若專案還有其他套件依賴，請依實際需求補充安裝。
-
-## 3. 安裝與確認 PyInstaller
-
-若系統無法直接辨識 `pyinstaller` 指令，請改用模組方式執行：
-
-```bash
-python -m PyInstaller --version
-```
-
-若尚未安裝 PyInstaller，請執行：
-
-```bash
-python -m pip install pyinstaller
-```
-
-安裝完成後再次確認：
-
-```bash
-python -m PyInstaller --version
-```
-
-例如：
-
-```
-6.19.0
-```
-
-## 4. 執行程式
-
-在專案根目錄下執行：
-
-```bash
+```powershell
 python .\main.py
 ```
 
-若可正常開啟視窗，表示基本執行環境已就緒。
+或
 
-## 5. 打包指令
+```powershell
+py .\main.py
+```
 
-目前可正常使用的打包指令如下：
+## 5. 打包 EXE（建議）
 
-```bash
+使用內建腳本：
+
+- `build_pyinstaller.bat`
+
+步驟：
+
+1. 開啟 `build_pyinstaller.bat`
+2. 只需視需求修改：
+   - `set "PROJECT_ROOT=C:\workplace\mas_exe"`
+3. 執行：
+
+```powershell
+.\build_pyinstaller.bat
+```
+
+輸出檔案：
+
+- `dist\strategy_bf6bbd37-a354-4689-91ad-e4c060ef504b.exe`
+
+## 6. 等價手動 PyInstaller 指令
+
+```powershell
 py -m PyInstaller --name "strategy_bf6bbd37-a354-4689-91ad-e4c060ef504b" --noconfirm --clean --onefile --log-level=WARN --version-file="C:\workplace\mas_exe\static\version.txt" "C:\workplace\mas_exe\main.py" --distpath "C:\workplace\mas_exe\dist" -w -i "C:\workplace\mas_exe\logo.ico" --add-binary "C:\workplace\mas_exe\logo.png;." --add-binary "C:\workplace\mas_exe\logo.ico;." --exclude-module scipy.special._cdflib --exclude-module pysqlite2 --exclude-module MySQLdb --exclude-module psycopg2
 ```
 
-## 6. 打包參數說明
+## 7. PyInstaller 參數說明
 
-### 基本參數
+- `--name "strategy_bf6bbd37-a354-4689-91ad-e4c060ef504b"`：設定輸出 EXE 名稱。
+- `--noconfirm`：覆蓋既有輸出時不再詢問。
+- `--clean`：打包前清除暫存快取（`build` 相關）。
+- `--onefile`：打包為單一 EXE 檔案。
+- `--log-level=WARN`：僅顯示警告與錯誤等級日誌，減少訊息量。
+- `--version-file="...\\static\\version.txt"`：寫入 Windows 檔案版本資訊（檔案內容、公司名、版本號等）。
+- `"C:\\workplace\\mas_exe\\main.py"`：指定程式入口腳本。
+- `--distpath "C:\\workplace\\mas_exe\\dist"`：指定最終 EXE 輸出資料夾。
+- `-w`：Windows 視窗模式，不開啟主控台視窗（適合 GUI 程式）。
+- `-i "C:\\workplace\\mas_exe\\logo.ico"`：設定 EXE 圖示。
+- `--add-binary "C:\\workplace\\mas_exe\\logo.png;."`：把 `logo.png` 一併打包到執行目錄。
+- `--add-binary "C:\\workplace\\mas_exe\\logo.ico;."`：把 `logo.ico` 一併打包到執行目錄。
+- `--exclude-module scipy.special._cdflib`：排除未使用模組以減少體積/避免衝突。
+- `--exclude-module pysqlite2`：同上，排除未使用模組。
+- `--exclude-module MySQLdb`：同上，排除未使用模組。
+- `--exclude-module psycopg2`：同上，排除未使用模組。
 
-- `--name`：指定輸出的 exe 檔名
-- `--noconfirm`：不詢問直接覆蓋舊的 build 結果
-- `--clean`：清除暫存 build 檔案
-- `--onefile`：打包成單一 exe
-- `--log-level=WARN`：僅顯示警告等級以上的訊息
-- `--version-file`：指定 Windows 可執行檔版本資訊檔
-- `--distpath`：指定輸出資料夾
-- `-w`：不開啟 console 視窗，適合 GUI 程式
-- `-i`：指定 exe 的 icon
+## 8. 常見問題
 
-### 資源檔打包
+### 8.1 錯誤：`Script file '\main.py' does not exist`
 
-- `--add-binary "C:\workplace\mas_exe\logo.png;."`
-- `--add-binary "C:\workplace\mas_exe\logo.ico;."`
+通常是 `PROJECT_ROOT` 在 `.bat` 未正確設定。請確認：
 
-將圖片與 icon 一起包入執行檔中。
+- `PROJECT_ROOT` 路徑正確
+- `.bat` 未被錯誤編碼破壞（建議維持英文註解）
 
-### 排除模組
+### 8.2 錯誤：找不到 `pyinstaller` 指令
 
-- `--exclude-module scipy.special._cdflib`
-- `--exclude-module pysqlite2`
-- `--exclude-module MySQLdb`
-- `--exclude-module psycopg2`
+先測試：
 
-排除不需要的模組，減少打包體積與不必要的分析干擾。
-
-## 7. 輸出位置
-
-打包完成後，exe 預設輸出在：
-
-```
-C:\workplace\mas_exe\dist
+```powershell
+py -m PyInstaller --version
 ```
 
-例如：
+若仍失敗：
 
-```
-C:\workplace\mas_exe\dist\strategy_bf6bbd37-a354-4689-91ad-e4c060ef504b.exe
-```
-
-## 8. version.txt 說明
-
-若使用 `--version-file`，需先建立：
-
-```
-C:\workplace\mas_exe\static\version.txt
+```powershell
+pip install pyinstaller
 ```
 
-範例如下：
+### 8.3 打包後 icon 或圖片遺失
 
-```python
-VSVersionInfo(
-  ffi=FixedFileInfo(
-    filevers=(1, 0, 0, 0),
-    prodvers=(1, 0, 0, 0),
-    mask=0x3f,
-    flags=0x0,
-    OS=0x40004,
-    fileType=0x1,
-    subtype=0x0,
-    date=(0, 0)
-  ),
-  kids=[
-    StringFileInfo(
-      [
-        StringTable(
-          '040904B0',
-          [
-            StringStruct('CompanyName', 'MAS'),
-            StringStruct('FileDescription', 'MAS Strategy EXE'),
-            StringStruct('FileVersion', '1.0.0.0'),
-            StringStruct('InternalName', 'strategy'),
-            StringStruct('OriginalFilename', 'strategy.exe'),
-            StringStruct('ProductName', 'MAS Strategy'),
-            StringStruct('ProductVersion', '1.0.0.0')
-          ]
-        )
-      ]
-    ),
-    VarFileInfo([VarStruct('Translation', [1033, 1200])])
-  ]
-)
+目前已使用：
+
+- `--add-binary "logo.png;."`
+- `--add-binary "logo.ico;."`
+
+若仍有問題，請確認檔案在專案根目錄，且程式透過 `get_resource_path(...)` 載入資源。
+
+## 9. 專案結構（簡化）
+
+```text
+mas_exe/
+|-- main.py
+|-- main_window.py
+|-- login.py
+|-- strategy_settings.py
+|-- strategy.py
+|-- bk_test.py
+|-- auth.py
+|-- check.py
+|-- i18n_strings.py
+|-- enum_setting.py
+|-- build_pyinstaller.bat
+|-- static/
+|   |-- version.txt
+|-- logo.ico
+|-- logo.png
+`-- mas/
 ```
 
-可依實際產品名稱、版本號與公司名稱進行調整。
+## 10. 備註
 
-## 9. 常見錯誤排查
-
-### 錯誤 1：找不到 pyinstaller
-
-**錯誤訊息範例：**
-
-```
-pyinstaller : 無法辨識 'pyinstaller'
-```
-
-**原因**
-
-- PyInstaller 未安裝
-- 或目前環境的 PATH 未包含對應 Scripts 路徑
-
-**解法**
-
-請改用：
-
-```bash
-python -m PyInstaller --version
-```
-
-若尚未安裝：
-
-```bash
-python -m pip install pyinstaller
-```
-
-### 錯誤 2：No module named PyInstaller
-
-**原因**
-
-目前使用的 Python 環境未安裝 PyInstaller。
-
-**解法**
-
-```bash
-python -m pip install pyinstaller
-```
-
-### 錯誤 3：找不到 logo.ico、logo.png 或 static\version.txt
-
-**原因**
-
-- 檔案不存在
-- 路徑錯誤
-- 目錄名稱不一致
-
-**解法**
-
-```bash
-dir C:\workplace\mas_exe\logo.*
-dir C:\workplace\mas_exe\static\version.txt
-```
-
-若檔案不存在，請：
-
-- 建立 `static\version.txt`
-- 放入 `logo.ico`
-- 放入 `logo.png`
-
-或先移除相關參數後再打包。
-
-### 錯誤 4：打包成功但 exe 執行失敗
-
-**可能原因**
-
-- 缺少模組
-- 缺少資源檔
-- GUI 模式下沒有 console 視窗，無法直接看到錯誤訊息
-
-**建議作法**
-
-先移除 `-w`，重新打包為可顯示 console 的版本，方便觀察實際錯誤：
-
-```bash
-py -m PyInstaller --name "strategy_test" --noconfirm --clean --onefile "C:\workplace\mas_exe\main.py" --distpath "C:\workplace\mas_exe\dist"
-```
-
-之後執行 exe，觀察錯誤內容，再決定是否補上：
-
-- `--hidden-import`
-- `--add-data`
-- `--add-binary`
-
-## 10. 建議打包流程
-
-建議依以下順序操作：
-
-1. **第一步：確認程式能正常執行**
-
-   ```bash
-   python .\main.py
-   ```
-
-2. **第二步：確認 PyInstaller 已安裝**
-
-   ```bash
-   python -m PyInstaller --version
-   ```
-
-3. **第三步：確認必要資源檔存在**
-
-   ```bash
-   dir C:\workplace\mas_exe\logo.*
-   dir C:\workplace\mas_exe\static\version.txt
-   ```
-
-4. **第四步：執行打包**
-
-   ```bash
-   py -m PyInstaller --name "strategy_bf6bbd37-a354-4689-91ad-e4c060ef504b" --noconfirm --clean --onefile --log-level=WARN --version-file="C:\workplace\mas_exe\static\version.txt" "C:\workplace\mas_exe\main.py" --distpath "C:\workplace\mas_exe\dist" -w -i "C:\workplace\mas_exe\logo.ico" --add-binary "C:\workplace\mas_exe\logo.png;." --add-binary "C:\workplace\mas_exe\logo.ico;." --exclude-module scipy.special._cdflib --exclude-module pysqlite2 --exclude-module MySQLdb --exclude-module psycopg2
-   ```
-
-5. **第五步：檢查輸出檔案**
-
-   ```bash
-   dir C:\workplace\mas_exe\dist
-   ```
-
-## 11. 最小化測試建議
-
-若執行或打包有問題，可先建立 `test_import.py` 進行最小測試：
-
-```python
-print("start")
-
-import pandas as pd
-print("pandas ok", pd.__version__)
-
-from PySide6.QtWidgets import QApplication
-print("PySide6 ok")
-
-print("all ok")
-```
-
-執行：
-
-```bash
-python .\test_import.py
-```
-
-若這支測試檔都無法執行，請先檢查 Python 環境與套件安裝狀況。
-
-## 12. 備註
-
-- 若未來需支援更多資源檔，可額外加入 `--add-data` 或 `--add-binary`
-- 若 exe 執行後提示缺模組，可再補 `--hidden-import`
-- 若 GUI 打包後沒有反應，建議先移除 `-w`，保留 console 觀察錯誤
-
-範例：
-
-```bash
-py -m PyInstaller --name "strategy_test" --noconfirm --clean --onefile "C:\workplace\mas_exe\main.py" --distpath "C:\workplace\mas_exe\dist"
-```
-
-## 13. 簡要結論
-
-本專案建議打包流程如下：
-
-- 確認 Python 環境正常
-- 確認 `main.py` 可正常執行
-- 確認 `python -m PyInstaller --version` 正常
-- 準備 `logo.ico`、`logo.png`、`static\version.txt`
-- 執行正式打包指令
-- 於 `dist` 目錄取得 exe
-- 若 exe 執行異常，先移除 `-w` 重新打包以查看錯誤訊息
+- `login.py` 的記住帳密功能使用 `QSettings` 儲存，請依安全需求評估是否保留。
+- 專案另含 `setup.py` 與 `mas/` 套件結構，後續可視需求拆分為套件發布流程。
