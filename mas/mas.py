@@ -643,16 +643,17 @@ class MAS:
 
     def get_start_date(self, to_date: str, timeframe: str, kbar_num: int) -> str:
         if timeframe != "D1":
-            raise ValueError("目前僅支援 timeframe = 'D1'")
+            to_date_obj = datetime.strptime(to_date, "%Y-%m-%d")
+            start_date = to_date_obj - timedelta(days=4)
+        else:
+            # 計算總共要回推幾天（以週為單位）
+            weeks = kbar_num // 5
+            if kbar_num % 5 != 0:
+                weeks += 1
+            delta_days = weeks * 7
 
-        # 計算總共要回推幾天（以週為單位）
-        weeks = kbar_num // 5
-        if kbar_num % 5 != 0:
-            weeks += 1
-        delta_days = weeks * 7
-
-        # 計算日期
-        to_date_obj = datetime.strptime(to_date, "%Y-%m-%d")
-        start_date = to_date_obj - timedelta(days=delta_days)
+            # 計算日期
+            to_date_obj = datetime.strptime(to_date, "%Y-%m-%d")
+            start_date = to_date_obj - timedelta(days=delta_days)
 
         return start_date.strftime("%Y-%m-%d")

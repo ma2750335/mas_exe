@@ -6,5 +6,4 @@ exe_build/
 package-lock.json
 __pycache__/
 test.py
-bk_test.py
 demo-user/
