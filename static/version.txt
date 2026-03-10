@@ -1,0 +1,28 @@
+# UTF-8 編碼，Windows VERSIONINFO 格式
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(1, 0, 0, 0),
+    prodvers=(1, 0, 0, 0),
+    mask=0x3f,
+    flags=0x0,
+    OS=0x40004,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+    ),
+  kids=[
+    StringFileInfo([
+      StringTable(
+        '040904b0',
+        [StringStruct('CompanyName', 'Mas Intelligent Technology Ltd.'),
+         StringStruct('FileDescription', 'MAS Trading Library Executable'),
+         StringStruct('FileVersion', '1.0.0'),
+         StringStruct('InternalName', 'MAS'),
+         StringStruct('LegalCopyright', '© 2025 Mas Intelligent Technology Ltd. All rights reserved.'),
+         StringStruct('OriginalFilename', 'MAS.exe'),
+         StringStruct('ProductName', 'MAS Trading Platform'),
+         StringStruct('ProductVersion', '1.0.0')])
+      ]),
+    VarFileInfo([VarStruct('Translation', [1033, 1200])])
+  ]
+)
