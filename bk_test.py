@@ -21,8 +21,6 @@ class mas_client(mas):
         self.backtest_log = backtest_log  # 回測 Log callback
 
     def receive_bars(self, symbol, data, is_end):
-        # if env_type.exe.value:
-        #     self.log(f"receive_bars :{data}")
         # 每次收到新的 bar，新增收盤價
         self.close_prices.append(data['close'])
 

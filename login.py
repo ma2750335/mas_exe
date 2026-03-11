@@ -31,16 +31,15 @@ class LoginForm(QWidget):
         self.textbox_password.setEchoMode(QLineEdit.Password)
 
         self.chk_remember = QCheckBox(get_text(LoginText.REMEBER))
-        self.chk_remember.setStyleSheet("QCheckBox::indicator{width: 13px;height: 13px;}")
         
         
 
         # ===== 登入與註冊按鈕 =====
         self.btn_login = QPushButton()
-        self.btn_login.setFixedSize(80, 32)
+        self.btn_login.setFixedSize(110, 36)
 
         self.btn_register = QPushButton()
-        self.btn_register.setFixedSize(80, 32)
+        self.btn_register.setFixedSize(110, 36)
         self.btn_register.clicked.connect(self.open_register_page)
 
         # ===== 忘記密碼連結 =====
@@ -70,9 +69,6 @@ class LoginForm(QWidget):
         # checkbox
         self.chk_terms = QCheckBox()
         self.chk_terms.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
-        self.chk_terms.setStyleSheet("""
-                                     QCheckBox::indicator{width: 15px;height: 15px;}
-                                     """)
 
         self.label_terms = QLabel(get_text(LoginText.TERMS_HTML))
         self.label_terms.setTextFormat(Qt.RichText)

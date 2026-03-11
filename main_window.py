@@ -10,33 +10,14 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setStyleSheet("""
-            QWidget {
-                background-color: #f0f2f5;
-                font-family: Arial, sans-serif;
-                font-size: 14px;
-            }
-            QLabel {
-                color: #333;
-                font-weight: bold;
-            }
             QPushButton {
                 background-color: #0078D7;
-                color: white;
-                border-radius: 5px;
-                padding: 6px 12px;
             }
             QPushButton:hover {
                 background-color: #005A9E;
             }
-            QLineEdit {
-                border: 1px solid #ccc;
-                padding: 5px;
-                border-radius: 3px;
-            }
-            QTextEdit {
-                background-color: white;
-                border: 1px solid #ccc;
-                padding: 5px;
+            QPushButton:pressed {
+                background-color: #004578;
             }
         """)
         self.setWindowTitle(get_text(MainWindowText.TITLE))
