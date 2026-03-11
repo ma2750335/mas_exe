@@ -1,8 +1,8 @@
 import bk_test
 
-def main(account=123, password="", server="",symbol="", toggle=True,log=print):
+def main(account=123, password="", server="",symbol="", toggle=True,log=print, backtest_log=None):
     try:
-        bk_test.main(account=account,password=password,server=server,symbol=symbol,toggle=toggle)
+        bk_test.main(account=account,password=password,server=server,symbol=symbol,toggle=toggle,log=log,backtest_log=backtest_log)
         return {
             'status': True
         }

@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QStackedWidget
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QStackedWidget, QLabel
 from PySide6.QtGui import QFont
 import datetime
 from strategy_settings import StrategySettingsForm
@@ -45,26 +45,44 @@ class MainWindow(QWidget):
         # 主內容切換區
         self.main_content = QStackedWidget()
 
-        # Log 視窗
+        # ====== 右側 Log 區域（上下排列）======
+        right_panel = QVBoxLayout()
+
+        # --- 上方：流程 Log ---
+        self.lbl_process_log = QLabel(get_text(MainWindowText.PROCESS_LOG_LABEL))
+        self.lbl_process_log.setFont(QFont("Arial", 11, QFont.Bold))
+        self.lbl_process_log.setStyleSheet("color: #0078D7; padding: 2px 0;")
+
         self.text_display = QTextEdit()
         self.text_display.setReadOnly(True)
         self.text_display.setPlaceholderText("這裡顯示流程或 Log 訊息...")
         self.text_display.setFixedWidth(300)
-        self.text_display.setFixedHeight(450)
         self.text_display.setFont(QFont("Courier New", 14))
 
-        # 切換按鈕
-        self.btn_toggle_view = QPushButton("切換至 Log")
-        self.btn_toggle_view.clicked.connect(self.toggle_view)
+        right_panel.addWidget(self.lbl_process_log)
+        right_panel.addWidget(self.text_display, stretch=1)
+
+        # --- 下方：回測 Log ---
+        self.lbl_backtest_log = QLabel(get_text(MainWindowText.BACKTEST_LOG_LABEL))
+        self.lbl_backtest_log.setFont(QFont("Arial", 11, QFont.Bold))
+        self.lbl_backtest_log.setStyleSheet("color: #E65100; padding: 2px 0;")
+
+        self.backtest_log_display = QTextEdit()
+        self.backtest_log_display.setReadOnly(True)
+        self.backtest_log_display.setPlaceholderText(get_text(MainWindowText.BACKTEST_LOG_PLACEHOLDER))
+        self.backtest_log_display.setFixedWidth(300)
+        self.backtest_log_display.setFont(QFont("Courier New", 12))
+
+        right_panel.addWidget(self.lbl_backtest_log)
+        right_panel.addWidget(self.backtest_log_display, stretch=1)
 
         # 佈局
         main_layout = QHBoxLayout()
         main_layout.addWidget(self.main_content, stretch=2)
-        main_layout.addWidget(self.text_display, stretch=1)
+        main_layout.addLayout(right_panel, stretch=1)
 
         bottom_layout = QVBoxLayout()
         bottom_layout.addLayout(main_layout)
-        # bottom_layout.addWidget(self.btn_toggle_view)
 
         self.setLayout(bottom_layout)
 
@@ -72,10 +90,12 @@ class MainWindow(QWidget):
         self.current_view = "process"
         self.process_log = []
         self.log_messages = []
+        self.backtest_log_messages = []
 
     def start_with_user(self, user_level, access_token, expire_date):
         """登入後呼叫此方法初始化策略畫面"""
         print(f"✅ 使用者登入成功（等級: {user_level}, 到期: {expire_date}）")
+        self.refresh_labels()
         self.load_setting_form()
 
     def load_setting_form(self):
@@ -88,6 +108,13 @@ class MainWindow(QWidget):
         """ 切換主畫面 """
         self.main_content.addWidget(new_widget)
         self.main_content.setCurrentWidget(new_widget)
+
+    def refresh_labels(self):
+        """ 切換語言時更新 Log 視窗標題 """
+        self.setWindowTitle(get_text(MainWindowText.TITLE))
+        self.lbl_process_log.setText(get_text(MainWindowText.PROCESS_LOG_LABEL))
+        self.lbl_backtest_log.setText(get_text(MainWindowText.BACKTEST_LOG_LABEL))
+        self.backtest_log_display.setPlaceholderText(get_text(MainWindowText.BACKTEST_LOG_PLACEHOLDER))
 
     def update_process_log(self, message):
         """ 更新流程紀錄 """
@@ -138,3 +165,14 @@ class MainWindow(QWidget):
             self.btn_toggle_view.setText("切換至 Log")
 
         self.update_display()
+
+    def update_backtest_log(self, message):
+        """ 更新回測 Log 視窗 """
+        timestamp = datetime.datetime.now().strftime("%H:%M:%S")
+        log_entry = f"[{timestamp}] {message}"
+        self.backtest_log_messages.append(log_entry)
+        self.backtest_log_display.setPlainText("\n".join(self.backtest_log_messages))
+
+        # 自動捲到最後
+        sb = self.backtest_log_display.verticalScrollBar()
+        sb.setValue(sb.maximum())

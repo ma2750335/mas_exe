@@ -6,7 +6,7 @@ import json
 
 
 class mas_client(mas):
-    def __init__(self, toggle ,log=print):
+    def __init__(self, toggle, log=print, backtest_log=None):
         super().__init__()
         self.close_prices = []  # 儲存收盤價
         self.hold = False       # 是否持倉
@@ -15,23 +15,23 @@ class mas_client(mas):
         self.order_id = None    # 持倉單order_id
         self.symbol = None      # 商品代碼
         self.volume = 1         # 手續
-        self.is_data_recovery = False #歷史資料回補
-        self.data_recovery_datetime = None #歷史資料最後一天回補日
+        self.is_data_recovery = False  # 歷史資料回補
+        self.data_recovery_datetime = None  # 歷史資料最後一天回補日
         self.log = log
+        self.backtest_log = backtest_log  # 回測 Log callback
 
     def receive_bars(self, symbol, data, is_end):
-        if env_type.exe.value:
-            self.log(f"receive_bars :{data}")
+        # if env_type.exe.value:
+        #     self.log(f"receive_bars :{data}")
         # 每次收到新的 bar，新增收盤價
         self.close_prices.append(data['close'])
-        
-        #在執行檔的部分，判斷回補歷史資料，不進場
+
+        # 在執行檔的部分，判斷回補歷史資料，不進場
         if env_type.exe.value:
-            if (self.data_recovery_datetime is not None) and (data['time'].date()  <= datetime.strptime(self.data_recovery_datetime, "%Y-%m-%d").date()):
+            if (self.data_recovery_datetime is not None) and (data['time'].date() <= datetime.strptime(self.data_recovery_datetime, "%Y-%m-%d").date()):
                 self.is_data_recovery = True
             else:
                 self.is_data_recovery = False
-
 
         # 若資料筆數少於10，跳過
         if len(self.close_prices) < 10:
@@ -43,9 +43,17 @@ class mas_client(mas):
         ma10 = close_series[-10:].mean()
 
         current_signal = 1 if ma5 > ma10 else -1
+        signal_label = "多方" if current_signal == 1 else "空方"
 
         # 判斷是否為回補資料
         if not self.is_data_recovery:
+            # 回測 Log：市價訊號
+            if self.backtest_log:
+                bar_time = data['time'].strftime(
+                    "%Y-%m-%d %H:%M") if hasattr(data['time'], 'strftime') else str(data['time'])
+                self.backtest_log(
+                    f"💹 Market Price | {self.symbol} | {bar_time} | close={data['close']:.5f} | MA5={ma5:.5f} | MA10={ma10:.5f} | {signal_label}")
+
             if not self.hold:
                 # 黃金交叉，進場做多
                 self.order_id = mas_c.send_order({
@@ -56,6 +64,12 @@ class mas_client(mas):
                 })
                 if env_type.exe.value:
                     self.log(f"Order Open, Order ID: {self.order_id}")
+                # 回測 Log：進場
+                if self.backtest_log:
+                    bar_time = data['time'].strftime(
+                        "%Y-%m-%d %H:%M") if hasattr(data['time'], 'strftime') else str(data['time'])
+                    self.backtest_log(
+                        f"📈 Open Order | {self.symbol} | {bar_time} | close={data['close']:.5f} | OrderID={self.order_id}")
                 self.hold = True
             elif self.hold:
                 # 死亡交叉，平倉
@@ -68,6 +82,12 @@ class mas_client(mas):
                 })
                 if env_type.exe.value:
                     self.log(f"Order Close, Order ID: {self.order_id}")
+                # 回測 Log：出場
+                if self.backtest_log:
+                    bar_time = data['time'].strftime(
+                        "%Y-%m-%d %H:%M") if hasattr(data['time'], 'strftime') else str(data['time'])
+                    self.backtest_log(
+                        f"📉 Close Order | {self.symbol} | {bar_time} | close={data['close']:.5f} | OrderID={self.order_id}")
                 self.hold = False
 
         # 更新最近一次的訊號
@@ -78,18 +98,22 @@ class mas_client(mas):
             if isinstance(data, dict) and 'data' in data:
                 print(json.dumps(data.get('data'), ensure_ascii=False))
 
-mas_c = mas_client(toggle=True,log=print)
+
+mas_c = mas_client(toggle=True, log=print)
 timeframe = "M1"
 symbol = "GOLD_"
 volume = float(1)
 
-def get_symbol():
-    return symbol   
 
-def main(account=123, password="", server="", symbol="" ,  toggle=True,log=print):
+def get_symbol():
+    return symbol
+
+
+def main(account=123, password="", server="", symbol="",  toggle=True, log=print, backtest_log=None):
     # 初始化物件
     mas_c.toggle = toggle
     mas_c.log = log
+    mas_c.backtest_log = backtest_log
     # 登入 MT5
     params = {
         "account": account,
@@ -99,7 +123,7 @@ def main(account=123, password="", server="", symbol="" ,  toggle=True,log=print
     success = mas_c.login(params)
     mas_c.symbol = symbol
     mas_c.volume = volume
-    mas_c.capital = 10000 #設定本金
+    mas_c.capital = 10000  # 設定本金
 
     # 判斷是否開啟程式前，已經進場
     if env_type.exe.value:
@@ -111,7 +135,7 @@ def main(account=123, password="", server="", symbol="" ,  toggle=True,log=print
             if p_symbol == mas_c.symbol and mas_c.volume == p_volume:
                 mas_c.hold = True
                 mas_c.order_id = p_order_id
-    
+
     # 若真實交易，請根據所有策略，判斷出需取策略所需要之最大裸K數量，並帶入至kbar
     if toggle == False:
         kbar = 10

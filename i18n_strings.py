@@ -17,6 +17,9 @@ def get_current_lang():
 class MainWindowText(Enum):
     TITLE = "MAS 交易系統"
     VERSION_PREFIX = "版本：v"
+    PROCESS_LOG_LABEL = "流程 Log"
+    BACKTEST_LOG_LABEL = "交易訊號 Log"
+    BACKTEST_LOG_PLACEHOLDER = "這裡顯示進出場與市價訊號..."
 
 
 class LoginText(Enum):
@@ -118,6 +121,9 @@ i18n_map = {
     "zh": {
         MainWindowText.TITLE: "MAS 交易系統",
         MainWindowText.VERSION_PREFIX: "版本：v",
+        MainWindowText.PROCESS_LOG_LABEL: "📝 流程 Log",
+        MainWindowText.BACKTEST_LOG_LABEL: "📊 交易訊號 Log",
+        MainWindowText.BACKTEST_LOG_PLACEHOLDER: "這裡顯示進出場與市價訊號...",
         LoginText.TITLE: "MAS 交易系統",
         LoginText.USERNAME: "帳號：",
         LoginText.PASSWORD: "密碼：",
@@ -162,6 +168,9 @@ i18n_map = {
     "en": {
         MainWindowText.TITLE: "MAS Trading System",
         MainWindowText.VERSION_PREFIX: "Version: v",
+        MainWindowText.PROCESS_LOG_LABEL: "📝 Process Log",
+        MainWindowText.BACKTEST_LOG_LABEL: "📊 Trading Signals",
+        MainWindowText.BACKTEST_LOG_PLACEHOLDER: "Entry/exit and market signals shown here...",
         LoginText.TITLE: "MAS Trading System",
         LoginText.USERNAME: "Account:",
         LoginText.PASSWORD: "Password:",

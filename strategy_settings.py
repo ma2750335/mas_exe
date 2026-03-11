@@ -12,6 +12,7 @@ from check import get_resource_path
 class StrategyWorker(QThread):
     progress_signal = Signal(str)
     result_signal = Signal(object)
+    backtest_log_signal = Signal(str)
 
     def __init__(self, account, password, server, symbol, on_stop_callback=None):
         super().__init__()
@@ -26,13 +27,15 @@ class StrategyWorker(QThread):
             return
         
         thread_safe_log = lambda m: self.progress_signal.emit(str(m))
+        thread_safe_backtest_log = lambda m: self.backtest_log_signal.emit(str(m))
         res = strategy.main(
             account=self.account,
             password=self.password,
             server=self.server,
             symbol=self.symbol,
             toggle=False,
-            log = thread_safe_log
+            log = thread_safe_log,
+            backtest_log = thread_safe_backtest_log
         )
 
         if not self.isInterruptionRequested():
@@ -191,6 +194,7 @@ class StrategySettingsForm(QWidget):
         )
         self.worker.progress_signal.connect(self.handle_worker_progress)
         self.worker.result_signal.connect(self.handle_worker_result)
+        self.worker.backtest_log_signal.connect(self.handle_backtest_log)
         self.worker.start()
 
         self.main_window.update_process_log(get_text(StrategyText.LOG_STARTED))
@@ -215,3 +219,6 @@ class StrategySettingsForm(QWidget):
             self.lbl_status.setText(get_text(StrategyText.STATUS_FAILED))
             error_msg = res.get('error')
             self.main_window.update_process_log(get_text(StrategyText.LOG_FAILED).format(error=error_msg))
+
+    def handle_backtest_log(self, msg):
+        self.main_window.update_backtest_log(msg)
