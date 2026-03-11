@@ -14,12 +14,14 @@ class StrategyWorker(QThread):
     result_signal = Signal(object)
     backtest_log_signal = Signal(str)
 
-    def __init__(self, account, password, server, symbol, on_stop_callback=None):
+    def __init__(self, account, password, server, symbol, capital=10000, volume=1, on_stop_callback=None):
         super().__init__()
         self.account = account
         self.password = password
         self.server = server
         self.symbol = symbol
+        self.capital = capital
+        self.volume = volume
         self.on_stop_callback = on_stop_callback
 
     def run(self):
@@ -33,6 +35,8 @@ class StrategyWorker(QThread):
             password=self.password,
             server=self.server,
             symbol=self.symbol,
+            capital=self.capital,
+            volume=self.volume,
             toggle=False,
             log = thread_safe_log,
             backtest_log = thread_safe_backtest_log
@@ -95,6 +99,14 @@ class StrategySettingsForm(QWidget):
         self.lbl_server.setFont(label_font)
         self.input_server = QLineEdit()
 
+        self.lbl_capital = QLabel(get_text(StrategyText.CAPITAL))
+        self.lbl_capital.setFont(label_font)
+        self.input_capital = QLineEdit("10000")
+
+        self.lbl_volume = QLabel(get_text(StrategyText.VOLUME))
+        self.lbl_volume.setFont(label_font)
+        self.input_volume = QLineEdit("1")
+
         self.chk_terms = QCheckBox()
         self.chk_terms.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
 
@@ -124,6 +136,10 @@ class StrategySettingsForm(QWidget):
         layout.addWidget(self.input_password)
         layout.addWidget(self.lbl_server)
         layout.addWidget(self.input_server)
+        layout.addWidget(self.lbl_capital)
+        layout.addWidget(self.input_capital)
+        layout.addWidget(self.lbl_volume)
+        layout.addWidget(self.input_volume)
         layout.addLayout(terms_layout)
         layout.addWidget(self.btn_start)
         layout.addWidget(self.btn_stop)
@@ -190,6 +206,8 @@ class StrategySettingsForm(QWidget):
             password=self.input_password.text(),
             server=self.input_server.text(),
             symbol=symbol,
+            capital=float(self.input_capital.text() or 10000),
+            volume=float(self.input_volume.text() or 1),
             on_stop_callback=strategy.stop_main
         )
         self.worker.progress_signal.connect(self.handle_worker_progress)

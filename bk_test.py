@@ -107,7 +107,7 @@ def get_symbol():
     return symbol
 
 
-def main(account=123, password="", server="", symbol="",  toggle=True, log=print, backtest_log=None):
+def main(account=123, password="", server="", symbol="",  capital=10000, volume=1, toggle=True, log=print, backtest_log=None):
     # 初始化物件
     mas_c.toggle = toggle
     mas_c.log = log
@@ -121,7 +121,7 @@ def main(account=123, password="", server="", symbol="",  toggle=True, log=print
     success = mas_c.login(params)
     mas_c.symbol = symbol
     mas_c.volume = volume
-    mas_c.capital = 10000  # 設定本金
+    mas_c.capital = capital
 
     # 判斷是否開啟程式前，已經進場
     if env_type.exe.value:

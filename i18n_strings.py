@@ -82,6 +82,8 @@ class StrategyText(Enum):
     LOG_SUCCESS = "✅ 策略執行中！"
     LOG_FAILED = "❌ 策略失敗：{error}"
     ERROR_SYMBOL_NOT_FOUND = "商品代碼錯誤，請輸入正確的商品代碼"
+    CAPITAL = "本金："
+    VOLUME = "手數："
 
 
 LEVEL_LABEL = {
@@ -161,6 +163,8 @@ i18n_map = {
         StrategyText.LOG_SUCCESS: "✅ 策略執行中！",
         StrategyText.LOG_FAILED: "❌ 策略失敗：{error}",
         StrategyText.ERROR_SYMBOL_NOT_FOUND: "商品代碼錯誤，請輸入正確的商品代碼",
+        StrategyText.CAPITAL: "本金：",
+        StrategyText.VOLUME: "手數：",
         StrategyText.TERMS_HTML: StrategyText.TERMS_HTML.value,
         StrategyText.FOOTER: StrategyText.FOOTER.value,
         StrategyText.DIALOG_HTML_PREFIX: StrategyText.DIALOG_HTML_PREFIX.value
@@ -212,6 +216,8 @@ Before starting automated trading, please review your MT5 EA settings in the
         StrategyText.LOG_SUCCESS: "✅ Strategy is running!",
         StrategyText.LOG_FAILED: "❌ Strategy failed: {error}",
         StrategyText.ERROR_SYMBOL_NOT_FOUND: "Symbol not found. Please enter correct symbol",
+        StrategyText.CAPITAL: "Capital:",
+        StrategyText.VOLUME: "Volume (Lots):",
         StrategyText.TERMS_HTML: f'''
         <span style="font-size:13px; color:#333;">
         I have read and agree to the <a href="{url.terms_api.value}" style="color:#d2691e; text-decoration:none;">Terms of Use</a> and 
