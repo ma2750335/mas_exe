@@ -68,11 +68,22 @@ class MarketDataManager:
         with self._lock:
             for symbol in list(self._tick_subscriptions.keys()):
                 self._tick_subscriptions[symbol] = False
+            tick_threads = list(self._tick_threads.values())
+            self._tick_threads.clear()
             print(get_text(MarketText.TICK_ALL_STOP))
+
+        for t in tick_threads:
+            t.join()
+
         with self._lock:
             for key in list(self._bar_subscriptions.keys()):
                 self._bar_subscriptions[key] = False
+            bar_threads = list(self._bar_threads.values())
+            self._bar_threads.clear()
             print(get_text(MarketText.BAR_ALL_STOP))
+
+        for t in bar_threads:
+            t.join()
 
     def subscribe_ticks(self, params: dict) -> None:
         """
@@ -151,7 +162,7 @@ class MarketDataManager:
 
         thread = threading.Thread(
             target=tick_worker,
-            daemon=False,
+            daemon=True,
             name=f"TickThread-{symbol}"
         )
         thread.start()
@@ -321,7 +332,7 @@ class MarketDataManager:
                 time.sleep(interval_ms / 1000.0)
 
         thread = threading.Thread(
-            target=bar_worker, daemon=False, name=f"BarThread-{key}")
+            target=bar_worker, daemon=True, name=f"BarThread-{key}")
         thread.start()
         with self._lock:
             self._bar_threads[key] = thread

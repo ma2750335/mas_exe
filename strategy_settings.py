@@ -221,7 +221,9 @@ class StrategySettingsForm(QWidget):
         if self.worker:
             if self.worker.on_stop_callback:
                 self.worker.on_stop_callback()
-            self.worker.terminate()
+            self.worker.wait(3000)
+            if self.worker.isRunning():
+                self.worker.terminate()
             self.worker = None
         self.lbl_status.setText(get_text(StrategyText.LOG_STOPPED))
         self.main_window.update_process_log(get_text(StrategyText.LOG_STOPPED))
