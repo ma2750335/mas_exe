@@ -30,7 +30,9 @@ class MarketDataManager:
             None
         """
         self._tick_subscriptions = {}
+        self._tick_threads = {}
         self._bar_subscriptions = {}
+        self._bar_threads = {}
         self._lock = threading.Lock()
         self._running = True
         self._started = False
@@ -153,6 +155,8 @@ class MarketDataManager:
             name=f"TickThread-{symbol}"
         )
         thread.start()
+        with self._lock:
+            self._tick_threads[symbol] = thread
 
         print(get_text(MarketText.TICK_SUBSCRIBED,
             symbol=symbol, interval=interval_ms))
@@ -195,7 +199,10 @@ class MarketDataManager:
                 print(get_text(MarketText.TICK_UNSUB_NOT_EXIST,symbol=symbol))
                 return
             self._tick_subscriptions[symbol] = False
+            thread = self._tick_threads.pop(symbol, None)
 
+        if thread is not None:
+            thread.join()
         print(get_text(MarketText.TICK_UNSUB_SUCCESS,symbol=symbol))
 
     def subscribe_bars(self, params: dict) -> None:
@@ -316,6 +323,8 @@ class MarketDataManager:
         thread = threading.Thread(
             target=bar_worker, daemon=False, name=f"BarThread-{key}")
         thread.start()
+        with self._lock:
+            self._bar_threads[key] = thread
         print(get_text(MarketText.BAR_SUBSCRIBED,
             symbol=symbol, timeframe=timeframe))
 
@@ -363,4 +372,8 @@ class MarketDataManager:
                 print(get_text(MarketText.BAR_UNSUB_NOT_EXIST,key_name=key))
                 return
             self._bar_subscriptions[key] = False
+            thread = self._bar_threads.pop(key, None)
+
+        if thread is not None:
+            thread.join()
         print(get_text(MarketText.BAR_UNSUB_SUCCESS,key_name=key))
