@@ -1,0 +1,1 @@
+py sync_from_lib.py --apply
