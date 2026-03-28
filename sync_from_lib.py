@@ -31,8 +31,7 @@ SKIP_FILES = {
     "history/history_data_to_db.py",
     "history/history_data_db.py",
     "clinet/client_post_real.py",
-    "clinet/client_post_real_bk.py",
-    "README_DS.md",
+    "clinet/client_post_real_bk.py"
 }
 
 # ── exe-specific patch ───────────────────────────────────────────────────────
