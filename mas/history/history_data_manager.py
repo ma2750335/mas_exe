@@ -1,4 +1,5 @@
 from mas.history.history_data_mt5 import HistoryData
+# from mas.history.history_data_db import HistoryData
 
 
 class HistoryDataManager:
@@ -102,3 +103,23 @@ class HistoryDataManager:
             None
         """
         return self.manager.get_history_bars(params)
+
+    def get_bars_from_pos(self, params: dict):
+        """
+        從指定位置取得固定數量的 K 線資料（使用 mt5.copy_rates_from_pos）。
+
+        Args:
+            params (dict): 需包含 symbol, timeframe, count，可選 start_pos（預設 0）。
+
+        Returns:
+            pd.DataFrame: K 線資料表格。
+
+        Retrieve a fixed number of bars starting from a given position index.
+
+        Args:
+            params (dict): Must include symbol, timeframe, count. Optional start_pos (default 0).
+
+        Returns:
+            pd.DataFrame: Bar data.
+        """
+        return self.manager.get_bars_from_pos(params)

@@ -87,8 +87,14 @@ class HistoryData:
             print(get_text(HistoryText.UNSUPPORTED_MODE, mode=mode))
         tick_mode = mode_map.get(mode, mt5.COPY_TICKS_ALL)
         timezone = pytz.timezone("Etc/UTC")
-        date_from = date_from.astimezone(timezone)
-        date_to = date_to.astimezone(timezone)
+        if date_from.tzinfo is None:
+            date_from = timezone.localize(date_from)
+        else:
+            date_from = date_from.astimezone(timezone)
+        if date_to.tzinfo is None:
+            date_to = timezone.localize(date_to)
+        else:
+            date_to = date_to.astimezone(timezone)
         ticks = mt5.copy_ticks_range(self.connection.find_symbol(
             symbol), date_from, date_to, tick_mode)
         if ticks is None:
@@ -256,21 +262,26 @@ class HistoryData:
         if data_source.empty:
             return
 
-        for idx, row in data_source.iterrows():
+        tick_cols = [c for c in ["time", "bid", "ask", "last", "volume"] if c in data_source.columns]
+        tick_records = data_source[tick_cols].to_dict("records")
+        last_idx = len(tick_records) - 1
+
+        for i, row in enumerate(tick_records):
             if self.virtual_trade:
                 self.virtual_trade.set_current_bar(symbol, row)
 
             data = {
                 "symbol": symbol,
-                "time": row["time"],
+                "time": row.get("time"),
                 "bid": row.get("bid"),
                 "ask": row.get("ask"),
                 "last": row.get("last"),
                 "volume": row.get("volume")
             }
-            is_end = idx == data_source.index[-1]
+            is_end = (i == last_idx)
             if is_end:
                 if not env_type.exe.value:
+                    self.receiver.flush_trades()
                     self.clientpost.data_is_end()
 
             self.receiver.on_tick(symbol, data, is_end)
@@ -309,7 +320,11 @@ class HistoryData:
         if data_source.empty:
             return
 
-        for idx, row in data_source.iterrows():
+        volume_col = "tick_volume" if "tick_volume" in data_source.columns else "volume"
+        bar_records = data_source[["time", "open", "high", "low", "close", volume_col]].to_dict("records")
+        last_idx = len(bar_records) - 1
+
+        for i, row in enumerate(bar_records):
             if self.virtual_trade:
                 self.virtual_trade.set_current_bar(symbol, row)
 
@@ -320,10 +335,71 @@ class HistoryData:
                 "high": row["high"],
                 "low": row["low"],
                 "close": row["close"],
-                "volume": row["tick_volume"] if "tick_volume" in row else row.get("volume")
+                "volume": row[volume_col]
             }
-            is_end = idx == data_source.index[-1]
+            is_end = (i == last_idx)
             if is_end:
                 if not env_type.exe.value:
+                    self.receiver.flush_trades()
                     self.clientpost.data_is_end()
             self.receiver.on_bar(symbol, data, is_end)
+
+    def get_bars_from_pos(self, params: dict) -> pd.DataFrame:
+        """
+        從指定起始位置取得固定數量的 K 線資料（Bar），使用 mt5.copy_rates_from_pos()。
+
+        Args:
+            params (dict): 查詢參數，需包含：
+                - symbol (str): 商品代碼。
+                - timeframe (str): K 線週期（如 "M1", "H1", "D1"）。
+                - count (int): 取得的 K 線數量。
+                - start_pos (int, optional): 起始位置，預設為 0（最新 K 線）。
+
+        Returns:
+            pd.DataFrame: K 線資料（open, high, low, close, volume 等），失敗或無資料回傳空表。
+
+        Retrieve a fixed number of bars starting from a given position using mt5.copy_rates_from_pos().
+
+        Args:
+            params (dict): Must include symbol, timeframe, count. Optional start_pos (default 0).
+
+        Returns:
+            pd.DataFrame: Bar data DataFrame. Returns empty DataFrame on failure or no data.
+        """
+        symbol = params.get("symbol")
+        timeframe = params.get("timeframe")
+        count = params.get("count")
+
+        if not all([symbol, timeframe, count]):
+            print(get_text(HistoryText.BARS_FROM_POS_MISSING_PARAMS))
+            return pd.DataFrame()
+
+        start_pos = params.get("start_pos", 0)
+
+        timeframe_map = {
+            "M1": mt5.TIMEFRAME_M1,
+            "M5": mt5.TIMEFRAME_M5,
+            "M15": mt5.TIMEFRAME_M15,
+            "M30": mt5.TIMEFRAME_M30,
+            "H1": mt5.TIMEFRAME_H1,
+            "H4": mt5.TIMEFRAME_H4,
+            "D1": mt5.TIMEFRAME_D1,
+            "W1": mt5.TIMEFRAME_W1,
+            "MN1": mt5.TIMEFRAME_MN1
+        }
+
+        mt5_tf = timeframe_map.get(timeframe.upper())
+        if mt5_tf is None:
+            return pd.DataFrame()
+
+        try:
+            real_symbol = self.connection.find_symbol(symbol)
+            rates = mt5.copy_rates_from_pos(real_symbol, mt5_tf, start_pos, int(count))
+            if rates is None or len(rates) == 0:
+                return pd.DataFrame()
+            df = pd.DataFrame(rates)
+            df["time"] = pd.to_datetime(df["time"], unit="s")
+            return df
+        except Exception as e:
+            print(get_text(HistoryText.BARS_FROM_POS_FAIL, msg=str(e)))
+            return pd.DataFrame()

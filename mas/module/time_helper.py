@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def normalize_datetime_params(params: dict) -> dict:
@@ -45,3 +45,54 @@ def normalize_datetime_params(params: dict) -> dict:
     params["from"] = parse(params.get("from"), is_to=False)
     params["to"] = parse(params.get("to"), is_to=True)
     return params
+
+
+def get_start_date(to_date: str, timeframe: str, kbar_num: int) -> str:
+    """
+    根據結束日期與K棒數量，計算回測所需的起始日期（僅支援 D1 週期）。
+
+    以每週 5 個交易日為計算基準，向前推算足夠的日曆週數，以確保涵蓋所需的 K 棒數。
+
+    Args:
+        to_date (str): 結束日期，格式為 'YYYY-MM-DD'。
+        timeframe (str): 時間週期，目前僅支援 'D1'（日線）。
+        kbar_num (int): 所需的 K 棒數量（以交易日計算）。
+
+    Returns:
+        str: 計算出的起始日期，格式為 'YYYY-MM-DD'。
+
+    Raises:
+        ValueError: 若 timeframe 不為 'D1' 則拋出例外。
+
+    Calculate the backtest start date based on the end date and required K-bar count.
+    Only D1 (daily) timeframe is currently supported.
+
+    Uses 5 trading days per week as the baseline, and advances by whole weeks to ensure
+    the required number of bars is covered.
+
+    Args:
+        to_date (str): End date in 'YYYY-MM-DD' format.
+        timeframe (str): Timeframe string; only 'D1' (daily) is currently supported.
+        kbar_num (int): Required number of K-bars (counted in trading days).
+
+    Returns:
+        str: Calculated start date in 'YYYY-MM-DD' format.
+
+    Raises:
+        ValueError: Raised if timeframe is not 'D1'.
+    """
+    if timeframe != "D1":
+            to_date_obj = datetime.strptime(to_date, "%Y-%m-%d")
+            start_date = to_date_obj - timedelta(days=4)
+    else:
+        # 計算總共要回推幾天（以週為單位）
+        weeks = kbar_num // 5
+        if kbar_num % 5 != 0:
+            weeks += 1
+        delta_days = weeks * 7
+
+        # 計算日期
+        to_date_obj = datetime.strptime(to_date, "%Y-%m-%d")
+        start_date = to_date_obj - timedelta(days=delta_days)
+
+    return start_date.strftime("%Y-%m-%d")

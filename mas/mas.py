@@ -7,8 +7,8 @@ from mas.receive.receive_manage import ReceiveManager
 from mas.provider.data_provider import DataProvider
 from mas.virtual.virtual_trade import VirtualTradeManager
 from mas.clinet.client_post import ClientPost
-from mas.lang import i18n_strings
-from datetime import datetime, timedelta
+from mas.lang.i18n_strings import set_lang as _set_lang
+from mas.module.time_helper import get_start_date as _get_start_date
 import os
 import sys
 
@@ -536,6 +536,308 @@ class MAS:
         """
         return self.account.get_positions(params)
 
+    def switch_account(self, params: dict) -> bool:
+        """
+        切換 MT5 登入帳戶。
+
+        Args:
+            params (dict): 需包含 account, password, server。
+
+        Returns:
+            bool: 切換成功回傳 True，否則 False。
+
+        Switch to a different MT5 account.
+
+        Args:
+            params (dict): Must include account, password, server.
+
+        Returns:
+            bool: True if switch succeeded, otherwise False.
+        """
+        return self.connection.switch_account(params)
+
+    def get_version(self) -> dict:
+        """
+        取得 MT5 終端版本資訊。
+
+        Returns:
+            dict: 包含 version, build, release_date 的版本字典。
+
+        Get MT5 terminal version info.
+
+        Returns:
+            dict: Contains version, build, release_date.
+        """
+        return self.connection.get_version()
+
+    def get_symbols(self, params: dict = {}) -> list:
+        """
+        取得 MT5 所有可用商品清單，可依 group 過濾。
+
+        Args:
+            params (dict): 可選 group (str)。
+
+        Returns:
+            list[dict]: 商品資訊列表。
+
+        Get all available MT5 symbols, optionally filtered by group.
+
+        Args:
+            params (dict): Optional group (str).
+
+        Returns:
+            list[dict]: List of symbol info dicts.
+        """
+        return self.connection.get_symbols(params)
+
+    def get_symbols_total(self) -> int:
+        """
+        取得 MT5 商品總數。
+
+        Returns:
+            int: 商品總數。
+
+        Get total count of available MT5 symbols.
+
+        Returns:
+            int: Total symbol count.
+        """
+        return self.connection.get_symbols_total()
+
+    def get_pending_orders(self, params: dict = {}) -> list:
+        """
+        查詢當前掛單（Pending Orders）。
+
+        Args:
+            params (dict): 可選 symbol, group, ticket。
+
+        Returns:
+            list[dict]: 掛單列表。
+
+        Retrieve current pending orders.
+
+        Args:
+            params (dict): Optional symbol, group, ticket.
+
+        Returns:
+            list[dict]: List of pending order records.
+        """
+        return self.account.get_pending_orders(params)
+
+    def get_orders_total(self) -> int:
+        """
+        取得當前掛單總數。
+
+        Returns:
+            int: 掛單數量。
+
+        Get the total count of current pending orders.
+
+        Returns:
+            int: Pending order count.
+        """
+        return self.account.get_orders_total()
+
+    def get_history_orders(self, params: dict = {}) -> list:
+        """
+        查詢歷史掛單紀錄（History Orders）。
+
+        Args:
+            params (dict): 可選 from, to, symbol, ticket, position。
+
+        Returns:
+            list[dict]: 歷史掛單列表。
+
+        Retrieve historical order records.
+
+        Args:
+            params (dict): Optional from, to, symbol, ticket, position.
+
+        Returns:
+            list[dict]: List of historical order records.
+        """
+        return self.account.get_history_orders(params)
+
+    def get_history_orders_total(self, params: dict = {}) -> int:
+        """
+        查詢指定時間區間內的歷史掛單總數。
+
+        Args:
+            params (dict): 可選 from, to。
+
+        Returns:
+            int: 歷史掛單總數。
+
+        Get total historical order count in given time range.
+
+        Args:
+            params (dict): Optional from, to.
+
+        Returns:
+            int: Total historical order count.
+        """
+        return self.account.get_history_orders_total(params)
+
+    def modify_position_sltp(self, params: dict) -> bool:
+        """
+        修改持倉的 SL/TP。
+
+        Args:
+            params (dict): 需包含 position_id，以及 sl 或 tp（至少一個）。
+
+        Returns:
+            bool: 成功回傳 True，否則 False。
+
+        Modify SL/TP of an open position.
+
+        Args:
+            params (dict): Must include position_id, and at least sl or tp.
+
+        Returns:
+            bool: True if modification succeeded, otherwise False.
+        """
+        return self.trade.modify_position_sltp(params)
+
+    def order_check(self, params: dict) -> dict:
+        """
+        預先檢查訂單是否可以執行（不實際下單）。
+
+        Args:
+            params (dict): 同 send_order 參數，必填 symbol, order_type, volume。
+
+        Returns:
+            dict: 檢查結果。
+
+        Pre-check whether an order can be executed without placing it.
+
+        Args:
+            params (dict): Same as send_order; symbol, order_type, volume required.
+
+        Returns:
+            dict: Order check result.
+        """
+        return self.trade.order_check(params)
+
+    def calc_order_margin(self, params: dict) -> float:
+        """
+        計算指定訂單所需保證金。
+
+        Args:
+            params (dict): 需包含 action, symbol, volume, price。
+
+        Returns:
+            float: 保證金金額，失敗回傳 -1.0。
+
+        Calculate required margin for an order.
+
+        Args:
+            params (dict): Must include action, symbol, volume, price.
+
+        Returns:
+            float: Required margin, -1.0 on failure.
+        """
+        return self.trade.calc_order_margin(params)
+
+    def calc_order_profit(self, params: dict) -> float:
+        """
+        計算指定訂單的預計損益。
+
+        Args:
+            params (dict): 需包含 action, symbol, volume, price_open, price_close。
+
+        Returns:
+            float: 預計損益，失敗回傳 -1.0。
+
+        Calculate estimated profit/loss for an order.
+
+        Args:
+            params (dict): Must include action, symbol, volume, price_open, price_close.
+
+        Returns:
+            float: Estimated profit/loss, -1.0 on failure.
+        """
+        return self.trade.calc_order_profit(params)
+
+    def subscribe_market_book(self, params: dict) -> bool:
+        """
+        訂閱指定商品的市場深度（DOM）。
+
+        Args:
+            params (dict): 需包含 symbol。
+
+        Returns:
+            bool: 成功回傳 True，否則 False。
+
+        Subscribe to market depth (DOM) for a symbol.
+
+        Args:
+            params (dict): Must include symbol.
+
+        Returns:
+            bool: True if subscription succeeded, otherwise False.
+        """
+        return self.market.subscribe_market_book(params)
+
+    def get_market_book(self, params: dict) -> list:
+        """
+        取得指定商品的市場深度快照。
+
+        Args:
+            params (dict): 需包含 symbol。
+
+        Returns:
+            list[dict]: 市場深度列表，失敗回傳空列表。
+
+        Get market depth snapshot for a symbol.
+
+        Args:
+            params (dict): Must include symbol.
+
+        Returns:
+            list[dict]: Market depth entries, empty list on failure.
+        """
+        return self.market.get_market_book(params)
+
+    def unsubscribe_market_book(self, params: dict) -> bool:
+        """
+        取消指定商品的市場深度訂閱。
+
+        Args:
+            params (dict): 需包含 symbol。
+
+        Returns:
+            bool: 成功回傳 True，否則 False。
+
+        Unsubscribe from market depth for a symbol.
+
+        Args:
+            params (dict): Must include symbol.
+
+        Returns:
+            bool: True if release succeeded, otherwise False.
+        """
+        return self.market.unsubscribe_market_book(params)
+
+    def get_bars_from_pos(self, params: dict):
+        """
+        從指定位置取得固定數量的 K 線資料。
+
+        Args:
+            params (dict): 需包含 symbol, timeframe, count，可選 start_pos（預設 0）。
+
+        Returns:
+            pd.DataFrame: K 線資料。
+
+        Get a fixed number of bars starting from a given position index.
+
+        Args:
+            params (dict): Must include symbol, timeframe, count. Optional start_pos.
+
+        Returns:
+            pd.DataFrame: Bar data.
+        """
+        return self.history.get_bars_from_pos(params)
+
     def get_order_history(self, params: dict) -> list:
         """
         查詢歷史成交紀錄（Deal History），可依商品與時間區間過濾。
@@ -639,21 +941,40 @@ class MAS:
         Returns:
             None: This method updates internal language state and returns nothing.
         """
-        i18n_strings.DEFAULT_LANG = lang
+        _set_lang(lang)
 
     def get_start_date(self, to_date: str, timeframe: str, kbar_num: int) -> str:
-        if timeframe != "D1":
-            to_date_obj = datetime.strptime(to_date, "%Y-%m-%d")
-            start_date = to_date_obj - timedelta(days=4)
-        else:
-            # 計算總共要回推幾天（以週為單位）
-            weeks = kbar_num // 5
-            if kbar_num % 5 != 0:
-                weeks += 1
-            delta_days = weeks * 7
+        """
+        根據結束日期與K棒數量，計算回測所需的起始日期（僅支援 D1 週期）。
 
-            # 計算日期
-            to_date_obj = datetime.strptime(to_date, "%Y-%m-%d")
-            start_date = to_date_obj - timedelta(days=delta_days)
+        以每週 5 個交易日為計算基準，向前推算足夠的日曆週數，以確保涵蓋所需的 K 棒數。
 
-        return start_date.strftime("%Y-%m-%d")
+        Args:
+            to_date (str): 結束日期，格式為 'YYYY-MM-DD'。
+            timeframe (str): 時間週期，目前僅支援 'D1'（日線）。
+            kbar_num (int): 所需的 K 棒數量（以交易日計算）。
+
+        Returns:
+            str: 計算出的起始日期，格式為 'YYYY-MM-DD'。
+
+        Raises:
+            ValueError: 若 timeframe 不為 'D1' 則拋出例外。
+
+        Calculate the backtest start date based on the end date and required K-bar count.
+        Only D1 (daily) timeframe is currently supported.
+
+        Uses 5 trading days per week as the baseline, and advances by whole weeks to ensure
+        the required number of bars is covered.
+
+        Args:
+            to_date (str): End date in 'YYYY-MM-DD' format.
+            timeframe (str): Timeframe string; only 'D1' (daily) is currently supported.
+            kbar_num (int): Required number of K-bars (counted in trading days).
+
+        Returns:
+            str: Calculated start date in 'YYYY-MM-DD' format.
+
+        Raises:
+            ValueError: Raised if timeframe is not 'D1'.
+        """
+        return _get_start_date(to_date, timeframe, kbar_num)

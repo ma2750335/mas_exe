@@ -37,8 +37,9 @@ class ReceiveManager:
         self.owner = owner
         self.clientpost = clientpost
         self.backtest_toggle = True
+        self._trade_buffer = []
 
-    def set_bakctest_toggle(self, val):
+    def set_backtest_toggle(self, val):
         """
         設定是否啟用回測模式。
 
@@ -154,6 +155,30 @@ class ReceiveManager:
         """
         if self.backtest_toggle:
             if not env_type.exe.value:
-                self.clientpost.record_trade(execution_data)
+                self._trade_buffer.append(execution_data)
         if self.owner:
             self.owner.receive_order_execution(order_id, execution_data)
+
+    def flush_trades(self) -> None:
+        """
+        將緩衝區中的所有成交紀錄批次傳送至後端，並清空緩衝區。
+
+        應在回測資料推播結束後、呼叫 data_is_end() 之前呼叫，
+        確保所有成交資料在損益計算前已完整傳送。
+
+        Returns:
+            None
+
+        Flush all buffered trade records to the backend in a single batch call, then clear the buffer.
+
+        Should be called after all backtest bars are replayed and before data_is_end(),
+        ensuring all trades are recorded before PnL calculation begins.
+
+        Returns:
+            None
+        """
+        if not self._trade_buffer:
+            return
+        batch = self._trade_buffer
+        self._trade_buffer = []
+        self.clientpost.record_trades_batch(batch)

@@ -98,7 +98,7 @@ class VirtualTradeManager:
             return ""
 
         bar = self.current_bar.get(symbol)
-        if bar is None or bar.empty:
+        if bar is None or (hasattr(bar, 'empty') and bar.empty) or len(bar) == 0:
             print(get_text(VirtualTradeText.NO_CURRENT_BAR))
             return order_id
 

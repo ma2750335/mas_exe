@@ -34,6 +34,28 @@ def get_current_lang():
     return DEFAULT_LANG
 
 
+def set_lang(lang: str = "en") -> None:
+    """
+    設定系統預設語言，影響所有訊息顯示與國際化翻譯（i18n）內容。
+
+    Args:
+        lang (str): 語言代碼，支援 'en'、'zh-tw'、'zh-cn'，預設為 'en'。
+
+    Returns:
+        None
+
+    Set the default language for system messages and internationalized (i18n) strings.
+
+    Args:
+        lang (str): Language code. Supported values: 'en', 'zh-tw', 'zh-cn'. Default is 'en'.
+
+    Returns:
+        None
+    """
+    global DEFAULT_LANG
+    DEFAULT_LANG = lang
+
+
 class ClientText(Enum):
     SERVER_ERROR = "❌ Cannot connect to MAS server. Make sure the soft is running."
     DOWNLOAD_HINT = "Or visit mindaismart.com to download MAS Soft."
@@ -51,6 +73,16 @@ class ConnectText(Enum):
     CONNECTION_OK = "[Connection Check] MT5 connection is active"
     SHUTDOWN_MSG = "[Shutdown] MT5 connection closed"
     REQUIRED_PARAM_MISSING = "{param} is a required parameter"
+    SWITCH_ACCOUNT_MISSING = "account, password, server are required to switch account"
+    SWITCH_ACCOUNT_SUCCESS = "✅ Account switched: {account}"
+    SWITCH_ACCOUNT_ERROR = "[Switch Account] Failed: {msg}"
+
+
+class AccountText(Enum):
+    GET_PENDING_ORDERS_ERROR = "[Pending Orders] Error: {msg}"
+    GET_HISTORY_ORDERS_ERROR = "[History Orders] Error: {msg}"
+    GET_ORDERS_TOTAL_ERROR = "[Orders Total] Error: {msg}"
+    GET_HISTORY_ORDERS_TOTAL_ERROR = "[History Orders Total] Error: {msg}"
 
 
 class HistoryText(Enum):
@@ -59,6 +91,8 @@ class HistoryText(Enum):
     TICK_FAIL = "[HistoryData] ❌ Failed to retrieve tick data for: {symbol}"
     NO_DATA = "[MT5] ⚠️ No data for: {symbol} {start} ~ {end}"
     COPY_FAIL = "[MT5] ❌ Failed to fetch data: {msg}"
+    BARS_FROM_POS_MISSING_PARAMS = "[HistoryData] ❌ Missing 'symbol', 'timeframe', or 'count'"
+    BARS_FROM_POS_FAIL = "[HistoryData] ❌ Failed to fetch bars from pos: {msg}"
 
 
 class MarketText(Enum):
@@ -82,6 +116,12 @@ class MarketText(Enum):
     BAR_UNSUB_NOT_EXIST = "⚠️ No valid subscription found: {key_name}"
     BAR_UNSUB_SUCCESS = "❎ Unsubscribed Bar: {key_name}"
 
+    MARKET_BOOK_NO_SYMBOL = "❌ Market book failed: missing symbol"
+    MARKET_BOOK_SUBSCRIBED = "✅ Market book subscribed: {symbol}"
+    MARKET_BOOK_RELEASED = "❎ Market book released: {symbol}"
+    MARKET_BOOK_NOT_SUBSCRIBED = "⚠️ Market book not subscribed: {symbol}"
+    MARKET_BOOK_GET_FAIL = "❌ Market book get failed: {symbol}"
+
 
 class TradeText(Enum):
     MISSING_ORDER_PARAMS = "Missing required fields: symbol/order_type/volume"
@@ -99,6 +139,15 @@ class TradeText(Enum):
     CANCEL_FAILED = "Cancel failed: {msg}"
     CANCEL_SUCCESS = "Successfully canceled order: {order_id}"
     EXCEPTION_ERROR = "Exception error: {error}"
+    SLTP_MISSING_PARAMS = "Please provide position_id and at least sl or tp"
+    SLTP_SUCCESS = "✅ SL/TP modified successfully: {order_id}"
+    SLTP_FAILED = "❌ SL/TP modify failed: {msg}"
+    ORDER_CHECK_MISSING_PARAMS = "Please provide symbol, order_type, and volume for order check"
+    ORDER_CHECK_FAIL = "❌ Order check failed: {msg}"
+    CALC_MARGIN_MISSING_PARAMS = "Please provide action, symbol, volume, and price for margin calculation"
+    CALC_MARGIN_FAIL = "❌ Margin calculation failed: {msg}"
+    CALC_PROFIT_MISSING_PARAMS = "Please provide action, symbol, volume, price_open, and price_close for profit calculation"
+    CALC_PROFIT_FAIL = "❌ Profit calculation failed: {msg}"
 
 
 class VirtualTradeText(Enum):
@@ -128,12 +177,22 @@ i18n_map = {
         ConnectText.CONNECTION_OK: "[連線檢查] MT5連線正常",
         ConnectText.SHUTDOWN_MSG: "[關閉] MT5已關閉",
         ConnectText.REQUIRED_PARAM_MISSING: "{param} 為必要參數",
+        ConnectText.SWITCH_ACCOUNT_MISSING: "account、password、server 為切換帳戶的必要參數",
+        ConnectText.SWITCH_ACCOUNT_SUCCESS: "✅ 帳戶已切換：{account}",
+        ConnectText.SWITCH_ACCOUNT_ERROR: "[切換帳戶] 失敗：{msg}",
+
+        AccountText.GET_PENDING_ORDERS_ERROR: "[掛單查詢] 錯誤：{msg}",
+        AccountText.GET_HISTORY_ORDERS_ERROR: "[歷史訂單查詢] 錯誤：{msg}",
+        AccountText.GET_ORDERS_TOTAL_ERROR: "[訂單總數] 錯誤：{msg}",
+        AccountText.GET_HISTORY_ORDERS_TOTAL_ERROR: "[歷史訂單總數] 錯誤：{msg}",
 
         HistoryText.MISSING_PARAMS: "[歷史資料] ❌ 缺少 symbol、from 或 to 參數",
         HistoryText.UNSUPPORTED_MODE: "[歷史資料] ⚠️ 不支援的模式：'{mode}'，改為 'all'",
         HistoryText.TICK_FAIL: "[歷史資料] ❌ 無法取得 Tick 資料：{symbol}",
         HistoryText.NO_DATA: "[MT5] ⚠️ 無資料：{symbol} {start} ~ {end}",
         HistoryText.COPY_FAIL: "[MT5] ❌ 擷取資料失敗：{msg}",
+        HistoryText.BARS_FROM_POS_MISSING_PARAMS: "[歷史資料] ❌ 缺少 symbol、timeframe 或 count 參數",
+        HistoryText.BARS_FROM_POS_FAIL: "[歷史資料] ❌ 從位置取得 Bar 資料失敗：{msg}",
 
         MarketText.TICK_ALL_STOP: "❎ 所有 Tick 訂閱已取消",
         MarketText.BAR_ALL_STOP: "❎ 所有 Bar 訂閱已取消",
@@ -153,6 +212,11 @@ i18n_map = {
         MarketText.BAR_UNSUB_NO_SYMBOL: "❌ 取消訂閱 Bar 失敗：缺少 symbol 或 timeframe",
         MarketText.BAR_UNSUB_NOT_EXIST: "⚠️ 無有效訂閱存在：{key_name}",
         MarketText.BAR_UNSUB_SUCCESS: "❎ 成功取消訂閱 Bar：{key_name}",
+        MarketText.MARKET_BOOK_NO_SYMBOL: "❌ 市場深度訂閱失敗：缺少 symbol",
+        MarketText.MARKET_BOOK_SUBSCRIBED: "✅ 市場深度已訂閱：{symbol}",
+        MarketText.MARKET_BOOK_RELEASED: "❎ 市場深度已取消：{symbol}",
+        MarketText.MARKET_BOOK_NOT_SUBSCRIBED: "⚠️ 市場深度未訂閱：{symbol}",
+        MarketText.MARKET_BOOK_GET_FAIL: "❌ 取得市場深度失敗：{symbol}",
 
         TradeText.MISSING_ORDER_PARAMS: "❌ 缺少必要參數 symbol/order_type/volume",
         TradeText.INIT_FAILED: "❌ 初始化失敗",
@@ -169,6 +233,15 @@ i18n_map = {
         TradeText.CANCEL_FAILED: "❌ 取消失敗：{msg}",
         TradeText.CANCEL_SUCCESS: "✅ 成功取消訂單：{order_id}",
         TradeText.EXCEPTION_ERROR: "❌ 例外錯誤: {error}",
+        TradeText.SLTP_MISSING_PARAMS: "❌ 請提供 position_id 與至少一個 sl 或 tp",
+        TradeText.SLTP_SUCCESS: "✅ SL/TP 修改成功：{order_id}",
+        TradeText.SLTP_FAILED: "❌ SL/TP 修改失敗：{msg}",
+        TradeText.ORDER_CHECK_MISSING_PARAMS: "❌ 請提供 symbol、order_type 與 volume 進行預檢查",
+        TradeText.ORDER_CHECK_FAIL: "❌ 訂單預檢查失敗：{msg}",
+        TradeText.CALC_MARGIN_MISSING_PARAMS: "❌ 請提供 action、symbol、volume 與 price 進行保證金計算",
+        TradeText.CALC_MARGIN_FAIL: "❌ 保證金計算失敗：{msg}",
+        TradeText.CALC_PROFIT_MISSING_PARAMS: "❌ 請提供 action、symbol、volume、price_open 與 price_close 進行獲利計算",
+        TradeText.CALC_PROFIT_FAIL: "❌ 獲利計算失敗：{msg}",
 
         VirtualTradeText.MISSING_SYMBOL: "❌ 缺少 symbol 參數",
         VirtualTradeText.NO_CURRENT_BAR: "⚠️ 無目前 K 棒，無法記錄下單時間",
@@ -193,12 +266,22 @@ i18n_map = {
         ConnectText.CONNECTION_OK: "[Connection Check] MT5 connection is active",
         ConnectText.SHUTDOWN_MSG: "[Shutdown] MT5 connection closed",
         ConnectText.REQUIRED_PARAM_MISSING: "{param} is a required parameter",
+        ConnectText.SWITCH_ACCOUNT_MISSING: "account, password, server are required to switch account",
+        ConnectText.SWITCH_ACCOUNT_SUCCESS: "✅ Account switched: {account}",
+        ConnectText.SWITCH_ACCOUNT_ERROR: "[Switch Account] Failed: {msg}",
+
+        AccountText.GET_PENDING_ORDERS_ERROR: "[Pending Orders] Error: {msg}",
+        AccountText.GET_HISTORY_ORDERS_ERROR: "[History Orders] Error: {msg}",
+        AccountText.GET_ORDERS_TOTAL_ERROR: "[Orders Total] Error: {msg}",
+        AccountText.GET_HISTORY_ORDERS_TOTAL_ERROR: "[History Orders Total] Error: {msg}",
 
         HistoryText.MISSING_PARAMS: "[HistoryData] ❌ Missing 'symbol', 'from', or 'to'",
         HistoryText.UNSUPPORTED_MODE: "[HistoryData] ⚠️ Unsupported mode: '{mode}', fallback to 'all'",
         HistoryText.TICK_FAIL: "[HistoryData] ❌ Failed to retrieve tick data for: {symbol}",
         HistoryText.NO_DATA: "[MT5] ⚠️ No data for: {symbol} {start} ~ {end}",
         HistoryText.COPY_FAIL: "[MT5] ❌ Failed to fetch data: {msg}",
+        HistoryText.BARS_FROM_POS_MISSING_PARAMS: "[HistoryData] ❌ Missing 'symbol', 'timeframe', or 'count'",
+        HistoryText.BARS_FROM_POS_FAIL: "[HistoryData] ❌ Failed to fetch bars from pos: {msg}",
 
         MarketText.TICK_ALL_STOP: "❎ All Tick subscriptions stopped",
         MarketText.BAR_ALL_STOP: "❎ All Bar subscriptions stopped",
@@ -218,6 +301,11 @@ i18n_map = {
         MarketText.BAR_UNSUB_NO_SYMBOL: "❌ Bar unsubscribe failed: missing symbol or timeframe",
         MarketText.BAR_UNSUB_NOT_EXIST: "⚠️ No valid subscription found: {key_name}",
         MarketText.BAR_UNSUB_SUCCESS: "❎ Unsubscribed Bar: {key_name}",
+        MarketText.MARKET_BOOK_NO_SYMBOL: "❌ Market book failed: missing symbol",
+        MarketText.MARKET_BOOK_SUBSCRIBED: "✅ Market book subscribed: {symbol}",
+        MarketText.MARKET_BOOK_RELEASED: "❎ Market book released: {symbol}",
+        MarketText.MARKET_BOOK_NOT_SUBSCRIBED: "⚠️ Market book not subscribed: {symbol}",
+        MarketText.MARKET_BOOK_GET_FAIL: "❌ Market book get failed: {symbol}",
 
         TradeText.MISSING_ORDER_PARAMS: "❌ Missing required fields: symbol/order_type/volume",
         TradeText.INIT_FAILED: "❌ Initialization failed",
@@ -234,6 +322,15 @@ i18n_map = {
         TradeText.CANCEL_FAILED: "❌ Cancel failed: {msg}",
         TradeText.CANCEL_SUCCESS: "✅ Successfully canceled order: {order_id}",
         TradeText.EXCEPTION_ERROR: "❌ Exception error: {error}",
+        TradeText.SLTP_MISSING_PARAMS: "❌ Please provide position_id and at least sl or tp",
+        TradeText.SLTP_SUCCESS: "✅ SL/TP modified successfully: {order_id}",
+        TradeText.SLTP_FAILED: "❌ SL/TP modify failed: {msg}",
+        TradeText.ORDER_CHECK_MISSING_PARAMS: "❌ Please provide symbol, order_type, and volume for order check",
+        TradeText.ORDER_CHECK_FAIL: "❌ Order check failed: {msg}",
+        TradeText.CALC_MARGIN_MISSING_PARAMS: "❌ Please provide action, symbol, volume, and price for margin calculation",
+        TradeText.CALC_MARGIN_FAIL: "❌ Margin calculation failed: {msg}",
+        TradeText.CALC_PROFIT_MISSING_PARAMS: "❌ Please provide action, symbol, volume, price_open, and price_close for profit calculation",
+        TradeText.CALC_PROFIT_FAIL: "❌ Profit calculation failed: {msg}",
 
         VirtualTradeText.MISSING_SYMBOL: "❌ Missing 'symbol' parameter",
         VirtualTradeText.NO_CURRENT_BAR: "⚠️ No current K-bar, cannot record order time",

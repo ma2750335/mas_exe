@@ -58,7 +58,7 @@ class TradeManager:
                 - comment (str): 訂單備註，預設 "MAS Order"
                 - type_time (int): 時效類型，預設 mt5.ORDER_TIME_GTC
                 - expiration (datetime): 到期時間（若為 GTT 類型才需填）
-                - type_filling (int): 撮合方式，預設 mt5.ORDER_FILLING_FOK
+                - type_filling (int): 撮合方式，預設 mt5.ORDER_FILLING_IOC
                 - order_id (int/str): 修改單用 position ID（非必填）
                 - position_by (int): 多單關聯 ID（非必填）
 
@@ -88,7 +88,7 @@ class TradeManager:
                 - comment (str): Order comment (default: "MAS Order")
                 - type_time (int): Time-in-force type (default: mt5.ORDER_TIME_GTC)
                 - expiration (datetime): Expiry time (for GTT orders)
-                - type_filling (int): Order fill mode (default: mt5.ORDER_FILLING_FOK)
+                - type_filling (int): Order fill mode (default: mt5.ORDER_FILLING_IOC)
                 - order_id (int/str): Existing position ID to modify (optional)
                 - position_by (int): Related order ID (optional)
 
@@ -375,3 +375,207 @@ class TradeManager:
         except Exception as e:
             print(get_text(TradeText.EXCEPTION_ERROR, error=str(e)))
             return False
+
+    def modify_position_sltp(self, params: dict) -> bool:
+        """
+        修改持倉部位的停損（SL）與停利（TP）價格。
+
+        Args:
+            params (dict): 修改參數：
+                - position_id (int/str): 持倉部位 ID（必填）
+                - sl (float): 停損價（與 tp 至少提供一個）
+                - tp (float): 停利價（與 sl 至少提供一個）
+
+        Returns:
+            bool: 修改成功回傳 True，否則 False。
+
+        Modify SL (stop loss) and TP (take profit) for an open position.
+
+        Args:
+            params (dict): Must include position_id and at least sl or tp.
+
+        Returns:
+            bool: True if modification succeeded, otherwise False.
+        """
+        position_id = params.get("position_id")
+        sl = params.get("sl")
+        tp = params.get("tp")
+
+        if not position_id or (sl is None and tp is None):
+            print(get_text(TradeText.SLTP_MISSING_PARAMS))
+            return False
+
+        try:
+            request = {
+                "action": mt5.TRADE_ACTION_SLTP,
+                "position": int(position_id),
+            }
+            if sl is not None:
+                request["sl"] = sl
+            if tp is not None:
+                request["tp"] = tp
+
+            result = mt5.order_send(request)
+            if result is None or result.retcode != mt5.TRADE_RETCODE_DONE:
+                msg = getattr(result, "comment", "no response") if result else "no response"
+                print(get_text(TradeText.SLTP_FAILED, msg=msg))
+                return False
+
+            print(get_text(TradeText.SLTP_SUCCESS, order_id=position_id))
+            return True
+        except Exception as e:
+            print(get_text(TradeText.EXCEPTION_ERROR, error=str(e)))
+            return False
+
+    def order_check(self, params: dict) -> dict:
+        """
+        預先檢查訂單是否可以執行（無實際下單），回傳保證金與帳戶狀態。
+
+        Args:
+            params (dict): 下單參數（同 send_order），必填 symbol, order_type, volume。
+
+        Returns:
+            dict: 檢查結果包含 retcode, balance, equity, margin 等，失敗回傳空字典。
+
+        Pre-check whether an order can be executed without actually placing it.
+
+        Args:
+            params (dict): Same fields as send_order; symbol, order_type, volume required.
+
+        Returns:
+            dict: Check result with retcode, balance, equity, margin, etc. Empty dict on failure.
+        """
+        symbol = params.get("symbol")
+        order_type = params.get("order_type")
+        volume = params.get("volume")
+
+        if not all([symbol, order_type, volume]):
+            print(get_text(TradeText.ORDER_CHECK_MISSING_PARAMS))
+            return {}
+
+        try:
+            order_type_map = {
+                "buy": mt5.ORDER_TYPE_BUY,
+                "sell": mt5.ORDER_TYPE_SELL,
+                "buy_limit": mt5.ORDER_TYPE_BUY_LIMIT,
+                "sell_limit": mt5.ORDER_TYPE_SELL_LIMIT,
+                "buy_stop": mt5.ORDER_TYPE_BUY_STOP,
+                "sell_stop": mt5.ORDER_TYPE_SELL_STOP,
+            }
+            mt5_type = order_type_map.get(order_type.lower())
+            real_symbol = self.connection.find_symbol(symbol)
+            tick = mt5.symbol_info_tick(real_symbol)
+            price = tick.ask if "buy" in order_type.lower() else tick.bid
+
+            request = {
+                "action": mt5.TRADE_ACTION_DEAL,
+                "symbol": real_symbol,
+                "volume": float(volume),
+                "type": mt5_type,
+                "price": price,
+                "deviation": params.get("deviation", 10),
+                "magic": params.get("magic", 123456),
+                "comment": params.get("comment", "MAS Check"),
+                "type_time": mt5.ORDER_TIME_GTC,
+                "type_filling": mt5.ORDER_FILLING_IOC,
+            }
+
+            result = mt5.order_check(request)
+            if result is None:
+                print(get_text(TradeText.ORDER_CHECK_FAIL, msg="no response"))
+                return {}
+
+            return {
+                "retcode": result.retcode,
+                "balance": result.balance,
+                "equity": result.equity,
+                "profit": result.profit,
+                "margin": result.margin,
+                "margin_free": result.margin_free,
+                "margin_level": result.margin_level,
+                "comment": result.comment,
+            }
+        except Exception as e:
+            print(get_text(TradeText.ORDER_CHECK_FAIL, msg=str(e)))
+            return {}
+
+    def calc_order_margin(self, params: dict) -> float:
+        """
+        計算指定訂單所需的保證金。
+
+        Args:
+            params (dict): 計算參數：action (buy/sell), symbol, volume, price。
+
+        Returns:
+            float: 所需保證金，失敗回傳 -1.0。
+
+        Calculate the required margin for a specific order.
+
+        Args:
+            params (dict): action (buy/sell), symbol, volume, price.
+
+        Returns:
+            float: Required margin, or -1.0 on failure.
+        """
+        action = params.get("action")
+        symbol = params.get("symbol")
+        volume = params.get("volume")
+        price = params.get("price")
+
+        if not all([action, symbol, volume, price]):
+            print(get_text(TradeText.CALC_MARGIN_MISSING_PARAMS))
+            return -1.0
+
+        try:
+            action_map = {"buy": mt5.ORDER_TYPE_BUY, "sell": mt5.ORDER_TYPE_SELL}
+            mt5_action = action_map.get(action.lower(), mt5.ORDER_TYPE_BUY)
+            real_symbol = self.connection.find_symbol(symbol)
+            margin = mt5.order_calc_margin(mt5_action, real_symbol, float(volume), float(price))
+            if margin is None:
+                print(get_text(TradeText.CALC_MARGIN_FAIL, msg="no response"))
+                return -1.0
+            return margin
+        except Exception as e:
+            print(get_text(TradeText.CALC_MARGIN_FAIL, msg=str(e)))
+            return -1.0
+
+    def calc_order_profit(self, params: dict) -> float:
+        """
+        計算指定訂單的預計損益。
+
+        Args:
+            params (dict): 計算參數：action (buy/sell), symbol, volume, price_open, price_close。
+
+        Returns:
+            float: 預計損益，失敗回傳 -1.0。
+
+        Calculate the estimated profit/loss for a specific order.
+
+        Args:
+            params (dict): action (buy/sell), symbol, volume, price_open, price_close.
+
+        Returns:
+            float: Estimated profit/loss, or -1.0 on failure.
+        """
+        action = params.get("action")
+        symbol = params.get("symbol")
+        volume = params.get("volume")
+        price_open = params.get("price_open")
+        price_close = params.get("price_close")
+
+        if not all([action, symbol, volume, price_open, price_close]):
+            print(get_text(TradeText.CALC_PROFIT_MISSING_PARAMS))
+            return -1.0
+
+        try:
+            action_map = {"buy": mt5.ORDER_TYPE_BUY, "sell": mt5.ORDER_TYPE_SELL}
+            mt5_action = action_map.get(action.lower(), mt5.ORDER_TYPE_BUY)
+            real_symbol = self.connection.find_symbol(symbol)
+            profit = mt5.order_calc_profit(mt5_action, real_symbol, float(volume), float(price_open), float(price_close))
+            if profit is None:
+                print(get_text(TradeText.CALC_PROFIT_FAIL, msg="no response"))
+                return -1.0
+            return profit
+        except Exception as e:
+            print(get_text(TradeText.CALC_PROFIT_FAIL, msg=str(e)))
+            return -1.0

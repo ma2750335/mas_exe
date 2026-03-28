@@ -118,6 +118,17 @@ class ClientPost():
         """
         return self.client.gen_data_report()
 
+    def record_trades_batch(self, trades: list):
+        """
+        批次傳送所有緩衝交易紀錄至後端，取代逐筆 record_trade 呼叫。
+
+        Flush all buffered trade records to the backend as a single batch.
+
+        Args:
+            trades (list): 成交資料列表。List of trade record dicts.
+        """
+        return self.client.record_trades_batch(trades)
+
     def set_spread_fee(self, data):
         """
         傳送商品點差與費用設定至後端模組。

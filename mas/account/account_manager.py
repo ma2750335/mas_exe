@@ -3,6 +3,7 @@ from datetime import datetime
 from mas.module.time_helper import normalize_datetime_params
 from mas.module.base import clean_symbol
 from mas.connection.connection import ConnectionManager
+from mas.lang.i18n_strings import get_text, AccountText
 
 
 class AccountManager:
@@ -41,7 +42,7 @@ class AccountManager:
         """
 
         if not mt5.initialize():
-            raise RuntimeError("無法初始化 MT5，請確認終端啟動")
+            raise RuntimeError("MT5 initialization failed. Please ensure the terminal is running.")
 
     def get_account_info(self) -> dict:
         """
@@ -201,7 +202,7 @@ class AccountManager:
         Returns:
             list[dict]: Each item is a full deal record. Returns an empty list if no data is found.
         """
-        if params.get("from") != None and params.get("from") != None: 
+        if params.get("from") is not None and params.get("to") is not None:
             params = normalize_datetime_params(params)
         date_from = params.get("from", datetime(2000, 1, 1,0,0,1))
         date_to = params.get("to", datetime.now())
@@ -218,7 +219,6 @@ class AccountManager:
             )
         else:
             if symbol != None:
-                print("have")
                 real_symbol = self.connection.find_symbol(symbol)
                 deals = mt5.history_deals_get(
                     date_from,
@@ -259,3 +259,178 @@ class AccountManager:
             })
 
         return result
+
+    def get_pending_orders(self, params: dict = {}) -> list:
+        """
+        查詢當前所有掛單（Pending Orders），可依商品、群組或單號過濾。
+
+        Args:
+            params (dict): 查詢參數，可包含 symbol、group、ticket。
+
+        Returns:
+            list[dict]: 每筆為掛單資訊，若無資料則回傳空列表。
+
+        Retrieve current pending orders, optionally filtered by symbol, group, or ticket.
+
+        Args:
+            params (dict): Supported keys: symbol, group, ticket.
+
+        Returns:
+            list[dict]: Each item is a pending order record. Returns empty list if no data.
+        """
+        try:
+            symbol = params.get("symbol", "")
+            group = params.get("group", "")
+            ticket = params.get("ticket")
+
+            if symbol:
+                real_symbol = self.connection.find_symbol(symbol)
+                orders = mt5.orders_get(symbol=real_symbol)
+            elif group:
+                orders = mt5.orders_get(group=group)
+            elif ticket:
+                orders = mt5.orders_get(ticket=int(ticket))
+            else:
+                orders = mt5.orders_get()
+
+            if orders is None:
+                return []
+
+            result = []
+            for o in orders:
+                result.append({
+                    "ticket": o.ticket,
+                    "symbol": clean_symbol(o.symbol),
+                    "type": o.type,
+                    "volume_initial": o.volume_initial,
+                    "volume_current": o.volume_current,
+                    "price_open": o.price_open,
+                    "sl": o.sl,
+                    "tp": o.tp,
+                    "price_current": o.price_current,
+                    "price_stoplimit": o.price_stoplimit,
+                    "comment": o.comment,
+                    "magic": o.magic,
+                    "reason": o.reason,
+                    "time_setup": datetime.fromtimestamp(o.time_setup),
+                    "time_expiration": datetime.fromtimestamp(o.time_expiration) if o.time_expiration else None,
+                    "time_done": datetime.fromtimestamp(o.time_done) if o.time_done else None,
+                })
+            return result
+        except Exception as e:
+            print(get_text(AccountText.GET_PENDING_ORDERS_ERROR, msg=str(e)))
+            return []
+
+    def get_orders_total(self) -> int:
+        """
+        取得當前掛單總數。
+
+        Returns:
+            int: 掛單數量，失敗時回傳 0。
+
+        Get the total number of current pending orders.
+
+        Returns:
+            int: Number of pending orders, 0 on failure.
+        """
+        try:
+            total = mt5.orders_total()
+            return total if total is not None else 0
+        except Exception as e:
+            print(get_text(AccountText.GET_ORDERS_TOTAL_ERROR, msg=str(e)))
+            return 0
+
+    def get_history_orders(self, params: dict = {}) -> list:
+        """
+        查詢歷史掛單紀錄（History Orders），可依時間區間、商品或單號過濾。
+
+        Args:
+            params (dict): 查詢參數，可包含 from、to、symbol、ticket、position。
+
+        Returns:
+            list[dict]: 每筆為歷史掛單資訊，若無資料則回傳空列表。
+
+        Retrieve historical order records with optional filters.
+
+        Args:
+            params (dict): Supported keys: from, to, symbol, ticket, position.
+
+        Returns:
+            list[dict]: Each item is a historical order record. Returns empty list if no data.
+        """
+        try:
+            if params.get("from") is not None and params.get("to") is not None:
+                params = normalize_datetime_params(params)
+            date_from = params.get("from", datetime(2000, 1, 1, 0, 0, 1))
+            date_to = params.get("to", datetime.now())
+            symbol = params.get("symbol")
+            ticket = params.get("ticket")
+            position = params.get("position")
+
+            if ticket is not None:
+                orders = mt5.history_orders_get(ticket=int(ticket))
+            elif position is not None:
+                orders = mt5.history_orders_get(position=int(position))
+            elif symbol is not None:
+                real_symbol = self.connection.find_symbol(symbol)
+                orders = mt5.history_orders_get(date_from, date_to, group=real_symbol)
+            else:
+                orders = mt5.history_orders_get(date_from, date_to)
+
+            if orders is None:
+                return []
+
+            result = []
+            for o in orders:
+                result.append({
+                    "ticket": o.ticket,
+                    "symbol": clean_symbol(o.symbol),
+                    "type": o.type,
+                    "volume_initial": o.volume_initial,
+                    "volume_current": o.volume_current,
+                    "price_open": o.price_open,
+                    "sl": o.sl,
+                    "tp": o.tp,
+                    "price_current": o.price_current,
+                    "price_stoplimit": o.price_stoplimit,
+                    "comment": o.comment,
+                    "magic": o.magic,
+                    "reason": o.reason,
+                    "state": o.state,
+                    "time_setup": datetime.fromtimestamp(o.time_setup),
+                    "time_expiration": datetime.fromtimestamp(o.time_expiration) if o.time_expiration else None,
+                    "time_done": datetime.fromtimestamp(o.time_done) if o.time_done else None,
+                })
+            return result
+        except Exception as e:
+            print(get_text(AccountText.GET_HISTORY_ORDERS_ERROR, msg=str(e)))
+            return []
+
+    def get_history_orders_total(self, params: dict = {}) -> int:
+        """
+        查詢指定時間區間內的歷史掛單總數。
+
+        Args:
+            params (dict): 查詢參數，可包含 from（起始時間）與 to（結束時間）。
+
+        Returns:
+            int: 歷史掛單總數，失敗時回傳 0。
+
+        Get total number of historical orders in the given time range.
+
+        Args:
+            params (dict): Supported keys: from, to.
+
+        Returns:
+            int: Total historical order count, 0 on failure.
+        """
+        try:
+            if params.get("from") is not None and params.get("to") is not None:
+                params = normalize_datetime_params(params)
+            date_from = params.get("from", datetime(2000, 1, 1, 0, 0, 1))
+            date_to = params.get("to", datetime.now())
+            total = mt5.history_orders_total(date_from, date_to)
+            return total if total is not None else 0
+        except Exception as e:
+            print(get_text(AccountText.GET_HISTORY_ORDERS_TOTAL_ERROR, msg=str(e)))
+            return 0

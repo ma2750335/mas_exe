@@ -62,7 +62,7 @@ class DataProvider:
         """
         params = normalize_datetime_params(params)
         backtest_toggle = params.get("backtest_toggle")
-        self.receiver.set_bakctest_toggle(backtest_toggle)
+        self.receiver.set_backtest_toggle(backtest_toggle)
 
         if backtest_toggle:
             if not env_type.exe.value:
@@ -98,7 +98,7 @@ class DataProvider:
         """
         params = normalize_datetime_params(params)
         backtest_toggle = params.get("backtest_toggle")
-        self.receiver.set_bakctest_toggle(backtest_toggle)
+        self.receiver.set_backtest_toggle(backtest_toggle)
         if backtest_toggle:
             if not env_type.exe.value:
                 self.clientpost.check_server()
@@ -171,7 +171,7 @@ class DataProvider:
             str: Order ID or response message.
         """
         backtest_toggle = params.get("backtest_toggle")
-        self.receiver.set_bakctest_toggle(backtest_toggle)
+        self.receiver.set_backtest_toggle(backtest_toggle)
         if backtest_toggle:
             return self.virtual_trade.send_order(params)
         else:

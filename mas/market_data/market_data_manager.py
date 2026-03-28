@@ -69,21 +69,25 @@ class MarketDataManager:
             for symbol in list(self._tick_subscriptions.keys()):
                 self._tick_subscriptions[symbol] = False
             tick_threads = list(self._tick_threads.values())
-            self._tick_threads.clear()
-            print(get_text(MarketText.TICK_ALL_STOP))
 
         for t in tick_threads:
             t.join()
 
         with self._lock:
+            self._tick_threads.clear()
+            print(get_text(MarketText.TICK_ALL_STOP))
+
+        with self._lock:
             for key in list(self._bar_subscriptions.keys()):
                 self._bar_subscriptions[key] = False
             bar_threads = list(self._bar_threads.values())
-            self._bar_threads.clear()
-            print(get_text(MarketText.BAR_ALL_STOP))
 
         for t in bar_threads:
             t.join()
+
+        with self._lock:
+            self._bar_threads.clear()
+            print(get_text(MarketText.BAR_ALL_STOP))
 
     def subscribe_ticks(self, params: dict) -> None:
         """
@@ -299,13 +303,12 @@ class MarketDataManager:
 
         def bar_worker():
             last_time = None
+            if not backtest_toggle:
+                if not mt5.initialize():
+                    print(get_text(MarketText.BAR_INIT_FAIL))
+                    return
             while self._bar_subscriptions.get(key, False) and self._running:
                 try:
-                    if not backtest_toggle:
-                        if not mt5.initialize():
-                            print(get_text(MarketText.BAR_INIT_FAIL))
-                            break
-
                     real_symbol = self.connection.find_symbol(symbol)
                     bars = mt5.copy_rates_from(
                         real_symbol, mt5_tf, datetime.now(), 3)
@@ -388,3 +391,102 @@ class MarketDataManager:
         if thread is not None:
             thread.join()
         print(get_text(MarketText.BAR_UNSUB_SUCCESS,key_name=key))
+
+    def subscribe_market_book(self, params: dict) -> bool:
+        """
+        訂閱指定商品的市場深度（Market Book / DOM）。
+
+        Args:
+            params (dict): 需包含 symbol (str)。
+
+        Returns:
+            bool: 訂閱成功回傳 True，否則 False。
+
+        Subscribe to market depth (DOM) for the specified symbol.
+
+        Args:
+            params (dict): Must include symbol (str).
+
+        Returns:
+            bool: True if subscription succeeded, otherwise False.
+        """
+        symbol = params.get("symbol")
+        if not symbol:
+            print(get_text(MarketText.MARKET_BOOK_NO_SYMBOL))
+            return False
+
+        real_symbol = self.connection.find_symbol(symbol)
+        result = mt5.market_book_add(real_symbol)
+        if result:
+            print(get_text(MarketText.MARKET_BOOK_SUBSCRIBED, symbol=symbol))
+        return result
+
+    def get_market_book(self, params: dict) -> list:
+        """
+        取得指定商品的市場深度快照（Market Book）。
+
+        Args:
+            params (dict): 需包含 symbol (str)。
+
+        Returns:
+            list[dict]: 市場深度資料列表（bid/ask 各層報價），若失敗回傳空列表。
+
+        Get a snapshot of market depth (DOM) for the specified symbol.
+
+        Args:
+            params (dict): Must include symbol (str).
+
+        Returns:
+            list[dict]: List of market depth entries. Returns empty list on failure.
+        """
+        symbol = params.get("symbol")
+        if not symbol:
+            print(get_text(MarketText.MARKET_BOOK_NO_SYMBOL))
+            return []
+
+        real_symbol = self.connection.find_symbol(symbol)
+        book = mt5.market_book_get(real_symbol)
+        if book is None:
+            print(get_text(MarketText.MARKET_BOOK_GET_FAIL, symbol=symbol))
+            return []
+
+        return [
+            {
+                "type": entry.type,
+                "price": entry.price,
+                "volume": entry.volume,
+                "volume_dbl": entry.volume_dbl,
+            }
+            for entry in book
+        ]
+
+    def unsubscribe_market_book(self, params: dict) -> bool:
+        """
+        取消指定商品的市場深度訂閱。
+
+        Args:
+            params (dict): 需包含 symbol (str)。
+
+        Returns:
+            bool: 取消成功回傳 True，否則 False。
+
+        Unsubscribe from market depth (DOM) for the specified symbol.
+
+        Args:
+            params (dict): Must include symbol (str).
+
+        Returns:
+            bool: True if release succeeded, otherwise False.
+        """
+        symbol = params.get("symbol")
+        if not symbol:
+            print(get_text(MarketText.MARKET_BOOK_NO_SYMBOL))
+            return False
+
+        real_symbol = self.connection.find_symbol(symbol)
+        result = mt5.market_book_release(real_symbol)
+        if result:
+            print(get_text(MarketText.MARKET_BOOK_RELEASED, symbol=symbol))
+        else:
+            print(get_text(MarketText.MARKET_BOOK_NOT_SUBSCRIBED, symbol=symbol))
+        return result
