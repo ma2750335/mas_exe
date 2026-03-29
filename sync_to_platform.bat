@@ -1,0 +1,1 @@
+py sync_to_platform.py --apply
