@@ -5,6 +5,7 @@ from PySide6.QtGui import QPixmap, QIcon, QFont
 from PySide6.QtCore import QThread, Signal, Qt, QSettings
 from i18n_strings import get_text
 from i18n_strings import StrategyText
+import MetaTrader5 as mt5
 import strategy
 import check_symbol
 from check import get_resource_path
@@ -50,21 +51,35 @@ class ConfirmDialog(QDialog):
     def __init__(self, strategies, input_login_id, input_password, input_server):
         super().__init__()
         self.setWindowTitle(get_text(StrategyText.DIALOG_TITLE))
-        self.resize(350, 250)
+        self.resize(400, 300)
         html = get_text(StrategyText.DIALOG_HTML_PREFIX).format(account=input_login_id, server=input_server)
         self.lbl_info = QLabel(html)
         label_font = QFont("Arial", 12)
         self.lbl_info.setFont(label_font)
 
+        self.chk_risk = QCheckBox()
+        self.chk_risk.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
+        self.label_risk = QLabel(get_text(StrategyText.DIALOG_RISK_HTML))
+        self.label_risk.setTextFormat(Qt.RichText)
+        self.label_risk.setWordWrap(True)
+        self.label_risk.setStyleSheet("font-size:13px; padding-left: 4px;")
+
+        risk_layout = QHBoxLayout()
+        risk_layout.addWidget(self.chk_risk)
+        risk_layout.addWidget(self.label_risk)
+
         self.btn_confirm = QPushButton(get_text(StrategyText.DIALOG_CONFIRM))
+        self.btn_confirm.setEnabled(False)
         self.btn_cancel = QPushButton(get_text(StrategyText.DIALOG_CANCEL))
 
         layout = QVBoxLayout()
         layout.addWidget(self.lbl_info)
+        layout.addLayout(risk_layout)
         layout.addWidget(self.btn_confirm)
         layout.addWidget(self.btn_cancel)
         self.setLayout(layout)
 
+        self.chk_risk.toggled.connect(self.btn_confirm.setEnabled)
         self.btn_confirm.clicked.connect(self.accept)
         self.btn_cancel.clicked.connect(self.reject)
 
@@ -168,7 +183,41 @@ class StrategySettingsForm(QWidget):
         self.main_window.update_process_log(get_text(StrategyText.LOG_DIALOG))
         confirm_dialog = ConfirmDialog(self.selected_strategies, input_login_id, input_password, input_server)
         if confirm_dialog.exec():
+            if not self.check_trade_expert_enabled(input_login_id, input_password, input_server):
+                return
             self.check_symbol(symbol="")
+
+    def show_trade_expert_warning(self):
+        msg_box = QMessageBox(self)
+        msg_box.setIcon(QMessageBox.Warning)
+        msg_box.setWindowTitle(get_text(StrategyText.ERROR_TITLE))
+        msg_box.setTextFormat(Qt.RichText)
+        msg_box.setText(get_text(StrategyText.ERROR_TRADE_EXPERT_DISABLED_HTML))
+        msg_box.exec()
+
+    def check_trade_expert_enabled(self, account, password, server):
+        try:
+            if not mt5.initialize(login=int(account), password=password, server=server, timeout=6000):
+                self.show_trade_expert_warning()
+                return False
+
+            terminal_info = mt5.terminal_info()
+            if terminal_info is None or not terminal_info.trade_allowed:
+                mt5.shutdown()
+                self.show_trade_expert_warning()
+                return False
+
+            account_info = mt5.account_info()
+            if account_info is None or not account_info.trade_expert:
+                mt5.shutdown()
+                self.show_trade_expert_warning()
+                return False
+
+            mt5.shutdown()
+            return True
+        except Exception as e:
+            self.show_trade_expert_warning()
+            return False
 
 
     def check_symbol(self,symbol=""):

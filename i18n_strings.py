@@ -15,7 +15,7 @@ def get_current_lang():
 
 
 class MainWindowText(Enum):
-    TITLE = "MAS 交易系統"
+    TITLE = "MasQuant 交易系統"
     VERSION_PREFIX = "版本：v"
     PROCESS_LOG_LABEL = "流程 Log"
     BACKTEST_LOG_LABEL = "交易訊號 Log"
@@ -23,7 +23,7 @@ class MainWindowText(Enum):
 
 
 class LoginText(Enum):
-    TITLE = "MAS 交易系統"
+    TITLE = "MasQuant 交易系統"
     USERNAME = "帳號："
     PASSWORD = "密碼："
     LOGIN_BUTTON = "登入"
@@ -60,7 +60,7 @@ class StrategyText(Enum):
     START = "開始執行"
     STOP = "停止"
     STATUS_IDLE = "狀態：未執行"
-    FOOTER = '''<span style="font-size:13px; color:#666;">🚀 點我升級 MAS，立即創造更多專業策略：<a href="https://mas.mindaismart.com/plans" style="color:#0078D7;">前往升級</a></span>'''
+    FOOTER = '''<span style="font-size:13px; color:#666;">🚀 點我升級 MasQuant，立即創造更多專業策略：<a href="https://mas.mindaismart.com/plans" style="color:#0078D7;">前往升級</a></span>'''
     ERROR_TITLE = "錯誤"
     ERROR_INPUT_REQUIRED = "請填寫所有設定值！"
     ERROR_TERMS_REQUIRED = "請先勾選同意條款與政策才能執行策略。"
@@ -72,6 +72,7 @@ class StrategyText(Enum):
     """
     DIALOG_CONFIRM = "確認執行"
     DIALOG_CANCEL = "取消"
+    DIALOG_RISK_HTML = "risk_notice"
     LOG_OPENED = "🛠 開啟策略設定畫面"
     LOG_DIALOG = "📌 顯示交易確認視窗"
     LOG_STARTED = "🚀 策略開始執行"
@@ -82,6 +83,8 @@ class StrategyText(Enum):
     LOG_SUCCESS = "✅ 策略執行中！"
     LOG_FAILED = "❌ 策略失敗：{error}"
     ERROR_SYMBOL_NOT_FOUND = "商品代碼錯誤，請輸入正確的商品代碼"
+    ERROR_TRADE_EXPERT_DISABLED = "MT5 尚未開啟「允許算法交易」，請先至 MT5 開啟設定後再執行策略。"
+    ERROR_TRADE_EXPERT_DISABLED_HTML = "trade_expert_disabled_html"
     CAPITAL = "本金："
     VOLUME = "手數："
 
@@ -121,12 +124,12 @@ LEVEL_ICON = {
 
 i18n_map = {
     "zh": {
-        MainWindowText.TITLE: "MAS 交易系統",
+        MainWindowText.TITLE: "MasQuant 交易系統",
         MainWindowText.VERSION_PREFIX: "版本：v",
         MainWindowText.PROCESS_LOG_LABEL: "📝 流程 Log",
         MainWindowText.BACKTEST_LOG_LABEL: "📊 交易訊號 Log",
         MainWindowText.BACKTEST_LOG_PLACEHOLDER: "這裡顯示進出場與市價訊號...",
-        LoginText.TITLE: "MAS 交易系統",
+        LoginText.TITLE: "MasQuant 交易系統",
         LoginText.USERNAME: "帳號：",
         LoginText.PASSWORD: "密碼：",
         LoginText.LOGIN_BUTTON: "登入",
@@ -153,6 +156,7 @@ i18n_map = {
         StrategyText.DIALOG_TITLE: "確認交易設定",
         StrategyText.DIALOG_CONFIRM: "確認執行",
         StrategyText.DIALOG_CANCEL: "取消",
+        StrategyText.DIALOG_RISK_HTML: '<span style="font-size:13px; color:#333;">我已了解：當程式關閉、網路斷線、電腦關機或斷電時，程式交易將自動停止，未平倉部位需自行處理。</span>',
         StrategyText.LOG_OPENED: "🛠 開啟策略設定畫面",
         StrategyText.LOG_DIALOG: "📌 顯示交易確認視窗",
         StrategyText.LOG_STARTED: "🚀 策略開始執行",
@@ -163,6 +167,8 @@ i18n_map = {
         StrategyText.LOG_SUCCESS: "✅ 策略執行中！",
         StrategyText.LOG_FAILED: "❌ 策略失敗：{error}",
         StrategyText.ERROR_SYMBOL_NOT_FOUND: "商品代碼錯誤，請輸入正確的商品代碼",
+        StrategyText.ERROR_TRADE_EXPERT_DISABLED: "MT5 尚未開啟「允許算法交易」，請先至 MT5 開啟設定後再執行策略。",
+        StrategyText.ERROR_TRADE_EXPERT_DISABLED_HTML: f'MT5 尚未開啟「允許算法交易」，請先至 MT5 開啟設定後再執行策略。<br>操作設定請參考：<a href="{url.terms_ea_setting.value}">操作設定</a>',
         StrategyText.CAPITAL: "本金：",
         StrategyText.VOLUME: "手數：",
         StrategyText.TERMS_HTML: StrategyText.TERMS_HTML.value,
@@ -170,12 +176,12 @@ i18n_map = {
         StrategyText.DIALOG_HTML_PREFIX: StrategyText.DIALOG_HTML_PREFIX.value
     },
     "en": {
-        MainWindowText.TITLE: "MAS Trading System",
+        MainWindowText.TITLE: "MasQuant Trading System",
         MainWindowText.VERSION_PREFIX: "Version: v",
         MainWindowText.PROCESS_LOG_LABEL: "📝 Process Log",
         MainWindowText.BACKTEST_LOG_LABEL: "📊 Trading Signals",
         MainWindowText.BACKTEST_LOG_PLACEHOLDER: "Entry/exit and market signals shown here...",
-        LoginText.TITLE: "MAS Trading System",
+        LoginText.TITLE: "MasQuant Trading System",
         LoginText.USERNAME: "Account:",
         LoginText.PASSWORD: "Password:",
         LoginText.LOGIN_BUTTON: "Login",
@@ -206,6 +212,7 @@ Before starting automated trading, please review your MT5 EA settings in the
         StrategyText.DIALOG_TITLE: "Confirm Strategy Execution",
         StrategyText.DIALOG_CONFIRM: "Confirm",
         StrategyText.DIALOG_CANCEL: "Cancel",
+        StrategyText.DIALOG_RISK_HTML: '<span style="font-size:13px; color:#333;">I understand that automated trading will stop if the application is closed, the network is disconnected, or the computer shuts down. Any open positions must be managed manually.</span>',
         StrategyText.LOG_OPENED: "🛠 Opened Strategy Settings",
         StrategyText.LOG_DIALOG: "📌 Showing strategy confirmation dialog",
         StrategyText.LOG_STARTED: "🚀 Strategy execution started",
@@ -216,6 +223,8 @@ Before starting automated trading, please review your MT5 EA settings in the
         StrategyText.LOG_SUCCESS: "✅ Strategy is running!",
         StrategyText.LOG_FAILED: "❌ Strategy failed: {error}",
         StrategyText.ERROR_SYMBOL_NOT_FOUND: "Symbol not found. Please enter correct symbol",
+        StrategyText.ERROR_TRADE_EXPERT_DISABLED: "MT5 'Algo Trading' is not enabled. Please enable it in MT5 settings before running the strategy.",
+        StrategyText.ERROR_TRADE_EXPERT_DISABLED_HTML: f'MT5 "Algo Trading" is not enabled. Please enable it in MT5 settings before running the strategy.<br>Setup guide: <a href="{url.terms_ea_setting.value}">Setup Guide</a>',
         StrategyText.CAPITAL: "Capital:",
         StrategyText.VOLUME: "Volume (Lots):",
         StrategyText.TERMS_HTML: f'''
@@ -224,7 +233,7 @@ Before starting automated trading, please review your MT5 EA settings in the
         <a href="{url.terms_disclaimer.value}" style="color:#d2691e; text-decoration:none;">Disclaimer</a>
         </span>
         ''',
-        StrategyText.FOOTER: '''<span style="font-size:13px; color:#666;">🚀 Upgrade to MAS for more professional strategies: <a href="https://mas.mindaismart.com/plans" style="color:#0078D7;">Upgrade Now</a></span>''',
+        StrategyText.FOOTER: '''<span style="font-size:13px; color:#666;">🚀 Upgrade to MasQuant for more professional strategies: <a href="https://mas.mindaismart.com/plans" style="color:#0078D7;">Upgrade Now</a></span>''',
         StrategyText.DIALOG_HTML_PREFIX: '''
         <b>Please confirm strategy settings:</b><br>
         <b>Account:</b> {account}<br>
