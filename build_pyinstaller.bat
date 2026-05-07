@@ -29,6 +29,7 @@ py -m PyInstaller ^
   -i "%ICON_FILE%" ^
   --add-binary "%LOGO_PNG%;." ^
   --add-binary "%LOGO_ICO%;." ^
+  --hidden-import MetaTrader5 ^
   --exclude-module scipy.special._cdflib ^
   --exclude-module pysqlite2 ^
   --exclude-module MySQLdb ^
