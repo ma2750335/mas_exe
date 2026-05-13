@@ -56,6 +56,8 @@ class CheckText(Enum):
     UPGRADE_REQUIRED_BODY = "upgrade_required_body"
     SUBSCRIPTION_EXPIRED_TITLE = "訂閱已過期"
     SUBSCRIPTION_EXPIRED_BODY = "subscription_expired_body"
+    SESSION_DUPLICATE_TITLE = "重複登入"
+    SESSION_DUPLICATE_BODY = "session_duplicate_body"
 
 
 class StrategyText(Enum):
@@ -167,6 +169,8 @@ i18n_map = {
         CheckText.UPGRADE_REQUIRED_BODY: f'您目前的會員等級無法使用此功能。<br>請前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官網</a> 升級會員，解鎖完整功能與專業策略。',
         CheckText.SUBSCRIPTION_EXPIRED_TITLE: "訂閱已過期",
         CheckText.SUBSCRIPTION_EXPIRED_BODY: f'您的訂閱已過期，目前無法使用付費功能。<br>請前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官網</a> 續訂方案，繼續享有完整服務。',
+        CheckText.SESSION_DUPLICATE_TITLE: "重複登入",
+        CheckText.SESSION_DUPLICATE_BODY: f'本機已開啟此帳號的 MasQuant 交易系統。<br><br>為避免策略衝突與重複下單風險，目前同一帳號在同一台電腦上僅能開啟一個視窗。<br>請先關閉現有視窗後再試一次。<br><br>若您需要同時部署多個視窗執行策略，請前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官網</a> 升級會員等級以解鎖此功能。',
         StrategyText.TITLE: "策略設定",
         StrategyText.LOGIN_ID: "MT5登入帳號：",
         StrategyText.PASSWORD: "MT5登入密碼：",
@@ -235,6 +239,8 @@ Before starting automated trading, please review your MT5 EA settings in the
         CheckText.UPGRADE_REQUIRED_BODY: f'Your current membership does not include this feature.<br>Please visit the <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">official website</a> to upgrade and unlock the full features and professional strategies.',
         CheckText.SUBSCRIPTION_EXPIRED_TITLE: "Subscription Expired",
         CheckText.SUBSCRIPTION_EXPIRED_BODY: f'Your subscription has expired and paid features are currently unavailable.<br>Please visit the <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">official website</a> to renew your plan and continue enjoying the full service.',
+        CheckText.SESSION_DUPLICATE_TITLE: "Duplicate Login Detected",
+        CheckText.SESSION_DUPLICATE_BODY: f'MasQuant Trading System is already open with this account on this machine.<br><br>To prevent strategy conflicts and duplicate orders, only one window per account is currently allowed on the same computer.<br>Please close the existing window and try again.<br><br>If you need to run multiple windows simultaneously, please visit the <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">official website</a> to upgrade your membership and unlock this feature.',
         StrategyText.TITLE: "Strategy Settings",
         StrategyText.LOGIN_ID: "MT5 Login Account:",
         StrategyText.PASSWORD: "MT5 Login Password:",

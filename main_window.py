@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QStackedWidget, QLabel
 from PySide6.QtGui import QFont
+from PySide6.QtCore import QSharedMemory
 import datetime
 from strategy_settings import StrategySettingsForm
 from i18n_strings import get_text
@@ -73,12 +74,44 @@ class MainWindow(QWidget):
         self.log_messages = []
         self.backtest_log_messages = []
 
-    def start_with_user(self, user_level, access_permissions, expire_date, healthy):
-        """登入後呼叫此方法初始化策略畫面"""
+    def start_with_user(self, user_level, access_permissions, expire_date, healthy, is_subsription, user_id):
+        """登入後呼叫此方法初始化策略畫面。
+
+        Returns:
+            True 表示進入主畫面成功；False 表示本機已有同帳號 session、被擋。
+        """
+        if not self._acquire_local_session(user_id):
+            return False
         print(f"✅ 使用者登入成功（等級: {user_level}, 到期: {expire_date}）")
+        self.user_id = user_id
+        self.user_level = user_level
+        self.is_subsription = is_subsription
         self.healthy = healthy
         self.refresh_labels()
         self.load_setting_form()
+        return True
+
+    def is_gold_subscriber(self):
+        """登入後權益檢核：訂閱中 且 等級為 GOLD。"""
+        return self.user_level == "GOLD" and bool(self.is_subsription)
+
+    def _acquire_local_session(self, user_id):
+        """嘗試取得本機同帳號的單例鎖。
+
+        Returns:
+            True 表示成功取得（或因缺 user_id 略過檢查）；
+            False 表示本機已有另一個 process 持有此 user_id 的鎖。
+        """
+        if not user_id:
+            return True
+        key = f"masquant_session_{user_id}"
+        self._session_lock = QSharedMemory(key)
+        if self._session_lock.create(1):
+            return True
+        if self._session_lock.error() == QSharedMemory.AlreadyExists:
+            return False
+        print(f"⚠️ QSharedMemory unexpected error: {self._session_lock.errorString()}")
+        return True
 
     def load_setting_form(self):
         """ 載入策略設定畫面 """

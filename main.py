@@ -4,7 +4,7 @@ from login import LoginForm
 from main_window import MainWindow
 import winform_style
 from i18n_strings import switch_lang, get_current_lang, get_text, MainWindowText
-from check import get_resource_path
+from check import get_resource_path, show_session_duplicate_dialog
 
 def main():
     app = QApplication([])
@@ -32,8 +32,11 @@ def main():
     update_language_button_text()
 
     # 登入成功的 callback：進入主畫面
-    def on_login_success(user_level, access_permissions, expire_date, healthy):
-        main_window.start_with_user(user_level, access_permissions, expire_date, healthy)
+    def on_login_success(user_level, access_permissions, expire_date, healthy, is_subsription, user_id):
+        if not main_window.start_with_user(user_level, access_permissions, expire_date, healthy, is_subsription, user_id):
+            show_session_duplicate_dialog(container)
+            app.quit()
+            return
         container.close()
         main_window.show()
 

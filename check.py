@@ -83,6 +83,14 @@ def show_health_info_dialog(parent):
     )
 
 
+def show_session_duplicate_dialog(parent):
+    _show_html_alert(
+        parent,
+        get_text(CheckText.SESSION_DUPLICATE_TITLE),
+        get_text(CheckText.SESSION_DUPLICATE_BODY),
+    )
+
+
 def check_subscription(parent, level, is_subsription):
     """Return True if user may proceed; show modal alert and return False otherwise."""
     if level == 'FREE':
