@@ -48,6 +48,10 @@ class CheckText(Enum):
     HEALTH_ALERT_BODY = "health_alert_body"
     HEALTH_LEVEL_LOW = "低"
     HEALTH_LEVEL_MEDIUM = "中"
+    UPGRADE_REQUIRED_TITLE = "需要升級會員"
+    UPGRADE_REQUIRED_BODY = "upgrade_required_body"
+    SUBSCRIPTION_EXPIRED_TITLE = "訂閱已過期"
+    SUBSCRIPTION_EXPIRED_BODY = "subscription_expired_body"
 
 
 class StrategyText(Enum):
@@ -151,6 +155,10 @@ i18n_map = {
         CheckText.HEALTH_ALERT_BODY: f'系統偵測到您目前的策略健康度為「{{level}}」。<br>為維護您的投資績效與資產穩健成長，建議盡快前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官網</a> 的策略精靈，更新至最新版本的策略。',
         CheckText.HEALTH_LEVEL_LOW: "低",
         CheckText.HEALTH_LEVEL_MEDIUM: "中",
+        CheckText.UPGRADE_REQUIRED_TITLE: "需要升級會員",
+        CheckText.UPGRADE_REQUIRED_BODY: f'您目前的會員等級無法使用此功能。<br>請前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官網</a> 升級會員，解鎖完整功能與專業策略。',
+        CheckText.SUBSCRIPTION_EXPIRED_TITLE: "訂閱已過期",
+        CheckText.SUBSCRIPTION_EXPIRED_BODY: f'您的訂閱已過期，目前無法使用付費功能。<br>請前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官網</a> 續訂方案，繼續享有完整服務。',
         StrategyText.TITLE: "策略設定",
         StrategyText.LOGIN_ID: "MT5登入帳號：",
         StrategyText.PASSWORD: "MT5登入密碼：",
@@ -211,6 +219,10 @@ Before starting automated trading, please review your MT5 EA settings in the
         CheckText.HEALTH_ALERT_BODY: f'Your current strategy health is "{{level}}".<br>To safeguard your investment performance and the steady growth of your assets, we recommend visiting the Strategy Wizard on our <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">official website</a> and updating to the latest strategy.',
         CheckText.HEALTH_LEVEL_LOW: "Low",
         CheckText.HEALTH_LEVEL_MEDIUM: "Medium",
+        CheckText.UPGRADE_REQUIRED_TITLE: "Upgrade Required",
+        CheckText.UPGRADE_REQUIRED_BODY: f'Your current membership does not include this feature.<br>Please visit the <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">official website</a> to upgrade and unlock the full features and professional strategies.',
+        CheckText.SUBSCRIPTION_EXPIRED_TITLE: "Subscription Expired",
+        CheckText.SUBSCRIPTION_EXPIRED_BODY: f'Your subscription has expired and paid features are currently unavailable.<br>Please visit the <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">official website</a> to renew your plan and continue enjoying the full service.',
         StrategyText.TITLE: "Strategy Settings",
         StrategyText.LOGIN_ID: "MT5 Login Account:",
         StrategyText.PASSWORD: "MT5 Login Password:",

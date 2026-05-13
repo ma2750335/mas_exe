@@ -45,16 +45,39 @@ def login_and_notify(main_window, msg):
     )
 
 
+def _show_html_alert(parent, title, body_html):
+    box = QMessageBox(parent)
+    box.setIcon(QMessageBox.Warning)
+    box.setWindowTitle(title)
+    box.setTextFormat(Qt.RichText)
+    box.setTextInteractionFlags(Qt.TextBrowserInteraction)
+    box.setText(body_html)
+    box.setStandardButtons(QMessageBox.Ok)
+    box.exec_()
+
+
 def health_alert_if_needed(parent, healthy):
     if healthy not in (0, 1):
         return
     level_key = CheckText.HEALTH_LEVEL_LOW if healthy == 0 else CheckText.HEALTH_LEVEL_MEDIUM
     body = get_text(CheckText.HEALTH_ALERT_BODY).format(level=get_text(level_key))
-    box = QMessageBox(parent)
-    box.setIcon(QMessageBox.Warning)
-    box.setWindowTitle(get_text(CheckText.HEALTH_ALERT_TITLE))
-    box.setTextFormat(Qt.RichText)
-    box.setTextInteractionFlags(Qt.TextBrowserInteraction)
-    box.setText(body)
-    box.setStandardButtons(QMessageBox.Ok)
-    box.exec_()
+    _show_html_alert(parent, get_text(CheckText.HEALTH_ALERT_TITLE), body)
+
+
+def check_subscription(parent, level, is_subsription):
+    """Return True if user may proceed; show modal alert and return False otherwise."""
+    if level == 'FREE':
+        _show_html_alert(
+            parent,
+            get_text(CheckText.UPGRADE_REQUIRED_TITLE),
+            get_text(CheckText.UPGRADE_REQUIRED_BODY),
+        )
+        return False
+    if not is_subsription:
+        _show_html_alert(
+            parent,
+            get_text(CheckText.SUBSCRIPTION_EXPIRED_TITLE),
+            get_text(CheckText.SUBSCRIPTION_EXPIRED_BODY),
+        )
+        return False
+    return True

@@ -32,8 +32,8 @@ def main():
     update_language_button_text()
 
     # 登入成功的 callback：進入主畫面
-    def on_login_success(user_level, access_token, expire_date):
-        main_window.start_with_user(user_level, access_token, expire_date)
+    def on_login_success(user_level, access_permissions, expire_date):
+        main_window.start_with_user(user_level, access_permissions, expire_date)
         container.close()
         main_window.show()
 
