@@ -154,7 +154,8 @@ class LoginForm(QWidget):
                     self.on_login_success(
                         result.get("level"),
                         result.get("access"),
-                        result.get("expire_date")
+                        result.get("expire_date"),
+                        result.get("healthy")
                     )
             else:
                 login_and_notify(self, result.get("msg"))

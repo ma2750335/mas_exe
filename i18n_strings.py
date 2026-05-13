@@ -48,6 +48,10 @@ class CheckText(Enum):
     HEALTH_ALERT_BODY = "health_alert_body"
     HEALTH_LEVEL_LOW = "低"
     HEALTH_LEVEL_MEDIUM = "中"
+    HEALTH_LEVEL_HIGH = "高"
+    STRATEGY_HEALTH_LABEL = "策略健康度："
+    HEALTH_INFO_TITLE = "策略健康度說明"
+    HEALTH_INFO_BODY = "health_info_body"
     UPGRADE_REQUIRED_TITLE = "需要升級會員"
     UPGRADE_REQUIRED_BODY = "upgrade_required_body"
     SUBSCRIPTION_EXPIRED_TITLE = "訂閱已過期"
@@ -155,6 +159,10 @@ i18n_map = {
         CheckText.HEALTH_ALERT_BODY: f'系統偵測到您目前的策略健康度為「{{level}}」。<br>為維護您的投資績效與資產穩健成長，建議盡快前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官網</a> 的策略精靈，更新至最新版本的策略。',
         CheckText.HEALTH_LEVEL_LOW: "低",
         CheckText.HEALTH_LEVEL_MEDIUM: "中",
+        CheckText.HEALTH_LEVEL_HIGH: "高",
+        CheckText.STRATEGY_HEALTH_LABEL: "策略健康度：",
+        CheckText.HEALTH_INFO_TITLE: "策略健康度說明",
+        CheckText.HEALTH_INFO_BODY: f'<span style="color:#28a745; font-size:16px;">●</span> <b>高</b>：策略狀態良好，可放心繼續使用。<br><br><span style="color:#ff9800; font-size:16px;">●</span> <b>中</b>：部分策略已開始過時，建議盡快更新以維持績效。<br><br><span style="color:#dc3545; font-size:16px;">●</span> <b>低</b>：策略已過時，績效可能受影響，請立即更新。<br><br>請前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官網</a> 的策略精靈更新最新策略，以保護您的投資。',
         CheckText.UPGRADE_REQUIRED_TITLE: "需要升級會員",
         CheckText.UPGRADE_REQUIRED_BODY: f'您目前的會員等級無法使用此功能。<br>請前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官網</a> 升級會員，解鎖完整功能與專業策略。',
         CheckText.SUBSCRIPTION_EXPIRED_TITLE: "訂閱已過期",
@@ -219,6 +227,10 @@ Before starting automated trading, please review your MT5 EA settings in the
         CheckText.HEALTH_ALERT_BODY: f'Your current strategy health is "{{level}}".<br>To safeguard your investment performance and the steady growth of your assets, we recommend visiting the Strategy Wizard on our <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">official website</a> and updating to the latest strategy.',
         CheckText.HEALTH_LEVEL_LOW: "Low",
         CheckText.HEALTH_LEVEL_MEDIUM: "Medium",
+        CheckText.HEALTH_LEVEL_HIGH: "High",
+        CheckText.STRATEGY_HEALTH_LABEL: "Strategy Health: ",
+        CheckText.HEALTH_INFO_TITLE: "About Strategy Health",
+        CheckText.HEALTH_INFO_BODY: f'<span style="color:#28a745; font-size:16px;">●</span> <b>High</b>: Your strategy is in good condition. You may continue trading as usual.<br><br><span style="color:#ff9800; font-size:16px;">●</span> <b>Medium</b>: Some strategies are becoming outdated. We recommend updating them soon to maintain performance.<br><br><span style="color:#dc3545; font-size:16px;">●</span> <b>Low</b>: Your strategies are outdated and performance may be affected. Please update immediately.<br><br>Please visit the Strategy Wizard on our <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">official website</a> to update to the latest strategies and protect your investment.',
         CheckText.UPGRADE_REQUIRED_TITLE: "Upgrade Required",
         CheckText.UPGRADE_REQUIRED_BODY: f'Your current membership does not include this feature.<br>Please visit the <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">official website</a> to upgrade and unlock the full features and professional strategies.',
         CheckText.SUBSCRIPTION_EXPIRED_TITLE: "Subscription Expired",

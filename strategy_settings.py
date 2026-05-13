@@ -4,11 +4,11 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QPixmap, QIcon, QFont
 from PySide6.QtCore import QThread, Signal, Qt, QSettings
 from i18n_strings import get_text
-from i18n_strings import StrategyText
+from i18n_strings import StrategyText, CheckText
 import MetaTrader5 as mt5
 import strategy
 import check_symbol
-from check import get_resource_path
+from check import get_resource_path, get_health_display, show_health_info_dialog
 
 class StrategyWorker(QThread):
     progress_signal = Signal(str)
@@ -101,6 +101,29 @@ class StrategySettingsForm(QWidget):
 
         label_font = QFont("Arial", 12)
 
+        self.lbl_health = QLabel()
+        self.lbl_health.setTextFormat(Qt.RichText)
+        self.lbl_health.setFont(label_font)
+
+        self.btn_health_info = QPushButton("ⓘ")
+        self.btn_health_info.setFlat(True)
+        self.btn_health_info.setCursor(Qt.PointingHandCursor)
+        self.btn_health_info.setFixedSize(24, 24)
+        self.btn_health_info.setStyleSheet(
+            "QPushButton { font-size: 16px; color: #0078D7; border: none; padding: 0; background: transparent; }"
+            "QPushButton:hover { color: #005A9E; background: transparent; }"
+        )
+        self.btn_health_info.clicked.connect(self._show_health_info)
+
+        health_layout = QHBoxLayout()
+        health_layout.addStretch()
+        health_layout.addWidget(self.lbl_health)
+        health_layout.addWidget(self.btn_health_info)
+        health_layout.addStretch()
+
+        self._refresh_health_display()
+        layout.addLayout(health_layout)
+
         self.lbl_login_id = QLabel(get_text(StrategyText.LOGIN_ID))
         self.lbl_login_id.setFont(label_font)
         self.input_login_id = QLineEdit()
@@ -167,6 +190,24 @@ class StrategySettingsForm(QWidget):
         self.worker = None
 
         self.main_window.update_process_log(get_text(StrategyText.LOG_OPENED))
+
+    def _refresh_health_display(self):
+        healthy = getattr(self.main_window, "healthy", None)
+        label, color = get_health_display(healthy)
+        if label is None:
+            self.lbl_health.hide()
+            self.btn_health_info.hide()
+            return
+        self.lbl_health.show()
+        self.btn_health_info.show()
+        prefix = get_text(CheckText.STRATEGY_HEALTH_LABEL)
+        self.lbl_health.setText(
+            f'{prefix}<span style="color:{color}; font-size:18px;">●</span> '
+            f'<span style="color:{color}; font-weight:bold;">{label}</span>'
+        )
+
+    def _show_health_info(self):
+        show_health_info_dialog(self)
 
     def open_confirm_dialog(self):
         input_login_id = self.input_login_id.text()

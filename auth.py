@@ -103,7 +103,7 @@ def login_request(email, password):
     rsp = post_request(url, payload)
     # testing
     print('rsp',  rsp)
-    data_str = "{'result': True, 'msg': 'Success_login_001', 'userId': '8cbacb88-b3ed-4f1d-876f-23db425b08c9', 'level': 'GOLD', 'is_subsription': True, 'remainingDays': None, 'versionCode': '0.0.5', 'healthy': 2}"
+    data_str = "{'result': True, 'msg': 'Success_login_001', 'userId': '8cbacb88-b3ed-4f1d-876f-23db425b08c9', 'level': 'GOLD', 'is_subsription': True, 'remainingDays': None, 'versionCode': '0.0.5', 'healthy': 0}"
     rsp = ast.literal_eval(data_str)
     # testing
     if rsp["result"]:

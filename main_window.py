@@ -73,9 +73,10 @@ class MainWindow(QWidget):
         self.log_messages = []
         self.backtest_log_messages = []
 
-    def start_with_user(self, user_level, access_permissions, expire_date):
+    def start_with_user(self, user_level, access_permissions, expire_date, healthy):
         """登入後呼叫此方法初始化策略畫面"""
         print(f"✅ 使用者登入成功（等級: {user_level}, 到期: {expire_date}）")
+        self.healthy = healthy
         self.refresh_labels()
         self.load_setting_form()
 

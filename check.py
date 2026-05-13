@@ -45,6 +45,17 @@ def login_and_notify(main_window, msg):
     )
 
 
+def get_health_display(healthy):
+    """Return (label_text, color_hex) for healthy=0/1/2. Return (None, None) for unknown/None."""
+    if healthy == 0:
+        return get_text(CheckText.HEALTH_LEVEL_LOW), "#dc3545"
+    if healthy == 1:
+        return get_text(CheckText.HEALTH_LEVEL_MEDIUM), "#ff9800"
+    if healthy == 2:
+        return get_text(CheckText.HEALTH_LEVEL_HIGH), "#28a745"
+    return None, None
+
+
 def _show_html_alert(parent, title, body_html):
     box = QMessageBox(parent)
     box.setIcon(QMessageBox.Warning)
@@ -62,6 +73,14 @@ def health_alert_if_needed(parent, healthy):
     level_key = CheckText.HEALTH_LEVEL_LOW if healthy == 0 else CheckText.HEALTH_LEVEL_MEDIUM
     body = get_text(CheckText.HEALTH_ALERT_BODY).format(level=get_text(level_key))
     _show_html_alert(parent, get_text(CheckText.HEALTH_ALERT_TITLE), body)
+
+
+def show_health_info_dialog(parent):
+    _show_html_alert(
+        parent,
+        get_text(CheckText.HEALTH_INFO_TITLE),
+        get_text(CheckText.HEALTH_INFO_BODY),
+    )
 
 
 def check_subscription(parent, level, is_subsription):
