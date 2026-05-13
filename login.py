@@ -6,7 +6,7 @@ from PySide6.QtGui import QPixmap, QDesktopServices
 import auth
 import enum_setting as es
 from i18n_strings import LoginText, get_text
-from check import login_and_notify, get_resource_path, check_and_notify
+from check import login_and_notify, get_resource_path, check_and_notify, health_alert_if_needed
 settings = QSettings("mas_tech", "mas_login")
 
 class LoginForm(QWidget):
@@ -147,6 +147,7 @@ class LoginForm(QWidget):
 
         if check_and_notify(self):
             if result.get("result"):
+                health_alert_if_needed(self, result.get("healthy"))
                 if result.get("level") == 'FREE':
                     login_and_notify(
                         self, "Please Upgrade Now To Unlock This Feature. \nUPGRADE: https://mas.mindaismart.com")

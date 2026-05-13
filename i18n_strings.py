@@ -44,6 +44,10 @@ class CheckText(Enum):
     VERSION_ALERT_BODY = "發現新版本 {latest}，您目前使用的是 {current}\n請至官網下載最新版！"
     LOGIN_FAILED_TITLE = "登錄失敗"
     LOGIN_FAILED_BODY = "請重新確認帳號密碼！"
+    HEALTH_ALERT_TITLE = "策略健康度提醒"
+    HEALTH_ALERT_BODY = "health_alert_body"
+    HEALTH_LEVEL_LOW = "低"
+    HEALTH_LEVEL_MEDIUM = "中"
 
 
 class StrategyText(Enum):
@@ -143,6 +147,10 @@ i18n_map = {
         CheckText.VERSION_ALERT_BODY: "發現新版本 {latest}，您目前使用的是 {current}\n請至官網下載最新版！",
         CheckText.LOGIN_FAILED_TITLE: "登錄失敗",
         CheckText.LOGIN_FAILED_BODY: "請重新確認帳號密碼！",
+        CheckText.HEALTH_ALERT_TITLE: "策略健康度提醒",
+        CheckText.HEALTH_ALERT_BODY: f'系統偵測到您目前的策略健康度為「{{level}}」。<br>為維護您的投資績效與資產穩健成長，建議盡快前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官網</a> 的策略精靈，更新至最新版本的策略。',
+        CheckText.HEALTH_LEVEL_LOW: "低",
+        CheckText.HEALTH_LEVEL_MEDIUM: "中",
         StrategyText.TITLE: "策略設定",
         StrategyText.LOGIN_ID: "MT5登入帳號：",
         StrategyText.PASSWORD: "MT5登入密碼：",
@@ -199,6 +207,10 @@ Before starting automated trading, please review your MT5 EA settings in the
         CheckText.VERSION_ALERT_BODY: "New version {latest} found. You are using {current}.\nPlease visit the official site to download the latest version!",
         CheckText.LOGIN_FAILED_TITLE: "Login Failed",
         CheckText.LOGIN_FAILED_BODY: "Please check your username or password again!",
+        CheckText.HEALTH_ALERT_TITLE: "Strategy Health Notice",
+        CheckText.HEALTH_ALERT_BODY: f'Your current strategy health is "{{level}}".<br>To safeguard your investment performance and the steady growth of your assets, we recommend visiting the Strategy Wizard on our <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">official website</a> and updating to the latest strategy.',
+        CheckText.HEALTH_LEVEL_LOW: "Low",
+        CheckText.HEALTH_LEVEL_MEDIUM: "Medium",
         StrategyText.TITLE: "Strategy Settings",
         StrategyText.LOGIN_ID: "MT5 Login Account:",
         StrategyText.PASSWORD: "MT5 Login Password:",

@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QMessageBox
+from PySide6.QtCore import Qt
 import auth
 import enum_setting as es
 from i18n_strings import CheckText, get_text
@@ -42,3 +43,18 @@ def login_and_notify(main_window, msg):
         get_text(CheckText.LOGIN_FAILED_TITLE),
         msg
     )
+
+
+def health_alert_if_needed(parent, healthy):
+    if healthy not in (0, 1):
+        return
+    level_key = CheckText.HEALTH_LEVEL_LOW if healthy == 0 else CheckText.HEALTH_LEVEL_MEDIUM
+    body = get_text(CheckText.HEALTH_ALERT_BODY).format(level=get_text(level_key))
+    box = QMessageBox(parent)
+    box.setIcon(QMessageBox.Warning)
+    box.setWindowTitle(get_text(CheckText.HEALTH_ALERT_TITLE))
+    box.setTextFormat(Qt.RichText)
+    box.setTextInteractionFlags(Qt.TextBrowserInteraction)
+    box.setText(body)
+    box.setStandardButtons(QMessageBox.Ok)
+    box.exec_()

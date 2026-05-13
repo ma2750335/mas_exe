@@ -10,6 +10,7 @@ class url(enum.Enum):
     terms_api = "https://mindaismart.com/terms_api"
     terms_disclaimer = "https://mindaismart.com/terms_disclaimer"
     terms_ea_setting = "https://doc.mindaismart.com/Getting_Started"
+    strategy_wizard = "https://mas.mindaismart.com/strategy-wizard"
 
 class info(enum.Enum):
     version = "1.0.0"
