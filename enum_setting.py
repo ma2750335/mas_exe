@@ -11,9 +11,11 @@ class url(enum.Enum):
     terms_disclaimer = "https://mindaismart.com/terms_disclaimer"
     terms_ea_setting = "https://doc.mindaismart.com/Getting_Started"
     strategy_wizard = "https://mas.mindaismart.com/strategy-wizard"
+    strategy_health = "https://mas.mindaismart.com/api/intermediary/strategy-health"
 
 class info(enum.Enum):
     version = "1.0.0"
+    health_monitor_minutes = 60
 
 
 class dashboard(enum.Enum):

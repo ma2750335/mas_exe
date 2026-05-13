@@ -111,6 +111,31 @@ def login_request(email, password):
     return rsp
 
 
+def get_strategy_health(device_uuid=None):
+    """Fetch strategy health for the given device UUID.
+
+    Args:
+        device_uuid: Device UUID. If None, reads from .env UUID.
+
+    Returns:
+        int 0/1/2 (low/medium/high) on success, or None if unavailable.
+    """
+    if device_uuid is None:
+        device_uuid = os.getenv("UUID", "")
+
+    # === testing stub ===
+    # TODO: Replace with real API call once platform endpoint is ready:
+    # url = es.url.strategy_health.value
+    # payload = {"uuid": device_uuid}
+    # rsp = post_request(url, payload)
+    # if rsp.get("result"):
+    #     return rsp.get("healthy")
+    # return None
+    print(f"[stub] get_strategy_health(uuid={device_uuid}) -> 1")
+    return 1  # change for testing: 0=low / 1=medium / 2=high / None=unknown
+    # === end stub ===
+
+
 def encrypt_payload(data_dict: dict) -> str:
     import json
     json_data = json.dumps(data_dict).encode()

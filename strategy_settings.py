@@ -2,13 +2,15 @@ from PySide6.QtWidgets import (
     QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox, QDialog, QCheckBox, QSizePolicy, QHBoxLayout, QInputDialog
 )
 from PySide6.QtGui import QPixmap, QIcon, QFont
-from PySide6.QtCore import QThread, Signal, Qt, QSettings
+from PySide6.QtCore import QThread, Signal, Qt, QSettings, QTimer
 from i18n_strings import get_text
 from i18n_strings import StrategyText, CheckText
 import MetaTrader5 as mt5
 import strategy
 import check_symbol
-from check import get_resource_path, get_health_display, show_health_info_dialog
+import auth
+import enum_setting as es
+from check import get_resource_path, get_health_display, show_health_info_dialog, health_alert_if_needed
 
 class StrategyWorker(QThread):
     progress_signal = Signal(str)
@@ -189,6 +191,9 @@ class StrategySettingsForm(QWidget):
         self.btn_stop.clicked.connect(self.stop_strategy)
         self.worker = None
 
+        self.health_monitor_timer = QTimer(self)
+        self.health_monitor_timer.timeout.connect(self._check_health)
+
         self.main_window.update_process_log(get_text(StrategyText.LOG_OPENED))
 
     def _refresh_health_display(self):
@@ -208,6 +213,14 @@ class StrategySettingsForm(QWidget):
 
     def _show_health_info(self):
         show_health_info_dialog(self)
+
+    def _check_health(self):
+        healthy = auth.get_strategy_health()
+        if healthy is None:
+            return
+        self.main_window.healthy = healthy
+        self._refresh_health_display()
+        health_alert_if_needed(self, healthy)
 
     def open_confirm_dialog(self):
         input_login_id = self.input_login_id.text()
@@ -307,7 +320,13 @@ class StrategySettingsForm(QWidget):
 
         self.main_window.update_process_log(get_text(StrategyText.LOG_STARTED))
 
+        self._check_health()
+        interval_min = es.info.health_monitor_minutes.value
+        if interval_min > 0:
+            self.health_monitor_timer.start(interval_min * 60 * 1000)
+
     def stop_strategy(self):
+        self.health_monitor_timer.stop()
         if self.worker:
             if self.worker.on_stop_callback:
                 self.worker.on_stop_callback()
