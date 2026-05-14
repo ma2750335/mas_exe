@@ -93,19 +93,20 @@ def post_request(url, payload):
 
 def login_request(email, password):
     url = es.url.login.value
-    device_uuid = os.getenv("UUID", "")
+    strategy_uuid = os.getenv("UUID", "")
     payload = {
         "email": email,
         "password": password,
         "device_info": get_device_info(),
-        "uuid": device_uuid
+        "uuid": strategy_uuid
     }
     rsp = post_request(url, payload)
     # testing
+    # TODO: implement testing
     # print('rsp',  rsp)
-    # data_str = "{'result': True, 'msg': 'Success_login_001', 'userId': '8cbacb88-b3ed-4f1d-876f-23db425b08c9', 'level': 'SILVER', 'is_subsription': True, 'remainingDays': None, 'versionCode': '0.0.5', 'healthy': 0}"
-    # rsp = ast.literal_eval(data_str)
-    rsp['healthy']=0
+    data_str = "{'result': True, 'msg': 'Success_login_001', 'userId': '8cbacb88-b3ed-4f1d-876f-23db425b08c9', 'level': 'SILVER', 'is_subsription': True, 'remainingDays': None, 'versionCode': '0.0.5', 'healthy': 0, 'symbol':'EURUSD','strategy_id':'test123'}"
+    rsp = ast.literal_eval(data_str)
+    # rsp['healthy']=0
     # testing
     if rsp["result"]:
         rsp["access"] = get_access_by_level(rsp["level"])

@@ -10,7 +10,7 @@ import strategy
 import check_symbol
 import auth
 import enum_setting as es
-from check import get_resource_path, get_health_display, show_health_info_dialog, health_alert_if_needed
+from check import get_resource_path, get_health_display, show_health_info_dialog, health_alert_if_needed, is_genai_enabled
 
 class StrategyWorker(QThread):
     progress_signal = Signal(str)
@@ -126,6 +126,24 @@ class StrategySettingsForm(QWidget):
         self._refresh_health_display()
         layout.addLayout(health_layout)
 
+        self.lbl_strategy_id = QLabel()
+        self.lbl_strategy_id.setTextFormat(Qt.RichText)
+        self.lbl_strategy_id.setFont(label_font)
+
+        self.lbl_symbol = QLabel()
+        self.lbl_symbol.setTextFormat(Qt.RichText)
+        self.lbl_symbol.setFont(label_font)
+
+        strategy_info_layout = QHBoxLayout()
+        strategy_info_layout.addStretch()
+        strategy_info_layout.addWidget(self.lbl_strategy_id)
+        strategy_info_layout.addSpacing(30)
+        strategy_info_layout.addWidget(self.lbl_symbol)
+        strategy_info_layout.addStretch()
+
+        self._refresh_strategy_info()
+        layout.addLayout(strategy_info_layout)
+
         self.lbl_login_id = QLabel(get_text(StrategyText.LOGIN_ID))
         self.lbl_login_id.setFont(label_font)
         self.input_login_id = QLineEdit()
@@ -176,10 +194,13 @@ class StrategySettingsForm(QWidget):
         layout.addWidget(self.input_password)
         layout.addWidget(self.lbl_server)
         layout.addWidget(self.input_server)
-        layout.addWidget(self.lbl_capital)
-        layout.addWidget(self.input_capital)
-        layout.addWidget(self.lbl_volume)
-        layout.addWidget(self.input_volume)
+        capital_volume_layout = QHBoxLayout()
+        capital_volume_layout.addWidget(self.lbl_capital)
+        capital_volume_layout.addWidget(self.input_capital, stretch=1)
+        capital_volume_layout.addSpacing(20)
+        capital_volume_layout.addWidget(self.lbl_volume)
+        capital_volume_layout.addWidget(self.input_volume, stretch=1)
+        layout.addLayout(capital_volume_layout)
         layout.addLayout(terms_layout)
         layout.addWidget(self.btn_start)
         layout.addWidget(self.btn_stop)
@@ -209,6 +230,22 @@ class StrategySettingsForm(QWidget):
         self.lbl_health.setText(
             f'{prefix}<span style="color:{color}; font-size:18px;">●</span> '
             f'<span style="color:{color}; font-weight:bold;">{label}</span>'
+        )
+
+    def _refresh_strategy_info(self):
+        sid = getattr(self.main_window, "strategy_id", None)
+        sym = getattr(self.main_window, "symbol", None)
+        if not sid and not sym:
+            self.lbl_strategy_id.hide()
+            self.lbl_symbol.hide()
+            return
+        self.lbl_strategy_id.show()
+        self.lbl_symbol.show()
+        self.lbl_strategy_id.setText(
+            f'{get_text(StrategyText.STRATEGY_ID)}<b>{sid or "-"}</b>'
+        )
+        self.lbl_symbol.setText(
+            f'{get_text(StrategyText.SYMBOL)}<b>{sym or "-"}</b>'
         )
 
     def _show_health_info(self):
@@ -320,10 +357,11 @@ class StrategySettingsForm(QWidget):
 
         self.main_window.update_process_log(get_text(StrategyText.LOG_STARTED))
 
-        self._check_health()
-        interval_min = es.info.health_monitor_minutes.value
-        if interval_min > 0:
-            self.health_monitor_timer.start(interval_min * 60 * 1000)
+        if is_genai_enabled():
+            self._check_health()
+            interval_min = es.info.health_monitor_minutes.value
+            if interval_min > 0:
+                self.health_monitor_timer.start(interval_min * 60 * 1000)
 
     def stop_strategy(self):
         self.health_monitor_timer.stop()

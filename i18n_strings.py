@@ -101,6 +101,8 @@ class StrategyText(Enum):
     ERROR_TRADE_EXPERT_DISABLED_HTML = "trade_expert_disabled_html"
     CAPITAL = "本金："
     VOLUME = "手數："
+    STRATEGY_ID = "策略 ID："
+    SYMBOL = "商品："
 
 
 LEVEL_LABEL = {
@@ -199,6 +201,8 @@ i18n_map = {
         StrategyText.ERROR_TRADE_EXPERT_DISABLED_HTML: f'MT5 尚未開啟「允許算法交易」，請先至 MT5 開啟設定後再執行策略。<br>操作設定請參考：<a href="{url.terms_ea_setting.value}">操作設定</a>',
         StrategyText.CAPITAL: "本金：",
         StrategyText.VOLUME: "手數：",
+        StrategyText.STRATEGY_ID: "策略 ID：",
+        StrategyText.SYMBOL: "商品：",
         StrategyText.TERMS_HTML: StrategyText.TERMS_HTML.value,
         StrategyText.FOOTER: StrategyText.FOOTER.value,
         StrategyText.DIALOG_HTML_PREFIX: StrategyText.DIALOG_HTML_PREFIX.value
@@ -269,6 +273,8 @@ Before starting automated trading, please review your MT5 EA settings in the
         StrategyText.ERROR_TRADE_EXPERT_DISABLED_HTML: f'MT5 "Algo Trading" is not enabled. Please enable it in MT5 settings before running the strategy.<br>Setup guide: <a href="{url.terms_ea_setting.value}">Setup Guide</a>',
         StrategyText.CAPITAL: "Capital:",
         StrategyText.VOLUME: "Volume (Lots):",
+        StrategyText.STRATEGY_ID: "Strategy ID: ",
+        StrategyText.SYMBOL: "Symbol: ",
         StrategyText.TERMS_HTML: f'''
         <span style="font-size:13px; color:#333;">
         I have read and agree to the <a href="{url.terms_api.value}" style="color:#d2691e; text-decoration:none;">Terms of Use</a> and 

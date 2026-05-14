@@ -157,7 +157,9 @@ class LoginForm(QWidget):
                         result.get("expire_date"),
                         result.get("healthy"),
                         result.get("is_subsription"),
-                        result.get("userId")
+                        result.get("userId"),
+                        result.get("strategy_id"),
+                        result.get("symbol")
                     )
             else:
                 login_and_notify(self, result.get("msg"))

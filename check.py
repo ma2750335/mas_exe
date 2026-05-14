@@ -8,6 +8,12 @@ import os
 
 CURRENT_VERSION = es.info.version.value
 
+
+def is_genai_enabled():
+    """True if .env has IS_GENAI=True (case-insensitive). Gates all health-related UI and monitoring."""
+    return os.getenv("IS_GENAI", "").strip().lower() == "true"
+
+
 def get_resource_path(relative_path):
         """取得資源的正確路徑（支援 PyInstaller 打包後）"""
         if hasattr(sys, "_MEIPASS"):
@@ -46,7 +52,9 @@ def login_and_notify(main_window, msg):
 
 
 def get_health_display(healthy):
-    """Return (label_text, color_hex) for healthy=0/1/2. Return (None, None) for unknown/None."""
+    """Return (label_text, color_hex) for healthy=0/1/2. Return (None, None) when IS_GENAI is off or value unknown."""
+    if not is_genai_enabled():
+        return None, None
     if healthy == 0:
         return get_text(CheckText.HEALTH_LEVEL_LOW), "#dc3545"
     if healthy == 1:
@@ -68,6 +76,8 @@ def _show_html_alert(parent, title, body_html):
 
 
 def health_alert_if_needed(parent, healthy):
+    if not is_genai_enabled():
+        return
     if healthy not in (0, 1):
         return
     level_key = CheckText.HEALTH_LEVEL_LOW if healthy == 0 else CheckText.HEALTH_LEVEL_MEDIUM
@@ -76,6 +86,8 @@ def health_alert_if_needed(parent, healthy):
 
 
 def show_health_info_dialog(parent):
+    if not is_genai_enabled():
+        return
     _show_html_alert(
         parent,
         get_text(CheckText.HEALTH_INFO_TITLE),
