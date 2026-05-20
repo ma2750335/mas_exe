@@ -1,21 +1,38 @@
 import enum
 
 
-class url(enum.Enum):
-    offical = "https://mindaismart.com/"
-    register = "https://mas.mindaismart.com/authentication/sign-up"
-    forget = "https://mas.mindaismart.com/authentication/forget-password"
-    upgrade = "https://mas.mindaismart.com/plans"
-    login = "https://mas.mindaismart.com/api/intermediary/login"
-    terms_api = "https://mindaismart.com/terms_api"
-    terms_disclaimer = "https://mindaismart.com/terms_disclaimer"
-    terms_ea_setting = "https://doc.mindaismart.com/Getting_Started"
-    strategy_wizard = "https://mas.mindaismart.com/strategy-wizard"
-    strategy_health = "https://mas.mindaismart.com/api/intermediary/strategy-health"
-
 class info(enum.Enum):
     version = "1.0.0"
     health_monitor_minutes = 60
+    # 0 = dev, 1 = test, 2 = pd
+    env_version = 0
+    # 主 app base URL，依 env_version 對應 (dev, test, pd)
+    base_url = (
+        "http://localhost:3000",
+        "https://mastest.mindaismart.com",
+        "https://mas.mindaismart.com",
+    )
+
+
+def _base():
+    """回傳當前環境的主 app base URL。"""
+    return info.base_url.value[info.env_version.value]
+
+
+class url(enum.Enum):
+    # mas app routes（依 env_version 切換 base）
+    register = f"{_base()}/authentication/sign-up"
+    forget = f"{_base()}/authentication/forget-password"
+    upgrade = f"{_base()}/plans"
+    login = f"{_base()}/api/intermediary/login"
+    strategy_wizard = f"{_base()}/strategy-wizard"
+    strategy_health = f"{_base()}/api/intermediary/strategy-health"
+
+    # 非 mas app 子網域（目前不切 env；若需要切換之後在 info 加對應 base 變數）
+    offical = "https://mindaismart.com/"
+    terms_api = "https://mindaismart.com/terms_api"
+    terms_disclaimer = "https://mindaismart.com/terms_disclaimer"
+    terms_ea_setting = "https://doc.mindaismart.com/Getting_Started"
 
 
 class dashboard(enum.Enum):
