@@ -162,5 +162,5 @@ class LoginForm(QWidget):
                         result.get("symbol")
                     )
             else:
-                login_and_notify(self, result.get("msg"))
+                login_and_notify(self, result.get("msg"), result.get("code"))
         self.btn_login.setEnabled(True)

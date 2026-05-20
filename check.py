@@ -41,14 +41,34 @@ def check_and_notify(main_window):
     return True
 
 
-def login_and_notify(main_window, msg):
-    if not msg:
-        msg = get_text(CheckText.LOGIN_FAILED_BODY)
-    QMessageBox.warning(
-        main_window,
-        get_text(CheckText.LOGIN_FAILED_TITLE),
-        msg
-    )
+_LOGIN_ERROR_CODE_MAP = {
+    "Error_exe_login_001": CheckText.LOGIN_ERROR_001,
+    "Error_exe_login_002": CheckText.LOGIN_ERROR_002,
+    "Error_exe_login_003": CheckText.LOGIN_ERROR_003,
+    "Error_exe_login_004": CheckText.LOGIN_ERROR_004,
+    "Error_exe_login_005": CheckText.LOGIN_ERROR_005,
+    "Error_exe_login_006": CheckText.LOGIN_ERROR_006,
+    "Error_exe_login_007": CheckText.LOGIN_ERROR_007,
+    "Error_exe_login_008": CheckText.LOGIN_ERROR_008,
+    "Error_exe_login_999": CheckText.LOGIN_ERROR_999,
+}
+
+
+def login_and_notify(main_window, msg=None, code=None):
+    """Show login failure dialog.
+
+    Resolution order:
+      1. code 已知 → 用對應 i18n message（支援 HTML 連結）
+      2. code 未知或缺 → fall back 到後端 raw msg
+      3. 都沒有 → fall back 到本地預設 LOGIN_FAILED_BODY
+    """
+    if code and code in _LOGIN_ERROR_CODE_MAP:
+        body = get_text(_LOGIN_ERROR_CODE_MAP[code])
+    elif msg:
+        body = msg
+    else:
+        body = get_text(CheckText.LOGIN_FAILED_BODY)
+    _show_html_alert(main_window, get_text(CheckText.LOGIN_FAILED_TITLE), body)
 
 
 def get_health_display(healthy):
