@@ -93,9 +93,9 @@ class MainWindow(QWidget):
         self.load_setting_form()
         return True
 
-    def is_gold_subscriber(self):
-        """登入後權益檢核：訂閱中 且 等級為 GOLD。"""
-        return self.user_level == "GOLD" and bool(self.is_subsription)
+    def is_pro_subscriber(self):
+        """登入後權益檢核：訂閱中 且 等級為 PRO。"""
+        return self.user_level == "PRO" and bool(self.is_subsription)
 
     def _acquire_local_session(self, user_id):
         """嘗試取得本機同帳號的單例鎖。

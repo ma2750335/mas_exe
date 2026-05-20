@@ -116,35 +116,32 @@ class StrategyText(Enum):
 
 LEVEL_LABEL = {
     "zh": {
-        "free": "一般會員",
-        "free_trail": "體驗會員",
-        "bronze": "銅級會員",
-        "silver": "銀級會員",
-        "gold": "黃金會員"
+        "FREE": "一般會員",
+        "FREETRAIL": "體驗會員",
+        "STARTER": "入門會員",
+        "PRO": "專業會員"
     },
     "en": {
-        "free": "Free Member",
-        "free_trail": "Trial Member",
-        "bronze": "Bronze",
-        "silver": "Silver",
-        "gold": "Gold"
+        "FREE": "Free Member",
+        "FREETRAIL": "Free Trial",
+        "STARTER": "Starter",
+        "PRO": "Pro"
     }
 }
 
 LEVEL_COLOR = {
-    "free_trail": "#0078D7",
-    "free": "#6c757d",
-    "bronze": "#cd7f32",
-    "silver": "#c0c0c0",
-    "gold": "goldenrod"
+    "FREE": "#6c757d",
+    "FREETRAIL": "#cd7f32",
+    "STARTER": "#c0c0c0",
+    "PRO": "goldenrod"
 }
 
+# NOTE: PNG 檔名尚未實體改名，path 暫時保留舊檔名；改名 PNG 後同步更新 path
 LEVEL_ICON = {
-    "free": "src/free.png",
-    "free_trail": "src/free_trail.png",
-    "bronze": "src/bronze.png",
-    "silver": "src/silver.png",
-    "gold": "src/gold.png"
+    "FREE": "src/free.png",
+    "FREETRAIL": "src/bronze.png",
+    "STARTER": "src/silver.png",
+    "PRO": "src/gold.png"
 }
 
 i18n_map = {
