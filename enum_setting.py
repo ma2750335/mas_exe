@@ -5,7 +5,7 @@ class info(enum.Enum):
     version = "1.0.0"
     health_monitor_minutes = 60
     # 0 = dev, 1 = test, 2 = pd
-    env_version = 0
+    env_version = 2
     # 主 app base URL，依 env_version 對應 (dev, test, pd)
     base_url = (
         "http://localhost:3000",
