@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (
-    QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox, QDialog, QCheckBox, QSizePolicy, QHBoxLayout, QInputDialog
+    QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox, QDialog, QCheckBox, QSizePolicy, QHBoxLayout, QInputDialog, QComboBox
 )
 from PySide6.QtGui import QPixmap, QIcon, QFont
 from PySide6.QtCore import QThread, Signal, Qt, QSettings, QTimer
@@ -157,13 +157,10 @@ class StrategySettingsForm(QWidget):
         self.lbl_server.setFont(label_font)
         self.input_server = QLineEdit()
 
-        self.lbl_capital = QLabel(get_text(StrategyText.CAPITAL))
-        self.lbl_capital.setFont(label_font)
-        self.input_capital = QLineEdit("10000")
-
-        self.lbl_volume = QLabel(get_text(StrategyText.VOLUME))
-        self.lbl_volume.setFont(label_font)
-        self.input_volume = QLineEdit("1")
+        self.lbl_capital_lots = QLabel(get_text(StrategyText.CAPITAL_LOTS_LABEL))
+        self.lbl_capital_lots.setFont(label_font)
+        self.combo_capital_lots = QComboBox()
+        self._populate_capital_lots_combo()
 
         self.chk_terms = QCheckBox()
         self.chk_terms.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
@@ -194,13 +191,10 @@ class StrategySettingsForm(QWidget):
         layout.addWidget(self.input_password)
         layout.addWidget(self.lbl_server)
         layout.addWidget(self.input_server)
-        capital_volume_layout = QHBoxLayout()
-        capital_volume_layout.addWidget(self.lbl_capital)
-        capital_volume_layout.addWidget(self.input_capital, stretch=1)
-        capital_volume_layout.addSpacing(20)
-        capital_volume_layout.addWidget(self.lbl_volume)
-        capital_volume_layout.addWidget(self.input_volume, stretch=1)
-        layout.addLayout(capital_volume_layout)
+        capital_lots_layout = QHBoxLayout()
+        capital_lots_layout.addWidget(self.lbl_capital_lots)
+        capital_lots_layout.addWidget(self.combo_capital_lots, stretch=1)
+        layout.addLayout(capital_lots_layout)
         layout.addLayout(terms_layout)
         layout.addWidget(self.btn_start)
         layout.addWidget(self.btn_stop)
@@ -247,6 +241,47 @@ class StrategySettingsForm(QWidget):
         self.lbl_symbol.setText(
             f'{get_text(StrategyText.SYMBOL)}<b>{sym or "-"}</b>'
         )
+
+    def _populate_capital_lots_combo(self):
+        """填入 10 個 (capital, lots) 選項；預設 index 對應 backend 的 default。"""
+        default_capital = getattr(self.main_window, "default_capital", None) or 10000
+        default_lots = getattr(self.main_window, "default_lots", None) or 0.1
+        options = self._build_capital_lots_options(default_capital, default_lots)
+        default_idx = 0
+        for idx, (cap, lots) in enumerate(options):
+            text = self._format_capital_lots_option(cap, lots)
+            self.combo_capital_lots.addItem(text, (cap, lots))
+            if abs(cap - default_capital) < 1 and abs(lots - default_lots) < 1e-4:
+                default_idx = idx
+        self.combo_capital_lots.setCurrentIndex(default_idx)
+
+    def _build_capital_lots_options(self, default_capital, default_lots):
+        """回傳 10 組 (capital, lots) tuple——前 5 個降到 min (×0.1)，後 5 個從預設往上 ×2 doubling。
+
+        Factors: [0.1, 0.2, 0.4, 0.6, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0]
+        當 default=(10000, 0.1)：min=(1000, 0.01)，max=(320000, 3.20)。
+        """
+        factors = [0.1, 0.2, 0.4, 0.6, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0]
+        return [
+            (round(default_capital * f), round(default_lots * f, 2))
+            for f in factors
+        ]
+
+    def _format_capital_lots_option(self, capital, lots):
+        """套用 i18n 模板輸出 combo item 顯示字串。"""
+        return get_text(StrategyText.CAPITAL_LOTS_OPTION).format(
+            capital=f"{int(capital):,}",
+            lots=f"{lots:.2f}",
+        )
+
+    def _get_selected_capital_lots(self):
+        """讀目前 combo 選擇的 (capital, lots) tuple；無資料時 fallback 到 backend 預設。"""
+        data = self.combo_capital_lots.currentData()
+        if data:
+            return data
+        default_capital = getattr(self.main_window, "default_capital", None) or 10000
+        default_lots = getattr(self.main_window, "default_lots", None) or 0.1
+        return (default_capital, default_lots)
 
     def _show_health_info(self):
         show_health_info_dialog(self)
@@ -341,13 +376,14 @@ class StrategySettingsForm(QWidget):
         
         self.lbl_status.setText(get_text(StrategyText.STATUS_RUNNING))
 
+        capital, lots = self._get_selected_capital_lots()
         self.worker = StrategyWorker(
             account=self.input_login_id.text(),
             password=self.input_password.text(),
             server=self.input_server.text(),
             symbol=symbol,
-            capital=float(self.input_capital.text() or 10000),
-            volume=float(self.input_volume.text() or 1),
+            capital=float(capital),
+            volume=float(lots),
             on_stop_callback=strategy.stop_main
         )
         self.worker.progress_signal.connect(self.handle_worker_progress)

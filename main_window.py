@@ -74,7 +74,7 @@ class MainWindow(QWidget):
         self.log_messages = []
         self.backtest_log_messages = []
 
-    def start_with_user(self, user_level, access_permissions, expire_date, healthy, is_subsription, user_id, strategy_id, symbol):
+    def start_with_user(self, user_level, access_permissions, expire_date, healthy, is_subsription, user_id, strategy_id, symbol, capital, lots):
         """登入後呼叫此方法初始化策略畫面。
 
         Returns:
@@ -89,6 +89,8 @@ class MainWindow(QWidget):
         self.healthy = healthy
         self.strategy_id = strategy_id
         self.symbol = symbol
+        self.default_capital = capital
+        self.default_lots = lots
         self.refresh_labels()
         self.load_setting_form()
         return True

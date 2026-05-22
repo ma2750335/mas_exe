@@ -159,7 +159,9 @@ class LoginForm(QWidget):
                         result.get("is_subsription"),
                         result.get("userId"),
                         result.get("strategy_id"),
-                        result.get("symbol")
+                        result.get("symbol"),
+                        result.get("capital"),
+                        result.get("lots")
                     )
             else:
                 login_and_notify(self, result.get("msg"), result.get("code"))

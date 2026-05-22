@@ -110,6 +110,8 @@ class StrategyText(Enum):
     ERROR_TRADE_EXPERT_DISABLED_HTML = "trade_expert_disabled_html"
     CAPITAL = "本金："
     VOLUME = "手數："
+    CAPITAL_LOTS_LABEL = "資金規模："
+    CAPITAL_LOTS_OPTION = "本金 {capital} USD / 手數 {lots}"
     STRATEGY_ID = "策略 ID："
     SYMBOL = "商品："
 
@@ -216,6 +218,8 @@ i18n_map = {
         StrategyText.ERROR_TRADE_EXPERT_DISABLED_HTML: f'MT5 尚未開啟「允許算法交易」，請先至 MT5 開啟設定後再執行策略。<br>操作設定請參考：<a href="{url.terms_ea_setting.value}">操作設定</a>',
         StrategyText.CAPITAL: "本金：",
         StrategyText.VOLUME: "手數：",
+        StrategyText.CAPITAL_LOTS_LABEL: "資金規模：",
+        StrategyText.CAPITAL_LOTS_OPTION: "本金 {capital} USD / 手數 {lots}",
         StrategyText.STRATEGY_ID: "策略 ID：",
         StrategyText.SYMBOL: "商品：",
         StrategyText.TERMS_HTML: StrategyText.TERMS_HTML.value,
@@ -297,6 +301,8 @@ Before starting automated trading, please review your MT5 EA settings in the
         StrategyText.ERROR_TRADE_EXPERT_DISABLED_HTML: f'MT5 "Algo Trading" is not enabled. Please enable it in MT5 settings before running the strategy.<br>Setup guide: <a href="{url.terms_ea_setting.value}">Setup Guide</a>',
         StrategyText.CAPITAL: "Capital:",
         StrategyText.VOLUME: "Volume (Lots):",
+        StrategyText.CAPITAL_LOTS_LABEL: "Account Size: ",
+        StrategyText.CAPITAL_LOTS_OPTION: "Capital {capital} USD / Lots {lots}",
         StrategyText.STRATEGY_ID: "Strategy ID: ",
         StrategyText.SYMBOL: "Symbol: ",
         StrategyText.TERMS_HTML: f'''

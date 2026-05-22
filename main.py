@@ -32,8 +32,8 @@ def main():
     update_language_button_text()
 
     # 登入成功的 callback：進入主畫面
-    def on_login_success(user_level, access_permissions, expire_date, healthy, is_subsription, user_id, strategy_id, symbol):
-        if not main_window.start_with_user(user_level, access_permissions, expire_date, healthy, is_subsription, user_id, strategy_id, symbol):
+    def on_login_success(user_level, access_permissions, expire_date, healthy, is_subsription, user_id, strategy_id, symbol, capital, lots):
+        if not main_window.start_with_user(user_level, access_permissions, expire_date, healthy, is_subsription, user_id, strategy_id, symbol, capital, lots):
             show_session_duplicate_dialog(container)
             app.quit()
             return
