@@ -79,8 +79,11 @@ class MainWindow(QWidget):
 
         Returns:
             True 表示進入主畫面成功；False 表示本機已有同帳號 session、被擋。
+            PRO 訂閱者放寬：不取單例鎖、允許多開。
         """
-        if not self._acquire_local_session(user_id):
+        # PRO 訂閱者放寬：允許多開，不取本機單例鎖
+        is_pro = (user_level == "PRO" and bool(is_subsription))
+        if not is_pro and not self._acquire_local_session(user_id):
             return False
         print(f"✅ 使用者登入成功（等級: {user_level}, 到期: {expire_date}）")
         self.user_id = user_id
