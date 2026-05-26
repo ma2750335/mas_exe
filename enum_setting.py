@@ -1,29 +1,12 @@
 import enum
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-
-def _read_env_version():
-    """讀 .env 的 ENV_VERSION (0=dev / 1=test / 2=pd)。
-    缺失或非法值 fallback 到 0 (dev)——避免空 .env 誤打 production。
-    """
-    raw = os.getenv("ENV_VERSION", "2").strip()
-    try:
-        val = int(raw)
-        if val in (0, 1, 2):
-            return val
-    except (ValueError, TypeError):
-        pass
-    return 0
+from env_info import ENV_VERSION
 
 
 class info(enum.Enum):
     version = "1.0.0"
     health_monitor_minutes = 60
-    # 從 .env 的 ENV_VERSION 讀取（0=dev / 1=test / 2=pd）
-    env_version = _read_env_version()
+    # 從 env_info.ENV_VERSION 讀取（0=dev / 1=test / 2=pd）
+    env_version = ENV_VERSION
     # 主 app base URL，依 env_version 對應 (dev, test, pd)
     base_url = (
         "http://localhost:3000",

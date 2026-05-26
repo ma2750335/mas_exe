@@ -3,6 +3,7 @@ from PySide6.QtCore import Qt
 import auth
 import enum_setting as es
 from i18n_strings import CheckText, get_text
+from env_info import IS_GENAI
 import sys
 import os
 
@@ -10,8 +11,8 @@ CURRENT_VERSION = es.info.version.value
 
 
 def is_genai_enabled():
-    """True if .env has IS_GENAI=True (case-insensitive). Gates all health-related UI and monitoring."""
-    return os.getenv("IS_GENAI", "").strip().lower() == "true"
+    """True if env_info.IS_GENAI is set. Gates all health-related UI and monitoring."""
+    return IS_GENAI
 
 
 def get_resource_path(relative_path):

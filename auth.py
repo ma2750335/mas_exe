@@ -1,18 +1,15 @@
 import ast
-import os
 
 import requests
 from cryptography.fernet import Fernet
-from dotenv import load_dotenv
 import enum_setting as es
+from env_info import UUID
 import uuid
 import socket
 import platform
 import socket
 import subprocess
 import json
-
-load_dotenv()
 # 這是 Fernet.generate_key() 產生的
 SHARED_SECRET_KEY = b'qjtolGolAHeJFQIYHtdosSII6vhbGF07DgKY3mnU8bI='
 
@@ -93,7 +90,7 @@ def post_request(url, payload):
 
 def login_request(email, password):
     url = es.url.login.value
-    strategy_uuid = os.getenv("UUID", "")
+    strategy_uuid = UUID
     payload = {
         "email": email,
         "password": password,
@@ -117,13 +114,13 @@ def get_strategy_health(device_uuid=None):
     """Fetch strategy health for the given device UUID.
 
     Args:
-        device_uuid: Device UUID. If None, reads from .env UUID.
+        device_uuid: Device UUID. If None, reads from env_info.UUID.
 
     Returns:
         int 0/1/2 (low/medium/high) on success, or None if unavailable.
     """
     if device_uuid is None:
-        device_uuid = os.getenv("UUID", "")
+        device_uuid = UUID
 
     # === testing stub ===
     # TODO: Replace with real API call once platform endpoint is ready:
