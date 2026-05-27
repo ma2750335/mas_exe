@@ -114,6 +114,9 @@ class StrategyText(Enum):
     CAPITAL_LOTS_OPTION = "本金 {capital} USD / 手數 {lots}"
     STRATEGY_ID = "策略 ID："
     SYMBOL = "商品："
+    STOP_CONFIRM_TITLE = "確認停止策略"
+    STOP_CONFIRM_BODY = "stop_confirm_body"
+    STOP_CONFIRM_OK = "確認"
 
 
 LEVEL_LABEL = {
@@ -222,6 +225,9 @@ i18n_map = {
         StrategyText.CAPITAL_LOTS_OPTION: "本金 {capital} USD / 手數 {lots}",
         StrategyText.STRATEGY_ID: "策略 ID：",
         StrategyText.SYMBOL: "商品：",
+        StrategyText.STOP_CONFIRM_TITLE: "確認停止策略",
+        StrategyText.STOP_CONFIRM_BODY: '⚠️ 重要：停止策略後，程式 <b>不會自動平倉</b>。<br>您 MT5 中所有未平倉部位將維持原狀，<b>繼續承受市場波動風險</b>。<br><br>請於停止後立即至 MT5 手動處理未平倉部位，以避免損失擴大。<br><br>確定要停止策略嗎？',
+        StrategyText.STOP_CONFIRM_OK: "確認",
         StrategyText.TERMS_HTML: StrategyText.TERMS_HTML.value,
         StrategyText.FOOTER: StrategyText.FOOTER.value,
         StrategyText.DIALOG_HTML_PREFIX: StrategyText.DIALOG_HTML_PREFIX.value
@@ -305,6 +311,9 @@ Before starting automated trading, please review your MT5 EA settings in the
         StrategyText.CAPITAL_LOTS_OPTION: "Capital {capital} USD / Lots {lots}",
         StrategyText.STRATEGY_ID: "Strategy ID: ",
         StrategyText.SYMBOL: "Symbol: ",
+        StrategyText.STOP_CONFIRM_TITLE: "Confirm Stop Strategy",
+        StrategyText.STOP_CONFIRM_BODY: '⚠️ Important: Stopping the strategy will <b>NOT auto-close your positions</b>.<br>All open positions in MT5 will remain and <b>continue to be exposed to market risk</b>.<br><br>Please close any open positions manually in MT5 immediately after stopping, to prevent further losses.<br><br>Are you sure you want to stop?',
+        StrategyText.STOP_CONFIRM_OK: "Confirm",
         StrategyText.TERMS_HTML: f'''
         <span style="font-size:13px; color:#333;">
         I have read and agree to the <a href="{url.terms_api.value}" style="color:#d2691e; text-decoration:none;">Terms of Use</a> and 

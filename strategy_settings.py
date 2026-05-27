@@ -10,7 +10,7 @@ import strategy
 import check_symbol
 import auth
 import enum_setting as es
-from check import get_resource_path, get_health_display, show_health_info_dialog, health_alert_if_needed, is_genai_enabled
+from check import get_resource_path, get_health_display, show_health_info_dialog, health_alert_if_needed, is_genai_enabled, confirm_stop_strategy
 
 class StrategyWorker(QThread):
     progress_signal = Signal(str)
@@ -203,7 +203,8 @@ class StrategySettingsForm(QWidget):
         self.setLayout(layout)
 
         self.btn_start.clicked.connect(self.open_confirm_dialog)
-        self.btn_stop.clicked.connect(self.stop_strategy)
+        self.btn_stop.clicked.connect(self._handle_stop_click)
+        self.btn_stop.setEnabled(False)
         self.worker = None
 
         self.health_monitor_timer = QTimer(self)
@@ -393,11 +394,23 @@ class StrategySettingsForm(QWidget):
 
         self.main_window.update_process_log(get_text(StrategyText.LOG_STARTED))
 
+        # 策略運行中：disable 開始、enable 停止，防止使用者重複觸發 worker
+        self.btn_start.setEnabled(False)
+        self.btn_stop.setEnabled(True)
+
         if is_genai_enabled():
             self._check_health()
             interval_min = es.info.health_monitor_minutes.value
             if interval_min > 0:
                 self.health_monitor_timer.start(interval_min * 60 * 1000)
+
+    def _handle_stop_click(self):
+        """btn_stop click handler——僅在使用者主動按下時跳確認，避免 closeEvent 程式化呼叫被卡。"""
+        if not self.worker:
+            return
+        if not confirm_stop_strategy(self):
+            return
+        self.stop_strategy()
 
     def stop_strategy(self):
         self.health_monitor_timer.stop()
@@ -410,6 +423,9 @@ class StrategySettingsForm(QWidget):
             self.worker = None
         self.lbl_status.setText(get_text(StrategyText.LOG_STOPPED))
         self.main_window.update_process_log(get_text(StrategyText.LOG_STOPPED))
+        # 回到 idle：enable 開始、disable 停止
+        self.btn_start.setEnabled(True)
+        self.btn_stop.setEnabled(False)
 
     def handle_worker_progress(self, msg):
         self.main_window.update_process_log(f"📄 {msg}")

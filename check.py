@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QMessageBox
 from PySide6.QtCore import Qt
 import auth
 import enum_setting as es
-from i18n_strings import CheckText, get_text
+from i18n_strings import CheckText, StrategyText, get_text
 from env_info import IS_GENAI
 import sys
 import os
@@ -122,6 +122,25 @@ def show_session_duplicate_dialog(parent):
         get_text(CheckText.SESSION_DUPLICATE_TITLE),
         get_text(CheckText.SESSION_DUPLICATE_BODY),
     )
+
+
+def confirm_stop_strategy(parent):
+    """彈確認窗：停止策略前警告手動平倉。
+
+    Returns:
+        True 若使用者按「確認」；False 若按「取消」或關閉視窗。
+    預設按鈕為「取消」——防止 Enter 誤觸造成意外停止。
+    """
+    box = QMessageBox(parent)
+    box.setIcon(QMessageBox.Warning)
+    box.setWindowTitle(get_text(StrategyText.STOP_CONFIRM_TITLE))
+    box.setTextFormat(Qt.RichText)
+    box.setText(get_text(StrategyText.STOP_CONFIRM_BODY))
+    btn_confirm = box.addButton(get_text(StrategyText.STOP_CONFIRM_OK), QMessageBox.AcceptRole)
+    btn_cancel = box.addButton(get_text(StrategyText.DIALOG_CANCEL), QMessageBox.RejectRole)
+    box.setDefaultButton(btn_cancel)
+    box.exec_()
+    return box.clickedButton() == btn_confirm
 
 
 def check_subscription(parent, level, is_subsription):
