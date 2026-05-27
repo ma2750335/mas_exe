@@ -155,6 +155,25 @@ class ConnectionManager:
                     )
             
             if self.is_not_platform():
+                # 1. 先檢查目前是否已經有登入狀態
+                current = mt5.account_info()
+
+                if current is not None and current.login == account:
+                    print('current',current)
+                    print(current.login,account)
+                    # 2. 已用同一個帳號登入 → 直接沿用，不重複登入
+                    if self.all_code is None:
+                        self.set_all_symbols()
+                    self.is_connected = True
+                    return True
+
+                # 3. 已登入但帳號不同 → 先登出，避免共用終端機時殘留舊 session
+                if current is not None and current.login != account:
+                    mt5.shutdown()
+                    self.is_connected = False
+                    self.all_code = None
+
+                # 4. 沒登入或剛登出 → 執行 initialize
                 if not mt5.initialize(login=account, password=password, server=server, timeout=timeout):
                     error_code, error_msg = mt5.last_error()
                     raise RuntimeError(
