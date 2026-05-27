@@ -5,6 +5,7 @@ import datetime
 from strategy_settings import StrategySettingsForm
 from i18n_strings import get_text
 from i18n_strings import MainWindowText
+import auth
 
 
 class MainWindow(QWidget):
@@ -89,7 +90,9 @@ class MainWindow(QWidget):
         self.user_id = user_id
         self.user_level = user_level
         self.is_subsription = is_subsription
-        self.healthy = healthy
+        # Login response sends healthy as int (0/1/2); normalise to dict so all
+        # downstream consumers (badge, alert, auto-stop) work with a single shape.
+        self.healthy = auth.healthy_from_login(healthy) if isinstance(healthy, int) else healthy
         self.strategy_id = strategy_id
         self.symbol = symbol
         self.default_capital = capital

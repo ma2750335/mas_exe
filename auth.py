@@ -100,7 +100,7 @@ def login_request(email, password):
     rsp = post_request(url, payload)
     # testing
     # TODO: implement testing
-    # print('rsp',  rsp)
+    print('rsp',  rsp)
     # data_str = "{'result': False, 'code': 'Error_exe_login_001', 'msg': 'Incorrect_password', 'userId': '8cbacb88-b3ed-4f1d-876f-23db425b08c9', 'level': 'STARTER', 'is_subsription': True, 'remainingDays': None, 'versionCode': '0.0.5', 'healthy': 0, 'symbol':'EURUSD','strategy_id':'test123','capital':10000,'lots':0.1}"
     # rsp = ast.literal_eval(data_str)
     # rsp['healthy']=0
@@ -110,29 +110,48 @@ def login_request(email, password):
     return rsp
 
 
-def get_strategy_health(device_uuid=None):
-    """Fetch strategy health for the given device UUID.
+def get_strategy_health(strategy_id=None, health_token=None):
+    """Fetch strategy health from GET /api/mas-genie/strategy-health/{strategy_id}.
+
+    Auth is passed via X-Health-Token header (64-char hex embedded at build time).
 
     Args:
-        device_uuid: Device UUID. If None, reads from env_info.UUID.
+        strategy_id: userGenieStrategyId UUID. Defaults to env_info.UUID.
+        health_token: 64-char hex token. Defaults to env_info.HEALTH_TOKEN.
 
     Returns:
-        int 0/1/2 (low/medium/high) on success, or None if unavailable.
+        dict with keys: healthLevel, shouldStop, action, message, messageKey,
+        severity, subscriptionStatus, eliteStatus — or None if request fails.
     """
-    if device_uuid is None:
-        device_uuid = UUID
+    from env_info import UUID as _UUID, HEALTH_TOKEN as _DEFAULT_TOKEN
+    if strategy_id is None:
+        strategy_id = _UUID
+    if health_token is None:
+        health_token = _DEFAULT_TOKEN
 
-    # === testing stub ===
-    # TODO: Replace with real API call once platform endpoint is ready:
-    # url = es.url.strategy_health.value
-    # payload = {"uuid": device_uuid}
-    # rsp = post_request(url, payload)
-    # if rsp.get("result"):
-    #     return rsp.get("healthy")
-    # return None
-    print(f"[stub] get_strategy_health(uuid={device_uuid}) -> 1")
-    return 1  # change for testing: 0=low / 1=medium / 2=high / None=unknown
-    # === end stub ===
+    url = f"{es.url.strategy_health.value}/{strategy_id}"
+    try:
+        response = requests.get(
+            url,
+            headers={"X-Health-Token": health_token},
+            verify=False,
+            timeout=10,
+        )
+        return response.json()
+    except Exception:
+        return None
+
+
+def healthy_from_login(n) -> dict:
+    """Convert login-response healthy int (0/1/2) → health-response dict.
+
+    Normalises the initial value at login so every downstream consumer
+    (display badge, alert, auto-stop) only ever deals with dicts.
+    """
+    _level_map = {0: "LOW", 1: "MEDIUM", 2: "HIGH"}
+    level = _level_map.get(n, "UNKNOWN")
+    action = "CONTINUE" if level == "HIGH" else "WARN"
+    return {"healthLevel": level, "shouldStop": False, "action": action, "message": None}
 
 
 def encrypt_payload(data_dict: dict) -> str:

@@ -72,16 +72,22 @@ def login_and_notify(main_window, msg=None, code=None):
     _show_html_alert(main_window, get_text(CheckText.LOGIN_FAILED_TITLE), body)
 
 
-def get_health_display(healthy):
-    """Return (label_text, color_hex) for healthy=0/1/2. Return (None, None) when IS_GENAI is off or value unknown."""
+def get_health_display(health_rsp):
+    """Return (label_text, color_hex) for a health-response dict.
+
+    Returns (None, None) when IS_GENAI is off, rsp is None, or healthLevel is UNKNOWN.
+    """
     if not is_genai_enabled():
         return None, None
-    if healthy == 0:
-        return get_text(CheckText.HEALTH_LEVEL_LOW), "#dc3545"
-    if healthy == 1:
-        return get_text(CheckText.HEALTH_LEVEL_MEDIUM), "#ff9800"
-    if healthy == 2:
+    if not health_rsp or not isinstance(health_rsp, dict):
+        return None, None
+    level = health_rsp.get("healthLevel")
+    if level == "HIGH":
         return get_text(CheckText.HEALTH_LEVEL_HIGH), "#28a745"
+    if level == "MEDIUM":
+        return get_text(CheckText.HEALTH_LEVEL_MEDIUM), "#ff9800"
+    if level == "LOW":
+        return get_text(CheckText.HEALTH_LEVEL_LOW), "#dc3545"
     return None, None
 
 
@@ -96,14 +102,30 @@ def _show_html_alert(parent, title, body_html):
     box.exec_()
 
 
-def health_alert_if_needed(parent, healthy):
+def health_alert_if_needed(parent, health_rsp) -> bool:
+    """Show alert when action is WARN or STOP.
+
+    Returns:
+        True if the strategy should be stopped (shouldStop=True); False otherwise.
+    """
     if not is_genai_enabled():
-        return
-    if healthy not in (0, 1):
-        return
-    level_key = CheckText.HEALTH_LEVEL_LOW if healthy == 0 else CheckText.HEALTH_LEVEL_MEDIUM
-    body = get_text(CheckText.HEALTH_ALERT_BODY).format(level=get_text(level_key))
+        return False
+    if not health_rsp or not isinstance(health_rsp, dict):
+        return False
+    action = health_rsp.get("action")
+    should_stop = bool(health_rsp.get("shouldStop", False))
+    if action not in ("WARN", "STOP"):
+        return should_stop
+    # Prefer backend message (already localised); fall back to local template
+    body = health_rsp.get("message") or get_text(CheckText.HEALTH_ALERT_BODY).format(
+        level=get_text(
+            CheckText.HEALTH_LEVEL_LOW
+            if health_rsp.get("healthLevel") == "LOW"
+            else CheckText.HEALTH_LEVEL_MEDIUM
+        )
+    )
     _show_html_alert(parent, get_text(CheckText.HEALTH_ALERT_TITLE), body)
+    return should_stop
 
 
 def show_health_info_dialog(parent):

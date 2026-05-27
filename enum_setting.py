@@ -27,7 +27,7 @@ class url(enum.Enum):
     upgrade = f"{_base()}/plans"
     login = f"{_base()}/api/intermediary/login"
     strategy_wizard = f"{_base()}/strategy-wizard"
-    strategy_health = f"{_base()}/api/intermediary/strategy-health"
+    strategy_health = f"{_base()}/api/mas-genie/strategy-health"
 
     # 非 mas app 子網域（目前不切 env；若需要切換之後在 info 加對應 base 變數）
     offical = "https://mindaismart.com/"

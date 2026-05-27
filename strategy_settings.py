@@ -288,12 +288,14 @@ class StrategySettingsForm(QWidget):
         show_health_info_dialog(self)
 
     def _check_health(self):
-        healthy = auth.get_strategy_health()
-        if healthy is None:
+        health_rsp = auth.get_strategy_health()
+        if health_rsp is None:
             return
-        self.main_window.healthy = healthy
+        self.main_window.healthy = health_rsp
         self._refresh_health_display()
-        health_alert_if_needed(self, healthy)
+        should_stop = health_alert_if_needed(self, health_rsp)
+        if should_stop:
+            self.stop_strategy()
 
     def open_confirm_dialog(self):
         input_login_id = self.input_login_id.text()
