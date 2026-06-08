@@ -1,8 +1,11 @@
 @echo off
 setlocal
 
-REM Change only this path if needed.
-set "PROJECT_ROOT=C:\workplace\mas_exe"
+REM Self-adaptive: use the directory of this .bat file as PROJECT_ROOT.
+REM This makes the script portable across machines / checkout paths.
+set "PROJECT_ROOT=%~dp0"
+REM Strip trailing backslash (PyInstaller flags don't tolerate it well).
+if "%PROJECT_ROOT:~-1%"=="\" set "PROJECT_ROOT=%PROJECT_ROOT:~0,-1%"
 
 REM Optional: output exe name.
 set "APP_NAME=strategy_bf6bbd37-a354-4689-91ad-e4c060ef504b"
