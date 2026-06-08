@@ -165,20 +165,18 @@ def confirm_stop_strategy(parent):
     return box.clickedButton() == btn_confirm
 
 
-def check_subscription(parent, level, is_subsription):
-    """Return True if user may proceed; show modal alert and return False otherwise."""
+def check_subscription(parent, level, is_subsription=None):
+    """Return True if user may proceed; show modal alert and return False otherwise.
+
+    只有 FREE 會被擋（提示升級會員）。STARTER / GROWTH / PRO 一律放行，
+    不再因 is_subsription 卡控登入。
+    （保留 is_subsription 參數以維持 login.py 呼叫端相容，目前不使用。）
+    """
     if level == 'FREE':
         _show_html_alert(
             parent,
             get_text(CheckText.UPGRADE_REQUIRED_TITLE),
             get_text(CheckText.UPGRADE_REQUIRED_BODY),
-        )
-        return False
-    if not is_subsription:
-        _show_html_alert(
-            parent,
-            get_text(CheckText.SUBSCRIPTION_EXPIRED_TITLE),
-            get_text(CheckText.SUBSCRIPTION_EXPIRED_BODY),
         )
         return False
     return True
