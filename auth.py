@@ -101,8 +101,9 @@ def login_request(email, password):
     rsp = post_request(url, payload)
     # testing
     # TODO: implement testing
-    print('rsp',  rsp)
+    # print('rsp',  rsp)
     # data_str = "{'result': False, 'code': 'Error_exe_login_001', 'msg': 'Incorrect_password', 'userId': '8cbacb88-b3ed-4f1d-876f-23db425b08c9', 'level': 'STARTER', 'is_subsription': True, 'remainingDays': None, 'versionCode': '0.0.5', 'healthy': 0, 'symbol':'EURUSD','strategy_id':'test123','capital':10000,'lots':0.1}"
+    # data_str = "{'result': True, 'code': 'Error_exe_login_001', 'msg': 'Incorrect_password', 'userId': '8cbacb88-b3ed-4f1d-876f-23db425b08c9', 'level': 'STARTER', 'is_subsription': True, 'remainingDays': None, 'versionCode': '0.0.5', 'healthy': 0, 'symbol':'EURUSD','strategy_id':'test123','capital':10000,'lots':0.1}"
     # rsp = ast.literal_eval(data_str)
     # rsp['healthy']=0
     # testing
