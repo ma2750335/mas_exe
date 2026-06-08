@@ -57,19 +57,19 @@ class dashboard(enum.Enum):
     # NOTE: PNG 檔名尚未實體改名，path 暫時保留舊檔名；改名 PNG 後同步更新 path
     level_icon_map = {
         "FREE": "src/free.png",
-        "FREETRAIL": "src/bronze.png",
-        "STARTER": "src/silver.png",
+        "STARTER": "src/bronze.png",
+        "GROWTH": "src/silver.png",
         "PRO": "src/gold.png"
     }
     level_access_map = {
         "FREE": "一般會員",
-        "FREETRAIL": "體驗會員",
         "STARTER": "入門會員",
+        "GROWTH": "進階會員",
         "PRO": "專業會員"
     }
     level_color_map = {
         "FREE": "#6c757d",
-        "FREETRAIL": "#cd7f32",
-        "STARTER": "#c0c0c0",
+        "STARTER": "#cd7f32",
+        "GROWTH": "#c0c0c0",
         "PRO": "goldenrod"
     }

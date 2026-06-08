@@ -59,10 +59,11 @@ def get_access_by_level(level: str) -> dict:
 
     if level == "PRO":
         access = {key: True for key in all_keys}
+    elif level == "GROWTH":
+        access["normal_report"] = True
+        access["data_report"] = True
+        access["kpi_report"] = True
     elif level == "STARTER":
-        access = {key: True for key in all_keys}
-        access["trade_report"] = False
-    elif level == "FREETRAIL":
         access["normal_report"] = True
         access["data_report"] = True
     elif level == "FREE":
