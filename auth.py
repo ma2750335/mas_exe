@@ -180,12 +180,12 @@ def login_request(email, password):
         "genai_exe_version": GENAI_EXE_VERSION,
         "default_lang": get_current_lang()
     }
-    # rsp = post_request(url, payload)
+    rsp = post_request(url, payload)
     # testing
     # TODO: implement testing
     # print('rsp',  rsp)
-    rsp = mock_rsp()
-    print(rsp)
+    # rsp = mock_rsp()
+    # print(rsp)
     # rsp['healthy']=0
     # testing
     if rsp["result"]:
