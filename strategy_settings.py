@@ -304,9 +304,9 @@ class StrategySettingsForm(QWidget):
             return
         self.main_window.healthy = health_rsp
         self._refresh_health_display()
-        should_stop = health_alert_if_needed(self, health_rsp)
-        if should_stop:
-            self.stop_strategy()
+        # 健康度只作「資訊揭露 + 提醒」，絕不停止交易程式。
+        # （原本會依 shouldStop 自動呼叫 stop_strategy，已移除——是否停止交由使用者決定）
+        health_alert_if_needed(self, health_rsp)
 
     def open_confirm_dialog(self):
         input_login_id = self.input_login_id.text()

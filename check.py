@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMessageBox
+from PySide6.QtWidgets import QMessageBox, QSpacerItem, QSizePolicy
 from PySide6.QtCore import Qt
 import auth
 import enum_setting as es
@@ -75,6 +75,20 @@ def get_health_display(health_rsp):
     return None, None
 
 
+def _force_min_width(box, min_width=480):
+    """強制 QMessageBox 最小寬度，避免標題列文字被截斷。
+
+    QMessageBox 預設只依「內文」寬度自適應；當內文很短而標題較長時，
+    視窗會太窄、標題列文字被省略成「…」。做法是在 grid layout 最底列
+    塞一個橫向 spacer 撐出最小寬度，標題就有空間完整顯示。
+    """
+    layout = box.layout()
+    if layout is None:
+        return
+    spacer = QSpacerItem(min_width, 0, QSizePolicy.Minimum, QSizePolicy.Expanding)
+    layout.addItem(spacer, layout.rowCount(), 0, 1, layout.columnCount())
+
+
 def _show_html_alert(parent, title, body_html):
     box = QMessageBox(parent)
     box.setIcon(QMessageBox.Warning)
@@ -83,6 +97,7 @@ def _show_html_alert(parent, title, body_html):
     box.setTextInteractionFlags(Qt.TextBrowserInteraction)
     box.setText(body_html)
     box.setStandardButtons(QMessageBox.Ok)
+    _force_min_width(box)
     box.exec_()
 
 
