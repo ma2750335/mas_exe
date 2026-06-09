@@ -84,7 +84,7 @@ class StrategyText(Enum):
     START = "開始執行"
     STOP = "停止"
     STATUS_IDLE = "狀態：未執行"
-    FOOTER = '''<span style="font-size:13px; color:#666;">🚀 點我升級 MasQuant，立即創造更多專業策略：<a href="https://mas.mindaismart.com/plans" style="color:#0078D7;">前往升級</a></span>'''
+    FOOTER = f'''<span style="font-size:13px; color:#666;">🚀 點我升級 MasQuant，立即創造更多專業策略：<a href="{url.upgrade.value}" style="color:#0078D7;">前往升級</a></span>'''
     ERROR_TITLE = "錯誤"
     ERROR_INPUT_REQUIRED = "請填寫所有設定值！"
     ERROR_TERMS_REQUIRED = "請先勾選同意條款與政策才能執行策略。"
@@ -311,7 +311,7 @@ Before starting automated trading, please review your MT5 EA settings in the
         <a href="{url.terms_disclaimer.value}" style="color:#d2691e; text-decoration:none;">Disclaimer</a>
         </span>
         ''',
-        StrategyText.FOOTER: '''<span style="font-size:13px; color:#666;">🚀 Upgrade to MasQuant for more professional strategies: <a href="https://mas.mindaismart.com/plans" style="color:#0078D7;">Upgrade Now</a></span>''',
+        StrategyText.FOOTER: f'''<span style="font-size:13px; color:#666;">🚀 Upgrade to MasQuant for more professional strategies: <a href="{url.upgrade.value}" style="color:#0078D7;">Upgrade Now</a></span>''',
         StrategyText.DIALOG_HTML_PREFIX: '''
         <b>Please confirm strategy settings:</b><br>
         <b>Account:</b> {account}<br>
@@ -398,7 +398,7 @@ Before starting automated trading, please review your MT5 EA settings in the
         <a href="{url.terms_disclaimer.value}" style="color:#d2691e; text-decoration:none;">免责声明</a>
         </span>
     ''',
-        StrategyText.FOOTER: '''<span style="font-size:13px; color:#666;">🚀 点我升级 MasQuant，立即创造更多专业策略：<a href="https://mas.mindaismart.com/plans" style="color:#0078D7;">前往升级</a></span>''',
+        StrategyText.FOOTER: f'''<span style="font-size:13px; color:#666;">🚀 点我升级 MasQuant，立即创造更多专业策略：<a href="{url.upgrade.value}" style="color:#0078D7;">前往升级</a></span>''',
         StrategyText.DIALOG_HTML_PREFIX: '''
         <b>请确认交易设置：</b><br>
         <b>券商账号：</b> {account}<br>

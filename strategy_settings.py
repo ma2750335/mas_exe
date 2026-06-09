@@ -257,16 +257,27 @@ class StrategySettingsForm(QWidget):
         self.combo_capital_lots.setCurrentIndex(default_idx)
 
     def _build_capital_lots_options(self, default_capital, default_lots):
-        """回傳 10 組 (capital, lots) tuple——前 5 個降到 min (×0.1)，後 5 個從預設往上 ×2 doubling。
+        """回傳 (capital, lots) 選項：以預設為中心 ×0.1 ~ ×32 等比縮放。
 
-        Factors: [0.1, 0.2, 0.4, 0.6, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0]
-        當 default=(10000, 0.1)：min=(1000, 0.01)，max=(320000, 3.20)。
+        不變量：
+          - 手數下限夾在 0.01（券商最小手數）；不會出現 0.00。
+          - 同手數去重；不會有重複選項（縮到 0.01 而疊在一起的階梯只留一個）。
+          - 預設 (capital, lots) 必為其中一項（_populate 以它定預設選中）。
+          - 本金維持整數縮放 round(capital × factor)。
+
+        例：default=(10000, 0.10) → 10 項，最小 (1000, 0.01)、最大 (320000, 3.20)。
+            default=(10000, 0.03) → 8 項，最小 (1000, 0.01)、含預設 (10000, 0.03)。
         """
+        MIN_LOTS = 0.01
+        default_lots = max(round(default_lots, 2), MIN_LOTS)
         factors = [0.1, 0.2, 0.4, 0.6, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0]
-        return [
-            (round(default_capital * f), round(default_lots * f, 2))
-            for f in factors
-        ]
+        by_lots = {}  # lots -> capital；setdefault 讓同一手數保留第一個（最小本金）
+        for f in factors:
+            lots = max(round(default_lots * f, 2), MIN_LOTS)
+            by_lots.setdefault(lots, round(default_capital * f))
+        # 預設手數務必對應「預設本金」，避免被縮放階梯蓋掉（default_lots=0.01 時尤其重要）
+        by_lots[default_lots] = round(default_capital)
+        return [(by_lots[lots], lots) for lots in sorted(by_lots)]
 
     def _format_capital_lots_option(self, capital, lots):
         """套用 i18n 模板輸出 combo item 顯示字串。"""

@@ -107,17 +107,17 @@ def mock_rsp():
     # 行為：不跳訊息 → result=True → 通過 FREE gate → 進主畫面；PRO+訂閱中 → 可多開
 
     # ── Case 2：成功登入「但附帶通知」（msg_toggle=True + result=True）──────
-    rsp = {
-        'result': True,
-        'msg_toggle': True,
-        'msg': '您的訂閱將於 3 天後到期，請及時續訂以免服務中斷。',
-        'userId': '8cbacb88-...-23db425b08c9',
-        'level': 'STARTER',
-        'is_subsription': True,
-        'healthy': 1,
-        'expire_date': '2026-06-12',
-        'symbol': 'EURUSD', 'strategy_id': 'test123', 'capital': 10000, 'lots': 0.03
-    }
+    # rsp = {
+    #     'result': True,
+    #     'msg_toggle': True,
+    #     'msg': '您的訂閱將於 3 天後到期，請及時續訂以免服務中斷。',
+    #     'userId': '8cbacb88-...-23db425b08c9',
+    #     'level': 'STARTER',
+    #     'is_subsription': True,
+    #     'healthy': 1,
+    #     'expire_date': '2026-06-12',
+    #     'symbol': 'EURUSD', 'strategy_id': 'test123', 'capital': 10000, 'lots': 0.03
+    # }
     # 行為：先跳「提醒」彈窗顯示 msg → 關閉後 result=True → 登入（兩旗標獨立）
 
     # ── Case 3：登入失敗，顯示後端原因（最常見）──────────────────────────
@@ -159,11 +159,11 @@ def mock_rsp():
     #       但 is_pro=False（非PRO）→ 受單例鎖，不能多開
 
     # ── Case 7：msg 帶 HTML 連結（_show_html_alert 是 RichText，可放 <a>）──
-    # rsp = {
-    #     'result': False,
-    #     'msg_toggle': True,
-    #     'msg': '此帳號已被停用。<br>請至 <a href="https://mas.mindaismart.com/support" style="color:#0078D7;">客服中心</a> 申訴。',
-    # }
+    rsp = {
+        'result': False,
+        'msg_toggle': True,
+        'msg': '此帳號已被停用。<br>請至 <a href="https://mas.mindaismart.com/support" style="color:#0078D7;">客服中心</a> 申訴。',
+    }
     # 行為：跳「登入失敗」彈窗，msg 內的連結可點擊（HTML 正常渲染）
     return rsp
 
