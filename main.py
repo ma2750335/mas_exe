@@ -18,9 +18,11 @@ def main():
     language_button = QPushButton()
     language_button.setFixedWidth(100)
 
+    # 按鈕顯示「下一個」要切換到的語言（與 switch_lang 的 en→zh→cn 循環順序一致）
+    _NEXT_LANG_LABEL = {"en": "繁體中文", "zh": "简体中文", "cn": "English"}
+
     def update_language_button_text():
-        current_lang = get_current_lang()
-        language_button.setText("English" if current_lang == "zh" else "繁體中文")
+        language_button.setText(_NEXT_LANG_LABEL.get(get_current_lang(), "繁體中文"))
 
     def toggle_language():
         switch_lang()

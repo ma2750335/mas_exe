@@ -5,9 +5,18 @@ from enum_setting import url
 DEFAULT_LANG = "en"
 
 
+# 語言循環順序：英文 → 繁中 → 簡中 → 英文 ...
+_LANG_CYCLE = ["en", "zh", "cn"]
+
+
 def switch_lang():
+    """循環切換語言：en → zh → cn → en。"""
     global DEFAULT_LANG
-    DEFAULT_LANG = "en" if DEFAULT_LANG == "zh" else "zh"
+    try:
+        idx = _LANG_CYCLE.index(DEFAULT_LANG)
+    except ValueError:
+        idx = 0
+    DEFAULT_LANG = _LANG_CYCLE[(idx + 1) % len(_LANG_CYCLE)]
 
 
 def get_current_lang():
@@ -131,6 +140,12 @@ LEVEL_LABEL = {
         "STARTER": "Starter",
         "GROWTH": "Growth",
         "PRO": "Pro"
+    },
+    "cn": {
+        "FREE": "一般会员",
+        "STARTER": "入门会员",
+        "GROWTH": "进阶会员",
+        "PRO": "专业会员"
     }
 }
 
@@ -326,6 +341,101 @@ Before starting automated trading, please review your MT5 EA settings in the
         <b>Account:</b> {account}<br>
         <b>Server:</b> {server}<br>
         '''
+    },
+    "cn": {
+        MainWindowText.TITLE: "MasQuant 交易系统",
+        MainWindowText.VERSION_PREFIX: "版本：v",
+        MainWindowText.PROCESS_LOG_LABEL: "📝 流程 Log",
+        MainWindowText.BACKTEST_LOG_LABEL: "📊 交易信号 Log",
+        MainWindowText.BACKTEST_LOG_PLACEHOLDER: "这里显示进出场与市价信号...",
+        LoginText.TITLE: "MasQuant 交易系统",
+        LoginText.USERNAME: "账号：",
+        LoginText.PASSWORD: "密码：",
+        LoginText.LOGIN_BUTTON: "登录",
+        LoginText.REGISTER_BUTTON: "注册",
+        LoginText.FORGOT_PASSWORD: "忘记密码？",
+        LoginText.TERMS_HTML: f'''
+        <span style="font-size:13px; color:#333;">
+        自动化交易前，请先确认MT5 EA设置 <a href="{url.terms_ea_setting.value}" style="color:#d2691e; text-decoration:none;">操作设置</a>
+        </span>
+    ''',
+        LoginText.ERROR_TITLE: "错误",
+        LoginText.REMEBER: "记住我",
+        LoginText.ERROR_TERMS_REQUIRED: "请先确认MT5设置才能执行策略。",
+        CheckText.VERSION_ALERT_TITLE: "版本更新提醒",
+        CheckText.VERSION_ALERT_BODY: "发现新版本 {latest}，您当前使用的是 {current}\n请至官网下载最新版！",
+        CheckText.LOGIN_FAILED_TITLE: "登录失败",
+        CheckText.LOGIN_FAILED_BODY: "请重新确认账号密码！",
+        CheckText.LOGIN_ERROR_001: "账号不存在，请确认您的 Email 是否正确，或先完成注册。",
+        CheckText.LOGIN_ERROR_002: "您的 Email 尚未验证，请至邮箱完成验证后再登录。",
+        CheckText.LOGIN_ERROR_003: "密码错误，请重新输入。",
+        CheckText.LOGIN_ERROR_004: "密码验证发生内部错误，请稍后再试或联系客服。",
+        CheckText.LOGIN_ERROR_005: f'您当前的会员方案不支持桌面版（EXE）。<br>请前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官网</a> 升级方案以解锁此功能。',
+        CheckText.LOGIN_ERROR_006: "找不到对应策略，请联系客服协助处理。",
+        CheckText.LOGIN_ERROR_007: f'您原本使用的策略已被移除。<br>请前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官网</a> 的策略向导重新选择策略。',
+        CheckText.LOGIN_ERROR_008: f'Elite 策略已下架。<br>请前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官网</a> 查看其他可用方案。',
+        CheckText.LOGIN_ERROR_999: "系统发生错误，请稍后再试。若问题持续，请联系客服。",
+        CheckText.HEALTH_ALERT_TITLE: "策略健康度提醒",
+        CheckText.HEALTH_ALERT_BODY: f'系统检测到您当前的策略健康度为「{{level}}」。<br>为维护您的投资绩效与资产稳健成长，建议尽快前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官网</a> 的策略向导，更新至最新版本的策略。',
+        CheckText.HEALTH_LEVEL_LOW: "低",
+        CheckText.HEALTH_LEVEL_MEDIUM: "中",
+        CheckText.HEALTH_LEVEL_HIGH: "高",
+        CheckText.STRATEGY_HEALTH_LABEL: "策略健康度：",
+        CheckText.HEALTH_INFO_TITLE: "策略健康度说明",
+        CheckText.HEALTH_INFO_BODY: f'<span style="color:#28a745; font-size:16px;">●</span> <b>高</b>：策略状态良好，可放心继续使用。<br><br><span style="color:#ff9800; font-size:16px;">●</span> <b>中</b>：部分策略已开始过时，建议尽快更新以维持绩效。<br><br><span style="color:#dc3545; font-size:16px;">●</span> <b>低</b>：策略已过时，绩效可能受影响，请立即更新。<br><br>请前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官网</a> 的策略向导更新最新策略，以保护您的投资。',
+        CheckText.UPGRADE_REQUIRED_TITLE: "需要升级会员",
+        CheckText.UPGRADE_REQUIRED_BODY: f'您当前的会员等级无法使用此功能。<br>请前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官网</a> 升级会员，解锁完整功能与专业策略。',
+        CheckText.SUBSCRIPTION_EXPIRED_TITLE: "订阅已过期",
+        CheckText.SUBSCRIPTION_EXPIRED_BODY: f'您的订阅已过期，当前无法使用付费功能。<br>请前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官网</a> 续订方案，继续享有完整服务。',
+        CheckText.SESSION_DUPLICATE_TITLE: "重复登录",
+        CheckText.SESSION_DUPLICATE_BODY: f'本机已打开此账号的 MasQuant 交易系统。<br><br>为避免策略冲突与重复下单风险，当前同一账号在同一台电脑上仅能打开一个窗口。<br>请先关闭现有窗口后再试一次。<br><br>若您需要同时部署多个窗口执行策略，请前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官网</a> 升级会员等级以解锁此功能。',
+        StrategyText.TITLE: "策略设置",
+        StrategyText.LOGIN_ID: "MT5登录账号：",
+        StrategyText.PASSWORD: "MT5登录密码：",
+        StrategyText.SERVER: "MT5券商服务器：",
+        StrategyText.START: "开始执行",
+        StrategyText.STOP: "停止",
+        StrategyText.STATUS_IDLE: "状态：未执行",
+        StrategyText.ERROR_TITLE: "错误",
+        StrategyText.ERROR_INPUT_REQUIRED: "请填写所有设置值！",
+        StrategyText.ERROR_TERMS_REQUIRED: "请先勾选同意条款与政策才能执行策略。",
+        StrategyText.DIALOG_TITLE: "确认交易设置",
+        StrategyText.DIALOG_CONFIRM: "确认执行",
+        StrategyText.DIALOG_CANCEL: "取消",
+        StrategyText.DIALOG_RISK_HTML: '<span style="font-size:13px; color:#333;">我已了解：当程序关闭、网络断线、电脑关机或断电时，程序交易将自动停止，未平仓仓位需自行处理。</span>',
+        StrategyText.LOG_OPENED: "🛠 打开策略设置界面",
+        StrategyText.LOG_DIALOG: "📌 显示交易确认窗口",
+        StrategyText.LOG_STARTED: "🚀 策略开始执行",
+        StrategyText.LOG_STOPPED: "⏹️ 策略已停止",
+        StrategyText.STATUS_RUNNING: "策略执行中...",
+        StrategyText.STATUS_DONE: "❗ 策略执行完成，策略执行中，请勿关闭窗口，关闭窗口则程序交易也会停止！",
+        StrategyText.STATUS_FAILED: "❌ 策略执行失败！",
+        StrategyText.LOG_SUCCESS: "✅ 策略执行中！",
+        StrategyText.LOG_FAILED: "❌ 策略失败：{error}",
+        StrategyText.ERROR_SYMBOL_NOT_FOUND: "商品代码错误，请输入正确的商品代码",
+        StrategyText.ERROR_TRADE_EXPERT_DISABLED: "MT5 尚未开启「允许算法交易」，请先至 MT5 开启设置后再执行策略。",
+        StrategyText.ERROR_TRADE_EXPERT_DISABLED_HTML: f'MT5 尚未开启「允许算法交易」，请先至 MT5 开启设置后再执行策略。<br>操作设置请参考：<a href="{url.terms_ea_setting.value}">操作设置</a>',
+        StrategyText.CAPITAL: "本金：",
+        StrategyText.VOLUME: "手数：",
+        StrategyText.CAPITAL_LOTS_LABEL: "资金规模：",
+        StrategyText.CAPITAL_LOTS_OPTION: "本金 {capital} USD / 手数 {lots}",
+        StrategyText.STRATEGY_ID: "策略 ID：",
+        StrategyText.SYMBOL: "商品：",
+        StrategyText.STOP_CONFIRM_TITLE: "确认停止策略",
+        StrategyText.STOP_CONFIRM_BODY: '⚠️ 重要：停止策略后，程序 <b>不会自动平仓</b>。<br>您 MT5 中所有未平仓仓位将维持原状，<b>继续承受市场波动风险</b>。<br><br>请于停止后立即至 MT5 手动处理未平仓仓位，以避免损失扩大。<br><br>确定要停止策略吗？',
+        StrategyText.STOP_CONFIRM_OK: "确认",
+        StrategyText.TERMS_HTML: f'''
+        <span style="font-size:13px; color:#333;">
+        我已阅读及同意以上使用条款 <a href="{url.terms_api.value}" style="color:#d2691e; text-decoration:none;">使用条款</a> 和
+        <a href="{url.terms_disclaimer.value}" style="color:#d2691e; text-decoration:none;">免责声明</a>
+        </span>
+    ''',
+        StrategyText.FOOTER: '''<span style="font-size:13px; color:#666;">🚀 点我升级 MasQuant，立即创造更多专业策略：<a href="https://mas.mindaismart.com/plans" style="color:#0078D7;">前往升级</a></span>''',
+        StrategyText.DIALOG_HTML_PREFIX: '''
+        <b>请确认交易设置：</b><br>
+        <b>券商账号：</b> {account}<br>
+        <b>券商服务器：</b> {server}<br>
+    '''
     }
 }
 

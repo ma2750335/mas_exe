@@ -21,3 +21,9 @@ IS_GENAI = True
 
 # 環境版本：0 = dev (localhost) / 1 = test / 2 = pd
 ENV_VERSION = 1
+
+# GENAI EXE 功能版本（後端用來識別此 EXE 的版本，登入時隨 payload 上送）
+GENAI_EXE_VERSION = "0.0.1"
+
+# 預設語言（en / zh / cn）— 目前僅為常數，尚未接線到 i18n（保留供未來使用）
+DEFAULT_LANG = "en"

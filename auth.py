@@ -3,7 +3,7 @@ import ast
 import requests
 from cryptography.fernet import Fernet
 import enum_setting as es
-from env_info import UUID
+from env_info import UUID, GENAI_EXE_VERSION
 import uuid
 import socket
 import platform
@@ -90,13 +90,17 @@ def post_request(url, payload):
 
 
 def login_request(email, password):
+    # 延遲 import 避免模組載入順序問題；default_lang 取使用者「當下」選擇的語言
+    from i18n_strings import get_current_lang
     url = es.url.login.value
     strategy_uuid = UUID
     payload = {
         "email": email,
         "password": password,
         "device_info": get_device_info(),
-        "uuid": strategy_uuid
+        "uuid": strategy_uuid,
+        "genai_exe_version": GENAI_EXE_VERSION,
+        "default_lang": get_current_lang()
     }
     rsp = post_request(url, payload)
     # testing
