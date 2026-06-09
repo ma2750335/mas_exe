@@ -53,15 +53,7 @@ class CheckText(Enum):
     VERSION_ALERT_BODY = "發現新版本 {latest}，您目前使用的是 {current}\n請至官網下載最新版！"
     LOGIN_FAILED_TITLE = "登錄失敗"
     LOGIN_FAILED_BODY = "請重新確認帳號密碼！"
-    LOGIN_ERROR_001 = "login_error_001"
-    LOGIN_ERROR_002 = "login_error_002"
-    LOGIN_ERROR_003 = "login_error_003"
-    LOGIN_ERROR_004 = "login_error_004"
-    LOGIN_ERROR_005 = "login_error_005"
-    LOGIN_ERROR_006 = "login_error_006"
-    LOGIN_ERROR_007 = "login_error_007"
-    LOGIN_ERROR_008 = "login_error_008"
-    LOGIN_ERROR_999 = "login_error_999"
+    LOGIN_NOTICE_TITLE = "提醒"
     HEALTH_ALERT_TITLE = "策略健康度提醒"
     HEALTH_ALERT_BODY = "health_alert_body"
     HEALTH_LEVEL_LOW = "低"
@@ -185,15 +177,7 @@ i18n_map = {
         CheckText.VERSION_ALERT_BODY: "發現新版本 {latest}，您目前使用的是 {current}\n請至官網下載最新版！",
         CheckText.LOGIN_FAILED_TITLE: "登錄失敗",
         CheckText.LOGIN_FAILED_BODY: "請重新確認帳號密碼！",
-        CheckText.LOGIN_ERROR_001: "帳號不存在，請確認您的 Email 是否正確，或先完成註冊。",
-        CheckText.LOGIN_ERROR_002: "您的 Email 尚未驗證，請至信箱完成驗證後再登入。",
-        CheckText.LOGIN_ERROR_003: "密碼錯誤，請重新輸入。",
-        CheckText.LOGIN_ERROR_004: "密碼驗證發生內部錯誤，請稍後再試或聯繫客服。",
-        CheckText.LOGIN_ERROR_005: f'您目前的會員方案不支援桌面版（EXE）。<br>請前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官網</a> 升級方案以解鎖此功能。',
-        CheckText.LOGIN_ERROR_006: "找不到對應策略，請聯繫客服協助處理。",
-        CheckText.LOGIN_ERROR_007: f'您原本使用的策略已被移除。<br>請前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官網</a> 的策略精靈重新選擇策略。',
-        CheckText.LOGIN_ERROR_008: f'Elite 策略已下架。<br>請前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官網</a> 查看其他可用方案。',
-        CheckText.LOGIN_ERROR_999: "系統發生錯誤，請稍後再試。若問題持續，請聯繫客服。",
+        CheckText.LOGIN_NOTICE_TITLE: "提醒",
         CheckText.HEALTH_ALERT_TITLE: "策略健康度提醒",
         CheckText.HEALTH_ALERT_BODY: f'系統偵測到您目前的策略健康度為「{{level}}」。<br>為維護您的投資績效與資產穩健成長，建議盡快前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官網</a> 的策略精靈，更新至最新版本的策略。',
         CheckText.HEALTH_LEVEL_LOW: "低",
@@ -271,15 +255,7 @@ Before starting automated trading, please review your MT5 EA settings in the
         CheckText.VERSION_ALERT_BODY: "New version {latest} found. You are using {current}.\nPlease visit the official site to download the latest version!",
         CheckText.LOGIN_FAILED_TITLE: "Login Failed",
         CheckText.LOGIN_FAILED_BODY: "Please check your username or password again!",
-        CheckText.LOGIN_ERROR_001: "Account not found. Please check your email or register first.",
-        CheckText.LOGIN_ERROR_002: "Your email is not yet verified. Please check your inbox to complete verification before logging in.",
-        CheckText.LOGIN_ERROR_003: "Incorrect password. Please try again.",
-        CheckText.LOGIN_ERROR_004: "Internal password verification error. Please try again later or contact support.",
-        CheckText.LOGIN_ERROR_005: f'Your current membership plan does not support the desktop (EXE) version.<br>Please visit the <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">official website</a> to upgrade your plan and unlock this feature.',
-        CheckText.LOGIN_ERROR_006: "Strategy not found. Please contact support for assistance.",
-        CheckText.LOGIN_ERROR_007: f'Your previously selected strategy has been removed.<br>Please visit the Strategy Wizard on our <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">official website</a> to select a new strategy.',
-        CheckText.LOGIN_ERROR_008: f'Elite has been delisted.<br>Please visit the <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">official website</a> to view other available plans.',
-        CheckText.LOGIN_ERROR_999: "A system error has occurred. Please try again later. If the problem persists, please contact support.",
+        CheckText.LOGIN_NOTICE_TITLE: "Notice",
         CheckText.HEALTH_ALERT_TITLE: "Strategy Health Notice",
         CheckText.HEALTH_ALERT_BODY: f'Your current strategy health is "{{level}}".<br>To safeguard your investment performance and the steady growth of your assets, we recommend visiting the Strategy Wizard on our <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">official website</a> and updating to the latest strategy.',
         CheckText.HEALTH_LEVEL_LOW: "Low",
@@ -366,15 +342,7 @@ Before starting automated trading, please review your MT5 EA settings in the
         CheckText.VERSION_ALERT_BODY: "发现新版本 {latest}，您当前使用的是 {current}\n请至官网下载最新版！",
         CheckText.LOGIN_FAILED_TITLE: "登录失败",
         CheckText.LOGIN_FAILED_BODY: "请重新确认账号密码！",
-        CheckText.LOGIN_ERROR_001: "账号不存在，请确认您的 Email 是否正确，或先完成注册。",
-        CheckText.LOGIN_ERROR_002: "您的 Email 尚未验证，请至邮箱完成验证后再登录。",
-        CheckText.LOGIN_ERROR_003: "密码错误，请重新输入。",
-        CheckText.LOGIN_ERROR_004: "密码验证发生内部错误，请稍后再试或联系客服。",
-        CheckText.LOGIN_ERROR_005: f'您当前的会员方案不支持桌面版（EXE）。<br>请前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官网</a> 升级方案以解锁此功能。',
-        CheckText.LOGIN_ERROR_006: "找不到对应策略，请联系客服协助处理。",
-        CheckText.LOGIN_ERROR_007: f'您原本使用的策略已被移除。<br>请前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官网</a> 的策略向导重新选择策略。',
-        CheckText.LOGIN_ERROR_008: f'Elite 策略已下架。<br>请前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官网</a> 查看其他可用方案。',
-        CheckText.LOGIN_ERROR_999: "系统发生错误，请稍后再试。若问题持续，请联系客服。",
+        CheckText.LOGIN_NOTICE_TITLE: "提醒",
         CheckText.HEALTH_ALERT_TITLE: "策略健康度提醒",
         CheckText.HEALTH_ALERT_BODY: f'系统检测到您当前的策略健康度为「{{level}}」。<br>为维护您的投资绩效与资产稳健成长，建议尽快前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官网</a> 的策略向导，更新至最新版本的策略。',
         CheckText.HEALTH_LEVEL_LOW: "低",

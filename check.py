@@ -42,34 +42,18 @@ def check_and_notify(main_window):
     return True
 
 
-_LOGIN_ERROR_CODE_MAP = {
-    "Error_exe_login_001": CheckText.LOGIN_ERROR_001,
-    "Error_exe_login_002": CheckText.LOGIN_ERROR_002,
-    "Error_exe_login_003": CheckText.LOGIN_ERROR_003,
-    "Error_exe_login_004": CheckText.LOGIN_ERROR_004,
-    "Error_exe_login_005": CheckText.LOGIN_ERROR_005,
-    "Error_exe_login_006": CheckText.LOGIN_ERROR_006,
-    "Error_exe_login_007": CheckText.LOGIN_ERROR_007,
-    "Error_exe_login_008": CheckText.LOGIN_ERROR_008,
-    "Error_exe_login_999": CheckText.LOGIN_ERROR_999,
-}
+def login_and_notify(main_window, msg=None, is_success=False):
+    """顯示後端回傳的登入訊息（rsp 的 msg_toggle=True 時呼叫）。
 
-
-def login_and_notify(main_window, msg=None, code=None):
-    """Show login failure dialog.
-
-    Resolution order:
-      1. code 已知 → 用對應 i18n message（支援 HTML 連結）
-      2. code 未知或缺 → fall back 到後端 raw msg
-      3. 都沒有 → fall back 到本地預設 LOGIN_FAILED_BODY
+    登入成敗與訊息內容皆由 SERVER 端決定；前端不再用 error code 對應本地 i18n。
+    is_success 只決定彈窗標題：
+      - True  → 中性「提醒」（登入成功但後端仍附帶一則通知）
+      - False → 「登入失敗」
+    msg 為空時 fall back 到本地預設 LOGIN_FAILED_BODY。
     """
-    if code and code in _LOGIN_ERROR_CODE_MAP:
-        body = get_text(_LOGIN_ERROR_CODE_MAP[code])
-    elif msg:
-        body = msg
-    else:
-        body = get_text(CheckText.LOGIN_FAILED_BODY)
-    _show_html_alert(main_window, get_text(CheckText.LOGIN_FAILED_TITLE), body)
+    body = msg or get_text(CheckText.LOGIN_FAILED_BODY)
+    title_key = CheckText.LOGIN_NOTICE_TITLE if is_success else CheckText.LOGIN_FAILED_TITLE
+    _show_html_alert(main_window, get_text(title_key), body)
 
 
 def get_health_display(health_rsp):

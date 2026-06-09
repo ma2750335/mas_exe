@@ -87,7 +87,85 @@ def post_request(url, payload):
     except Exception as err:
         # print("err:",err)
         return error_rsp
+def mock_rsp():
+    
+    # ── Case 1：正常成功登入（PRO，無附帶訊息）────────────────────────────
+    # rsp = {
+    #     'result': True,
+    #     'msg_toggle': False,
+    #     'msg': '',
+    #     'userId': '8cbacb88-b3ed-4f1d-876f-23db425b08c9',
+    #     'level': 'PRO',
+    #     'is_subsription': True,
+    #     'healthy': 2,                 # 0=LOW / 1=MEDIUM / 2=HIGH
+    #     'expire_date': '2026-12-31',
+    #     'symbol': 'EURUSD',
+    #     'strategy_id': 'test123',
+    #     'capital': 10000,
+    #     'lots': 0.1
+    # }
+    # 行為：不跳訊息 → result=True → 通過 FREE gate → 進主畫面；PRO+訂閱中 → 可多開
 
+    # ── Case 2：成功登入「但附帶通知」（msg_toggle=True + result=True）──────
+    rsp = {
+        'result': True,
+        'msg_toggle': True,
+        'msg': '您的訂閱將於 3 天後到期，請及時續訂以免服務中斷。',
+        'userId': '8cbacb88-...-23db425b08c9',
+        'level': 'STARTER',
+        'is_subsription': True,
+        'healthy': 1,
+        'expire_date': '2026-06-12',
+        'symbol': 'EURUSD', 'strategy_id': 'test123', 'capital': 10000, 'lots': 0.03
+    }
+    # 行為：先跳「提醒」彈窗顯示 msg → 關閉後 result=True → 登入（兩旗標獨立）
+
+    # ── Case 3：登入失敗，顯示後端原因（最常見）──────────────────────────
+    # rsp = {
+    #     'result': False,
+    #     'msg_toggle': True,
+    #     'msg': '帳號或密碼錯誤，請重新確認。',
+    #     'level': None, 'is_subsription': False, 'healthy': 0
+    # }
+    # 行為：跳「登入失敗」彈窗顯示 msg → result=False → 不登入
+
+    # ── Case 4：登入失敗，但「靜默不顯示」（風控情境）────────────────────
+    # rsp = {
+    #     'result': False,
+    #     'msg_toggle': False,
+    #     'msg': ''
+    # }
+    # 行為：完全不跳訊息、也不登入（後端決定不透露原因）
+
+    # ── Case 5：成功但 FREE 方案 → 被前端方案 gate 擋在主畫面外 ───────────
+    # rsp = {
+    #     'result': True,
+    #     'msg_toggle': False,
+    #     'msg': '',
+    #     'userId': '...', 'level': 'FREE', 'is_subsription': False, 'healthy': 2,
+    #     'symbol': 'EURUSD', 'strategy_id': 'test123', 'capital': 10000, 'lots': 0.1
+    # }
+    # 行為：不跳訊息 → result=True，但 check_subscription('FREE') → 跳「需要升級會員」→ 不進主畫面
+
+    # ── Case 6：GROWTH 沒訂閱也能登入（已移除訂閱卡控）────────────────────
+    # rsp = {
+    #     'result': True,
+    #     'msg_toggle': False,
+    #     'msg': '',
+    #     'userId': '...', 'level': 'GROWTH', 'is_subsription': False, 'healthy': 0,
+    #     'symbol': 'XAUUSD', 'strategy_id': 'g-strategy', 'capital': 50000, 'lots': 0.5
+    # }
+    # 行為：result=True → check_subscription('GROWTH', is_subsription=False) → 非FREE 一律通過 → 進主畫面
+    #       但 is_pro=False（非PRO）→ 受單例鎖，不能多開
+
+    # ── Case 7：msg 帶 HTML 連結（_show_html_alert 是 RichText，可放 <a>）──
+    # rsp = {
+    #     'result': False,
+    #     'msg_toggle': True,
+    #     'msg': '此帳號已被停用。<br>請至 <a href="https://mas.mindaismart.com/support" style="color:#0078D7;">客服中心</a> 申訴。',
+    # }
+    # 行為：跳「登入失敗」彈窗，msg 內的連結可點擊（HTML 正常渲染）
+    return rsp
 
 def login_request(email, password):
     # 延遲 import 避免模組載入順序問題；default_lang 取使用者「當下」選擇的語言
@@ -102,13 +180,12 @@ def login_request(email, password):
         "genai_exe_version": GENAI_EXE_VERSION,
         "default_lang": get_current_lang()
     }
-    rsp = post_request(url, payload)
+    # rsp = post_request(url, payload)
     # testing
     # TODO: implement testing
     # print('rsp',  rsp)
-    # data_str = "{'result': False, 'code': 'Error_exe_login_001', 'msg': 'Incorrect_password', 'userId': '8cbacb88-b3ed-4f1d-876f-23db425b08c9', 'level': 'STARTER', 'is_subsription': True, 'remainingDays': None, 'versionCode': '0.0.5', 'healthy': 0, 'symbol':'EURUSD','strategy_id':'test123','capital':10000,'lots':0.1}"
-    # data_str = "{'result': True, 'code': 'Error_exe_login_001', 'msg': 'Incorrect_password', 'userId': '8cbacb88-b3ed-4f1d-876f-23db425b08c9', 'level': 'STARTER', 'is_subsription': True, 'remainingDays': None, 'versionCode': '0.0.5', 'healthy': 0, 'symbol':'EURUSD','strategy_id':'test123','capital':10000,'lots':0.1}"
-    # rsp = ast.literal_eval(data_str)
+    rsp = mock_rsp()
+    print(rsp)
     # rsp['healthy']=0
     # testing
     if rsp["result"]:

@@ -146,7 +146,13 @@ class LoginForm(QWidget):
         result = auth.login_request(username, password)
 
         if check_and_notify(self):
-            if result.get("result"):
+            success = bool(result.get("result"))
+            # 登入成敗完全由 SERVER 端決定：
+            #   - msg_toggle=True → 顯示後端 msg（成功/失敗皆可能附帶通知）
+            #   - result=True     → 才能成功登入
+            if result.get("msg_toggle"):
+                login_and_notify(self, result.get("msg"), is_success=success)
+            if success:
                 health_alert_if_needed(self, result.get("healthy"))
                 if not check_subscription(self, result.get("level"), result.get("is_subsription")):
                     pass
@@ -163,6 +169,4 @@ class LoginForm(QWidget):
                         result.get("capital"),
                         result.get("lots")
                     )
-            else:
-                login_and_notify(self, result.get("msg"), result.get("code"))
         self.btn_login.setEnabled(True)
