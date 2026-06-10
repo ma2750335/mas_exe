@@ -299,14 +299,18 @@ class StrategySettingsForm(QWidget):
         show_health_info_dialog(self)
 
     def _check_health(self):
-        health_rsp = auth.get_strategy_health()
-        if health_rsp is None:
+        # 整段包 try：健康度是背景監控，任何例外都不得中斷交易程式或卡住 UI 事件迴圈。
+        try:
+            health_rsp = auth.get_strategy_health()
+            if health_rsp is None:
+                return
+            self.main_window.healthy = health_rsp
+            self._refresh_health_display()
+            # 健康度只作「資訊揭露 + 提醒」，絕不停止交易程式。
+            # （原本會依 shouldStop 自動呼叫 stop_strategy，已移除——是否停止交由使用者決定）
+            health_alert_if_needed(self, health_rsp)
+        except Exception:
             return
-        self.main_window.healthy = health_rsp
-        self._refresh_health_display()
-        # 健康度只作「資訊揭露 + 提醒」，絕不停止交易程式。
-        # （原本會依 shouldStop 自動呼叫 stop_strategy，已移除——是否停止交由使用者決定）
-        health_alert_if_needed(self, health_rsp)
 
     def open_confirm_dialog(self):
         input_login_id = self.input_login_id.text()

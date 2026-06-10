@@ -53,6 +53,7 @@ class CheckText(Enum):
     VERSION_ALERT_BODY = "發現新版本 {latest}，您目前使用的是 {current}\n請至官網下載最新版！"
     LOGIN_FAILED_TITLE = "登錄失敗"
     LOGIN_FAILED_BODY = "請重新確認帳號密碼！"
+    SERVER_ERROR_BODY = "server_error_body"
     LOGIN_NOTICE_TITLE = "提醒"
     HEALTH_ALERT_TITLE = "策略健康度提醒"
     HEALTH_ALERT_BODY = "health_alert_body"
@@ -177,6 +178,7 @@ i18n_map = {
         CheckText.VERSION_ALERT_BODY: "發現新版本 {latest}，您目前使用的是 {current}\n請至官網下載最新版！",
         CheckText.LOGIN_FAILED_TITLE: "登錄失敗",
         CheckText.LOGIN_FAILED_BODY: "請重新確認帳號密碼！",
+        CheckText.SERVER_ERROR_BODY: "無法連線伺服器或伺服器發生錯誤（{detail}），請稍後再試，或確認您的網路連線。",
         CheckText.LOGIN_NOTICE_TITLE: "提醒",
         CheckText.HEALTH_ALERT_TITLE: "策略健康度提醒",
         CheckText.HEALTH_ALERT_BODY: f'系統偵測到您目前的策略健康度為「{{level}}」。<br>為維護您的投資績效與資產穩健成長，建議盡快前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官網</a> 的策略精靈，更新至最新版本的策略。',
@@ -255,6 +257,7 @@ Before starting automated trading, please review your MT5 EA settings in the
         CheckText.VERSION_ALERT_BODY: "New version {latest} found. You are using {current}.\nPlease visit the official site to download the latest version!",
         CheckText.LOGIN_FAILED_TITLE: "Login Failed",
         CheckText.LOGIN_FAILED_BODY: "Please check your username or password again!",
+        CheckText.SERVER_ERROR_BODY: "Unable to reach the server, or the server returned an error ({detail}). Please check your connection and try again.",
         CheckText.LOGIN_NOTICE_TITLE: "Notice",
         CheckText.HEALTH_ALERT_TITLE: "Strategy Health Notice",
         CheckText.HEALTH_ALERT_BODY: f'Your current strategy health is "{{level}}".<br>To safeguard your investment performance and the steady growth of your assets, we recommend visiting the Strategy Wizard on our <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">official website</a> and updating to the latest strategy.',
@@ -342,6 +345,7 @@ Before starting automated trading, please review your MT5 EA settings in the
         CheckText.VERSION_ALERT_BODY: "发现新版本 {latest}，您当前使用的是 {current}\n请至官网下载最新版！",
         CheckText.LOGIN_FAILED_TITLE: "登录失败",
         CheckText.LOGIN_FAILED_BODY: "请重新确认账号密码！",
+        CheckText.SERVER_ERROR_BODY: "无法连接服务器或服务器发生错误（{detail}），请稍后再试，或确认您的网络连接。",
         CheckText.LOGIN_NOTICE_TITLE: "提醒",
         CheckText.HEALTH_ALERT_TITLE: "策略健康度提醒",
         CheckText.HEALTH_ALERT_BODY: f'系统检测到您当前的策略健康度为「{{level}}」。<br>为维护您的投资绩效与资产稳健成长，建议尽快前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官网</a> 的策略向导，更新至最新版本的策略。',

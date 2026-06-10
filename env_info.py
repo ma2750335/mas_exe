@@ -17,7 +17,7 @@ UUID = "8332bd93-1a66-4763-b9ed-36eacceaf51a"
 HEALTH_TOKEN = "50338d2dcab9de6b1d62c5bd66d3e2793522ee04602f738d08442c342386ff9b"
 
 # 是否啟用 GENAI 健康度功能（badge / alert / 監控 timer）
-IS_GENAI = True
+IS_GENIE = False
 
 # 環境版本：0 = dev (localhost) / 1 = test / 2 = pd
 ENV_VERSION = 1

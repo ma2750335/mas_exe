@@ -3,13 +3,14 @@ import ast
 import requests
 from cryptography.fernet import Fernet
 import enum_setting as es
-from env_info import UUID, GENAI_EXE_VERSION
+from env_info import UUID, GENAI_EXE_VERSION,IS_GENIE
 import uuid
 import socket
 import platform
 import socket
 import subprocess
 import json
+from i18n_strings import get_current_lang
 # 這是 Fernet.generate_key() 產生的
 SHARED_SECRET_KEY = b'qjtolGolAHeJFQIYHtdosSII6vhbGF07DgKY3mnU8bI='
 
@@ -73,20 +74,37 @@ def get_access_by_level(level: str) -> dict:
 
 
 def post_request(url, payload):
-    error_rsp = {
-        "result": False,
-        "msg": "An unexpected error occurred, please try again later."
-    }
+    """送出登入 POST；任何失敗都回傳「契約相符」的錯誤 rsp（防呆）。
+
+    失敗時一律回 result=False + msg_toggle=True + 已在地化的 msg，
+    讓 login.py 能正確跳出「登入失敗」提醒，而非靜默無反應。
+    detail 帶上 HTTP 狀態碼/錯誤類型（如 HTTP 404、timeout），方便排查。
+    """
+    from i18n_strings import get_text, CheckText
+
+    def _err(detail):
+        return {
+            "result": False,
+            "msg_toggle": True,
+            "msg": get_text(CheckText.SERVER_ERROR_BODY).format(detail=detail),
+        }
+
     try:
-        response = requests.post(url, data=payload, verify=False)
-        response.raise_for_status()  # 若回應非200，將拋出錯誤
+        response = requests.post(url, data=payload, verify=False, timeout=10)
+        response.raise_for_status()  # 4xx/5xx（含 404）→ HTTPError
         return response.json()
     except requests.exceptions.HTTPError as http_err:
-        # print("http_err",http_err)
-        return error_rsp
-    except Exception as err:
-        # print("err:",err)
-        return error_rsp
+        code = http_err.response.status_code if http_err.response is not None else "?"
+        return _err(f"HTTP {code}")
+    except requests.exceptions.Timeout:
+        return _err("timeout")
+    except requests.exceptions.ConnectionError:
+        return _err("connection")
+    except ValueError:
+        # 伺服器回了非 JSON 內容（200 但 body 不是 JSON）
+        return _err("invalid response")
+    except Exception:
+        return _err("unknown")
 def mock_rsp():
     
     # ── Case 1：正常成功登入（PRO，無附帶訊息）────────────────────────────
@@ -169,7 +187,7 @@ def mock_rsp():
 
 def login_request(email, password):
     # 延遲 import 避免模組載入順序問題；default_lang 取使用者「當下」選擇的語言
-    from i18n_strings import get_current_lang
+    
     url = es.url.login.value
     strategy_uuid = UUID
     payload = {
@@ -178,7 +196,8 @@ def login_request(email, password):
         "device_info": get_device_info(),
         "uuid": strategy_uuid,
         "genai_exe_version": GENAI_EXE_VERSION,
-        "default_lang": get_current_lang()
+        "default_lang": get_current_lang(),
+        "is_genie": IS_GENIE
     }
     rsp = post_request(url, payload)
     # testing
@@ -188,8 +207,8 @@ def login_request(email, password):
     # print(rsp)
     # rsp['healthy']=0
     # testing
-    if rsp["result"]:
-        rsp["access"] = get_access_by_level(rsp["level"])
+    if rsp.get("result"):
+        rsp["access"] = get_access_by_level(rsp.get("level"))
     return rsp
 
 
@@ -207,6 +226,7 @@ def get_strategy_health(strategy_id=None, health_token=None):
         severity, subscriptionStatus, eliteStatus — or None if request fails.
     """
     from env_info import UUID as _UUID, HEALTH_TOKEN as _DEFAULT_TOKEN
+    from i18n_strings import get_current_lang
     if strategy_id is None:
         strategy_id = _UUID
     if health_token is None:
@@ -216,12 +236,16 @@ def get_strategy_health(strategy_id=None, health_token=None):
     try:
         response = requests.get(
             url,
-            headers={"X-Health-Token": health_token},
+            headers={"X-Health-Token": health_token, "X-Default-Lang": get_current_lang()},
             verify=False,
             timeout=10,
         )
-        return response.json()
+        response.raise_for_status()  # 4xx/5xx（含 404）→ HTTPError → None
+        data = response.json()
+        return data if isinstance(data, dict) else None
     except Exception:
+        # 健康度為背景監控：任何失敗（404 / 連線 / 逾時 / 非 JSON / 非 dict）都回 None，
+        # 由呼叫端以「無健康資料」處理，絕不影響交易程式運作（不跳錯誤視窗）。
         return None
 
 
