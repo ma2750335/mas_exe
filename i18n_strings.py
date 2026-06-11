@@ -107,7 +107,7 @@ class StrategyText(Enum):
     STATUS_FAILED = "❌ 策略執行失敗！"
     LOG_SUCCESS = "✅ 策略執行中！"
     LOG_FAILED = "❌ 策略失敗：{error}"
-    ERROR_SYMBOL_NOT_FOUND = "商品代碼錯誤，請輸入正確的商品代碼"
+    ERROR_SYMBOL_NOT_FOUND = "商品代碼錯誤，請依照您的券商商品代碼進行輸入"
     ERROR_TRADE_EXPERT_DISABLED = "MT5 尚未開啟「允許算法交易」，請先至 MT5 開啟設定後再執行策略。"
     ERROR_TRADE_EXPERT_DISABLED_HTML = "trade_expert_disabled_html"
     CAPITAL = "本金："
@@ -217,7 +217,7 @@ i18n_map = {
         StrategyText.STATUS_FAILED: "❌ 策略執行失敗！",
         StrategyText.LOG_SUCCESS: "✅ 策略執行中！",
         StrategyText.LOG_FAILED: "❌ 策略失敗：{error}",
-        StrategyText.ERROR_SYMBOL_NOT_FOUND: "商品代碼錯誤，請輸入正確的商品代碼",
+        StrategyText.ERROR_SYMBOL_NOT_FOUND: "商品代碼錯誤，請依照您的券商商品代碼進行輸入",
         StrategyText.ERROR_TRADE_EXPERT_DISABLED: "MT5 尚未開啟「允許算法交易」，請先至 MT5 開啟設定後再執行策略。",
         StrategyText.ERROR_TRADE_EXPERT_DISABLED_HTML: f'MT5 尚未開啟「允許算法交易」，請先至 MT5 開啟設定後再執行策略。<br>操作設定請參考：<a href="{url.terms_ea_setting.value}">操作設定</a>',
         StrategyText.CAPITAL: "本金：",
@@ -296,7 +296,7 @@ Before starting automated trading, please review your MT5 EA settings in the
         StrategyText.STATUS_FAILED: "❌ Strategy failed!",
         StrategyText.LOG_SUCCESS: "✅ Strategy is running!",
         StrategyText.LOG_FAILED: "❌ Strategy failed: {error}",
-        StrategyText.ERROR_SYMBOL_NOT_FOUND: "Symbol not found. Please enter correct symbol",
+        StrategyText.ERROR_SYMBOL_NOT_FOUND: "Invalid symbol. Please enter the symbol as listed by your broker.",
         StrategyText.ERROR_TRADE_EXPERT_DISABLED: "MT5 'Algo Trading' is not enabled. Please enable it in MT5 settings before running the strategy.",
         StrategyText.ERROR_TRADE_EXPERT_DISABLED_HTML: f'MT5 "Algo Trading" is not enabled. Please enable it in MT5 settings before running the strategy.<br>Setup guide: <a href="{url.terms_ea_setting.value}">Setup Guide</a>',
         StrategyText.CAPITAL: "Capital:",
@@ -384,7 +384,7 @@ Before starting automated trading, please review your MT5 EA settings in the
         StrategyText.STATUS_FAILED: "❌ 策略执行失败！",
         StrategyText.LOG_SUCCESS: "✅ 策略执行中！",
         StrategyText.LOG_FAILED: "❌ 策略失败：{error}",
-        StrategyText.ERROR_SYMBOL_NOT_FOUND: "商品代码错误，请输入正确的商品代码",
+        StrategyText.ERROR_SYMBOL_NOT_FOUND: "商品代码错误，请依照您的券商商品代码进行输入",
         StrategyText.ERROR_TRADE_EXPERT_DISABLED: "MT5 尚未开启「允许算法交易」，请先至 MT5 开启设置后再执行策略。",
         StrategyText.ERROR_TRADE_EXPERT_DISABLED_HTML: f'MT5 尚未开启「允许算法交易」，请先至 MT5 开启设置后再执行策略。<br>操作设置请参考：<a href="{url.terms_ea_setting.value}">操作设置</a>',
         StrategyText.CAPITAL: "本金：",
