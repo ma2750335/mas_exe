@@ -103,46 +103,56 @@ class StrategySettingsForm(QWidget):
 
         label_font = QFont("Arial", 12)
 
-        self.lbl_health = QLabel()
-        self.lbl_health.setTextFormat(Qt.RichText)
-        self.lbl_health.setFont(label_font)
+        # 健康度 UI（badge + ⓘ）只在 GENIE 啟用時才建立並加入版面。
+        # IS_GENIE=False 時完全不產生，畫面上不留任何 widget 或塌陷的 layout 間隙。
+        self.lbl_health = None
+        self.btn_health_info = None
+        if is_genai_enabled():
+            self.lbl_health = QLabel()
+            self.lbl_health.setTextFormat(Qt.RichText)
+            self.lbl_health.setFont(label_font)
 
-        self.btn_health_info = QPushButton("ⓘ")
-        self.btn_health_info.setFlat(True)
-        self.btn_health_info.setCursor(Qt.PointingHandCursor)
-        self.btn_health_info.setFixedSize(24, 24)
-        self.btn_health_info.setStyleSheet(
-            "QPushButton { font-size: 16px; color: #0078D7; border: none; padding: 0; background: transparent; }"
-            "QPushButton:hover { color: #005A9E; background: transparent; }"
-        )
-        self.btn_health_info.clicked.connect(self._show_health_info)
+            self.btn_health_info = QPushButton("ⓘ")
+            self.btn_health_info.setFlat(True)
+            self.btn_health_info.setCursor(Qt.PointingHandCursor)
+            self.btn_health_info.setFixedSize(24, 24)
+            self.btn_health_info.setStyleSheet(
+                "QPushButton { font-size: 16px; color: #0078D7; border: none; padding: 0; background: transparent; }"
+                "QPushButton:hover { color: #005A9E; background: transparent; }"
+            )
+            self.btn_health_info.clicked.connect(self._show_health_info)
 
-        health_layout = QHBoxLayout()
-        health_layout.addStretch()
-        health_layout.addWidget(self.lbl_health)
-        health_layout.addWidget(self.btn_health_info)
-        health_layout.addStretch()
+            health_layout = QHBoxLayout()
+            health_layout.addStretch()
+            health_layout.addWidget(self.lbl_health)
+            health_layout.addWidget(self.btn_health_info)
+            health_layout.addStretch()
 
-        self._refresh_health_display()
-        layout.addLayout(health_layout)
+            self._refresh_health_display()
+            layout.addLayout(health_layout)
 
-        self.lbl_strategy_id = QLabel()
-        self.lbl_strategy_id.setTextFormat(Qt.RichText)
-        self.lbl_strategy_id.setFont(label_font)
+        # strategy id / symbol 為 GENIE 專屬資訊；IS_GENIE=False 時完全隱藏
+        # （不建立、不佔版面），不管 rsp 是否回傳 strategy_id / symbol。
+        self.lbl_strategy_id = None
+        self.lbl_symbol = None
+        if is_genai_enabled():
+            self.lbl_strategy_id = QLabel()
+            self.lbl_strategy_id.setTextFormat(Qt.RichText)
+            self.lbl_strategy_id.setFont(label_font)
 
-        self.lbl_symbol = QLabel()
-        self.lbl_symbol.setTextFormat(Qt.RichText)
-        self.lbl_symbol.setFont(label_font)
+            self.lbl_symbol = QLabel()
+            self.lbl_symbol.setTextFormat(Qt.RichText)
+            self.lbl_symbol.setFont(label_font)
 
-        strategy_info_layout = QHBoxLayout()
-        strategy_info_layout.addStretch()
-        strategy_info_layout.addWidget(self.lbl_strategy_id)
-        strategy_info_layout.addSpacing(30)
-        strategy_info_layout.addWidget(self.lbl_symbol)
-        strategy_info_layout.addStretch()
+            strategy_info_layout = QHBoxLayout()
+            strategy_info_layout.addStretch()
+            strategy_info_layout.addWidget(self.lbl_strategy_id)
+            strategy_info_layout.addSpacing(30)
+            strategy_info_layout.addWidget(self.lbl_symbol)
+            strategy_info_layout.addStretch()
 
-        self._refresh_strategy_info()
-        layout.addLayout(strategy_info_layout)
+            self._refresh_strategy_info()
+            layout.addLayout(strategy_info_layout)
 
         self.lbl_login_id = QLabel(get_text(StrategyText.LOGIN_ID))
         self.lbl_login_id.setFont(label_font)
@@ -157,10 +167,28 @@ class StrategySettingsForm(QWidget):
         self.lbl_server.setFont(label_font)
         self.input_server = QLineEdit()
 
-        self.lbl_capital_lots = QLabel(get_text(StrategyText.CAPITAL_LOTS_LABEL))
-        self.lbl_capital_lots.setFont(label_font)
-        self.combo_capital_lots = QComboBox()
-        self._populate_capital_lots_combo()
+        # 資金規模：GENIE=True → 預設下拉選單（依後端建議的等比階梯）；
+        # GENIE=False → 改成可自由輸入的「本金 / 手數」欄位（預填 rsp/預設值）。
+        self.combo_capital_lots = None
+        self.lbl_capital_lots = None
+        self.input_capital = None
+        self.input_lots = None
+        self.lbl_capital = None
+        self.lbl_lots = None
+        if is_genai_enabled():
+            self.lbl_capital_lots = QLabel(get_text(StrategyText.CAPITAL_LOTS_LABEL))
+            self.lbl_capital_lots.setFont(label_font)
+            self.combo_capital_lots = QComboBox()
+            self._populate_capital_lots_combo()
+        else:
+            _dc = getattr(self.main_window, "default_capital", None) or 10000
+            _dl = getattr(self.main_window, "default_lots", None) or 0.1
+            self.lbl_capital = QLabel(get_text(StrategyText.CAPITAL))
+            self.lbl_capital.setFont(label_font)
+            self.input_capital = QLineEdit(f"{int(_dc)}")
+            self.lbl_lots = QLabel(get_text(StrategyText.VOLUME))
+            self.lbl_lots.setFont(label_font)
+            self.input_lots = QLineEdit(f"{_dl:g}")
 
         self.chk_terms = QCheckBox()
         self.chk_terms.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
@@ -191,10 +219,22 @@ class StrategySettingsForm(QWidget):
         layout.addWidget(self.input_password)
         layout.addWidget(self.lbl_server)
         layout.addWidget(self.input_server)
-        capital_lots_layout = QHBoxLayout()
-        capital_lots_layout.addWidget(self.lbl_capital_lots)
-        capital_lots_layout.addWidget(self.combo_capital_lots, stretch=1)
-        layout.addLayout(capital_lots_layout)
+        if self.combo_capital_lots is not None:
+            # GENIE：單列「資金規模：[下拉選單]」
+            capital_lots_layout = QHBoxLayout()
+            capital_lots_layout.addWidget(self.lbl_capital_lots)
+            capital_lots_layout.addWidget(self.combo_capital_lots, stretch=1)
+            layout.addLayout(capital_lots_layout)
+        else:
+            # 非 GENIE：兩列「本金：[輸入]」「手數：[輸入]」可自由輸入
+            cap_row = QHBoxLayout()
+            cap_row.addWidget(self.lbl_capital)
+            cap_row.addWidget(self.input_capital, stretch=1)
+            lot_row = QHBoxLayout()
+            lot_row.addWidget(self.lbl_lots)
+            lot_row.addWidget(self.input_lots, stretch=1)
+            layout.addLayout(cap_row)
+            layout.addLayout(lot_row)
         layout.addLayout(terms_layout)
         layout.addWidget(self.btn_start)
         layout.addWidget(self.btn_stop)
@@ -213,6 +253,8 @@ class StrategySettingsForm(QWidget):
         self.main_window.update_process_log(get_text(StrategyText.LOG_OPENED))
 
     def _refresh_health_display(self):
+        if self.lbl_health is None:   # GENIE 未啟用：未建立健康度 UI，無事可做
+            return
         healthy = getattr(self.main_window, "healthy", None)
         label, color = get_health_display(healthy)
         if label is None:
@@ -228,6 +270,8 @@ class StrategySettingsForm(QWidget):
         )
 
     def _refresh_strategy_info(self):
+        if self.lbl_strategy_id is None:   # GENIE 未啟用：未建立 strategy id / symbol UI
+            return
         sid = getattr(self.main_window, "strategy_id", None)
         sym = getattr(self.main_window, "symbol", None)
         if not sid and not sym:
@@ -286,11 +330,31 @@ class StrategySettingsForm(QWidget):
             lots=f"{lots:.2f}",
         )
 
+    @staticmethod
+    def _parse_positive_float(text):
+        """把使用者輸入的字串轉成正的 float；無法解析或 ≤0 回 None。"""
+        try:
+            v = float(str(text).replace(",", "").strip())
+        except (ValueError, TypeError):
+            return None
+        return v if v > 0 else None
+
     def _get_selected_capital_lots(self):
-        """讀目前 combo 選擇的 (capital, lots) tuple；無資料時 fallback 到 backend 預設。"""
-        data = self.combo_capital_lots.currentData()
-        if data:
-            return data
+        """回傳 (capital, lots)。
+
+        GENIE：讀下拉選單的 currentData()。
+        非 GENIE：讀本金/手數輸入框（已驗證為正數）。
+        任一來源取不到時 fallback 到 backend 預設，確保 start_strategy 不會拿到壞值。
+        """
+        if self.combo_capital_lots is not None:
+            data = self.combo_capital_lots.currentData()
+            if data:
+                return data
+        else:
+            cap = self._parse_positive_float(self.input_capital.text())
+            lot = self._parse_positive_float(self.input_lots.text())
+            if cap is not None and lot is not None:
+                return (cap, lot)
         default_capital = getattr(self.main_window, "default_capital", None) or 10000
         default_lots = getattr(self.main_window, "default_lots", None) or 0.1
         return (default_capital, default_lots)
@@ -299,6 +363,10 @@ class StrategySettingsForm(QWidget):
         show_health_info_dialog(self)
 
     def _check_health(self):
+        # IS_GENIE=False：完全不做健康度檢核（不打 API、不更新顯示、不提醒）。
+        # 這道防線讓規則在函式層級自我強制，不只依賴呼叫端把關。
+        if not is_genai_enabled():
+            return
         # 整段包 try：健康度是背景監控，任何例外都不得中斷交易程式或卡住 UI 事件迴圈。
         try:
             health_rsp = auth.get_strategy_health()
@@ -320,6 +388,12 @@ class StrategySettingsForm(QWidget):
         if not input_login_id or not input_password or not input_server:
             QMessageBox.warning(self, get_text(StrategyText.ERROR_TITLE), get_text(StrategyText.ERROR_INPUT_REQUIRED))
             return
+        # 非 GENIE：本金/手數為自由輸入，須驗證為正數，避免空白或亂填靜默套用預設值
+        if self.combo_capital_lots is None:
+            if (self._parse_positive_float(self.input_capital.text()) is None
+                    or self._parse_positive_float(self.input_lots.text()) is None):
+                QMessageBox.warning(self, get_text(StrategyText.ERROR_TITLE), get_text(StrategyText.ERROR_INPUT_REQUIRED))
+                return
         if not self.chk_terms.isChecked():
             QMessageBox.warning(self, get_text(StrategyText.ERROR_TITLE), get_text(StrategyText.ERROR_TERMS_REQUIRED))
             return
