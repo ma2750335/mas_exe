@@ -11,7 +11,7 @@ class info(enum.Enum):
     base_url = (
         "http://localhost:3000",
         "https://mastest.mindaismart.com",
-        "https://mas.mindaismart.com",
+        "https://trade.masquant.com",
     )
 
 
