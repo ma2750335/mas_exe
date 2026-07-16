@@ -3,6 +3,14 @@ import pandas as pd
 from datetime import datetime, timedelta
 from mas.enum.env_setting import env_type
 import json
+import zlib
+from env_info import UUID as STRATEGY_UUID
+
+# 本策略 EXE 的 MT5 magic number——由每隻 EXE 唯一的 UUID 推導（穩定可重現）。
+# 下單時蓋在訂單上、開機回補時只認此碼；讓多隻不同策略 EXE 打同一標的時，
+# 各自只認得自己的持倉，不會互相干擾進出場判斷（使用者手動單 magic=0 也不會誤認）。
+# 注意：券商帳戶需為 hedging 模式（外匯/CFD 預設）；netting 模式同商品部位會被合併，無法隔離。
+MAGIC = zlib.crc32(STRATEGY_UUID.encode("utf-8")) & 0x7FFFFFFF
 
 
 class mas_client(mas):
@@ -58,6 +66,7 @@ class mas_client(mas):
                     "symbol": self.symbol,
                     "order_type": "buy",
                     "volume": self.volume,
+                    "magic": MAGIC,
                     "backtest_toggle": self.toggle
                 })
                 if env_type.exe.value:
@@ -76,6 +85,7 @@ class mas_client(mas):
                     "order_type": "sell",
                     "volume": self.volume,
                     "order_id": self.order_id,
+                    "magic": MAGIC,
                     "backtest_toggle": self.toggle
                 })
                 if env_type.exe.value:
@@ -124,15 +134,15 @@ def main(account=123, password="", server="", symbol="",  capital=10000, volume=
     mas_c.capital = capital
 
     # 判斷是否開啟程式前，已經進場
+    # 只認「自己 magic」的持倉——同標的可能存在其他策略 EXE 的單（magic 不同）
+    # 或使用者手動下的單（magic=0），一律不得誤認為本策略的持倉。
     if env_type.exe.value:
         positions = mas_c.get_positions({"symbol": mas_c.symbol})
         for position in positions:
-            p_order_id = position['order_id']
-            p_symbol = position['symbol']
-            p_volume = position['volume']
-            if p_symbol == mas_c.symbol and mas_c.volume == p_volume:
+            if position.get('magic') == MAGIC and position['symbol'] == mas_c.symbol:
                 mas_c.hold = True
-                mas_c.order_id = p_order_id
+                mas_c.order_id = position['order_id']
+                break
 
     # 若真實交易，請根據所有策略，判斷出需取策略所需要之最大裸K數量，並帶入至kbar
     if toggle == False:
