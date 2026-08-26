@@ -87,6 +87,9 @@ class MarketDataManager:
 
         with self._lock:
             self._bar_threads.clear()
+            self._bar_subscriptions.clear()          # 2026-08-25：不清會擋住之後的重新訂閱
+            self._tick_subscriptions.clear()
+            self._running = True                     # 還原；否則之後所有 worker 迴圈開頭就結束
             print(get_text(MarketText.BAR_ALL_STOP))
 
     def subscribe_ticks(self, params: dict) -> None:
@@ -131,7 +134,7 @@ class MarketDataManager:
             return
 
         with self._lock:
-            if symbol in self._tick_subscriptions:
+            if self._tick_subscriptions.get(symbol):   # 同上（tick 版）
                 print(get_text(MarketText.TICK_ALREADY_SUBSCRIBED,symbol=symbol))
                 return
             self._tick_subscriptions[symbol] = True
@@ -218,6 +221,8 @@ class MarketDataManager:
 
         if thread is not None:
             thread.join()
+        with self._lock:
+            self._tick_subscriptions.pop(symbol, None)   # 同上（tick 版）
         print(get_text(MarketText.TICK_UNSUB_SUCCESS,symbol=symbol))
 
     def subscribe_bars(self, params: dict) -> None:
@@ -296,7 +301,7 @@ class MarketDataManager:
 
         key = f"{symbol}_{timeframe}"
         with self._lock:
-            if key in self._bar_subscriptions:
+            if self._bar_subscriptions.get(key):   # 2026-08-25：原本是 `key in`，退訂只設 False 沒移除 key → 重訂永久被擋
                 print(get_text(MarketText.BAR_ALREADY_SUBSCRIBED,key_name=key))
                 return
             self._bar_subscriptions[key] = True
@@ -390,6 +395,8 @@ class MarketDataManager:
 
         if thread is not None:
             thread.join()
+        with self._lock:
+            self._bar_subscriptions.pop(key, None)   # worker 已結束 → 移除 key，之後才訂得回來
         print(get_text(MarketText.BAR_UNSUB_SUCCESS,key_name=key))
 
     def subscribe_market_book(self, params: dict) -> bool:

@@ -18,7 +18,7 @@ setup(
         "pytz"
     ],
     author="Mas Intelligent Technology Ltd.",
-    author_email="service@mindaismart.com",
+    author_email="service@masquant.com"
     description="A Python library for strategy backtesting and trading automation with MetaTrader5.",
     long_description=long_description,
     long_description_content_type="text/markdown",

@@ -241,6 +241,7 @@ class AccountManager:
             result.append({
                 "ticket": d.ticket,
                 "order": d.order,
+                "magic": d.magic,          # 2026-08-25：策略要用 magic 過濾自己的成交算損益
                 "position_id": d.position_id,
                 "symbol": d.symbol,
                 "type": d.type,

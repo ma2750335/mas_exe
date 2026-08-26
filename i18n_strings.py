@@ -1,373 +1,445 @@
+# i18n_strings.py（追加內容）
 
 from enum import Enum
-
+from enum_setting import url
 DEFAULT_LANG = "en"
 
 
+# 語言循環順序：英文 → 繁中 → 簡中 → 英文 ...
+_LANG_CYCLE = ["en", "zh", "cn"]
+
+
 def switch_lang():
-    """
-    切換目前語系設定（中英文互換）。
-
-    若當前語系為 'zh' 則切換為 'en'，反之亦然。
-
-    Toggle the current language between Chinese (zh) and English (en).
-
-    Returns:
-        None
-    """
+    """循環切換語言：en → zh → cn → en。"""
     global DEFAULT_LANG
-    DEFAULT_LANG = "zh-tw" if DEFAULT_LANG == "zh-tw" else "en"
+    try:
+        idx = _LANG_CYCLE.index(DEFAULT_LANG)
+    except ValueError:
+        idx = 0
+    DEFAULT_LANG = _LANG_CYCLE[(idx + 1) % len(_LANG_CYCLE)]
 
 
 def get_current_lang():
-    """
-    取得目前使用的語系設定。
-
-    Returns:
-        str: 語系字串，如 'zh' 或 'en'。
-
-    Get the currently active language code.
-
-    Returns:
-        str: Language code string, such as 'zh' or 'en'.
-    """
     return DEFAULT_LANG
 
 
-def set_lang(lang: str = "en") -> None:
+class MainWindowText(Enum):
+    TITLE = "MasQuant 交易系統"
+    VERSION_PREFIX = "版本：v"
+    PROCESS_LOG_LABEL = "流程 Log"
+    BACKTEST_LOG_LABEL = "交易訊號 Log"
+    BACKTEST_LOG_PLACEHOLDER = "這裡顯示進出場與市價訊號..."
+
+
+class LoginText(Enum):
+    TITLE = "MasQuant 交易系統"
+    USERNAME = "帳號："
+    PASSWORD = "密碼："
+    LOGIN_BUTTON = "登入"
+    REGISTER_BUTTON = "註冊"
+    FORGOT_PASSWORD = "忘記密碼？"
+    TERMS_HTML = f'''
+        <span style="font-size:13px; color:#333;">
+        自動化交易前，請先確認MT5 EA設定 <a href="{url.terms_ea_setting.value}" style="color:#d2691e; text-decoration:none;">操作設定</a>
+        </span>
+    '''
+    ERROR_TITLE = "錯誤"
+    ERROR_TERMS_REQUIRED = "請先確認MT5設定才能執行策略。"
+    REMEBER = "記住我"
+
+
+class CheckText(Enum):
+    VERSION_ALERT_TITLE = "版本更新提醒"
+    VERSION_ALERT_BODY = "發現新版本 {latest}，您目前使用的是 {current}\n請至官網下載最新版！"
+    LOGIN_FAILED_TITLE = "登錄失敗"
+    LOGIN_FAILED_BODY = "請重新確認帳號密碼！"
+    SERVER_ERROR_BODY = "server_error_body"
+    LOGIN_NOTICE_TITLE = "提醒"
+    HEALTH_ALERT_TITLE = "策略健康度提醒"
+    HEALTH_ALERT_BODY = "health_alert_body"
+    HEALTH_LEVEL_LOW = "低"
+    HEALTH_LEVEL_MEDIUM = "中"
+    HEALTH_LEVEL_HIGH = "高"
+    STRATEGY_HEALTH_LABEL = "策略健康度："
+    HEALTH_INFO_TITLE = "策略健康度說明"
+    HEALTH_INFO_BODY = "health_info_body"
+    UPGRADE_REQUIRED_TITLE = "需要升級會員"
+    UPGRADE_REQUIRED_BODY = "upgrade_required_body"
+    SUBSCRIPTION_EXPIRED_TITLE = "訂閱已過期"
+    SUBSCRIPTION_EXPIRED_BODY = "subscription_expired_body"
+    SESSION_DUPLICATE_TITLE = "重複登入"
+    SESSION_DUPLICATE_BODY = "session_duplicate_body"
+
+
+class StrategyText(Enum):
+    TITLE = "策略設定"
+    LOGIN_ID = "登入帳號："
+    PASSWORD = "登入密碼："
+    SERVER = "券商伺服器："
+    TERMS_HTML = f'''
+        <span style="font-size:13px; color:#333;">
+        我已閱讀及同意以上使用條款 <a href="{url.terms_api.value}" style="color:#d2691e; text-decoration:none;">使用條款</a> 和 
+        <a href="{url.terms_disclaimer.value}" style="color:#d2691e; text-decoration:none;">免責聲明</a>
+        </span>
+    '''
+    START = "開始執行"
+    STOP = "停止"
+    STATUS_IDLE = "狀態：未執行"
+    FOOTER = f'''<span style="font-size:13px; color:#666;">🚀 點我升級 MasQuant，立即創造更多專業策略：<a href="{url.upgrade.value}" style="color:#0078D7;">前往升級</a></span>'''
+    ERROR_TITLE = "錯誤"
+    ERROR_INPUT_REQUIRED = "請填寫所有設定值！"
+    ERROR_TERMS_REQUIRED = "請先勾選同意條款與政策才能執行策略。"
+    DIALOG_TITLE = "確認交易設定"
+    DIALOG_HTML_PREFIX = """
+        <b>請確認交易設定：</b><br>
+        <b>券商帳號：</b> {account}<br>
+        <b>券商伺服器：</b> {server}<br>
     """
-    設定系統預設語言，影響所有訊息顯示與國際化翻譯（i18n）內容。
-
-    Args:
-        lang (str): 語言代碼，支援 'en'、'zh-tw'、'zh-cn'，預設為 'en'。
-
-    Returns:
-        None
-
-    Set the default language for system messages and internationalized (i18n) strings.
-
-    Args:
-        lang (str): Language code. Supported values: 'en', 'zh-tw', 'zh-cn'. Default is 'en'.
-
-    Returns:
-        None
-    """
-    global DEFAULT_LANG
-    DEFAULT_LANG = lang
-
-
-class ClientText(Enum):
-    SERVER_ERROR = "❌ Cannot connect to MAS server. Make sure the soft is running."
-    DOWNLOAD_HINT = "Or visit mindaismart.com to download MAS Soft."
-    TRADE_SUCCESS = "✅ Successfully generated trade report."
-    KPI_SUCCESS = "✅ Successfully generated KPI report."
-    DATA_SUCCESS = "✅ Successfully generated full report."
-    UNKNOWN_ERROR = "❌ Error: {msg}"
-
-
-class ConnectText(Enum):
-    LOGIN_ERROR = "[Login Error] Login failed: {msg}"
-    INIT_ERROR = "[Initialize Error] MT5 initialization failed: {msg}"
-    SHUTDOWN_EXCEPTION = "⚠️ MT5 shutdown raised exception: {msg}"
-    CONNECTION_NONE = "[Connection Check] MT5 is not connected"
-    CONNECTION_OK = "[Connection Check] MT5 connection is active"
-    SHUTDOWN_MSG = "[Shutdown] MT5 connection closed"
-    REQUIRED_PARAM_MISSING = "{param} is a required parameter"
-    SWITCH_ACCOUNT_MISSING = "account, password, server are required to switch account"
-    SWITCH_ACCOUNT_SUCCESS = "✅ Account switched: {account}"
-    SWITCH_ACCOUNT_ERROR = "[Switch Account] Failed: {msg}"
+    DIALOG_CONFIRM = "確認執行"
+    DIALOG_CANCEL = "取消"
+    DIALOG_RISK_HTML = "risk_notice"
+    LOG_OPENED = "🛠 開啟策略設定畫面"
+    LOG_DIALOG = "📌 顯示交易確認視窗"
+    LOG_STARTED = "🚀 策略開始執行"
+    LOG_STOPPED = "⏹️ 策略已停止"
+    STATUS_RUNNING = "策略執行中..."
+    STATUS_DONE = "❗ 策略執行完成，策略執行中，請勿關閉視窗，關閉視窗則程式交易也會停止！"
+    STATUS_FAILED = "❌ 策略執行失敗！"
+    LOG_SUCCESS = "✅ 策略執行中！"
+    LOG_FAILED = "❌ 策略失敗：{error}"
+    ERROR_SYMBOL_NOT_FOUND = "商品代碼錯誤，請依照您的券商商品代碼進行輸入"
+    ERROR_TRADE_EXPERT_DISABLED = "MT5 尚未開啟「允許算法交易」，請先至 MT5 開啟設定後再執行策略。"
+    ERROR_TRADE_EXPERT_DISABLED_HTML = "trade_expert_disabled_html"
+    CAPITAL = "本金："
+    VOLUME = "手數："
+    CAPITAL_LOTS_LABEL = "資金規模："
+    CAPITAL_LOTS_OPTION = "本金 {capital} USD / 手數 {lots}"
+    # 2026-08-25：手數達策略設計上限（本金再往上加也不會變大）時用這個變體
+    CAPITAL_LOTS_OPTION_CAPPED = "本金 {capital} USD / 手數 {lots}（已達上限）"
+    # 2026-08-25：虧損警戒（30% 示警 / 50% 停止並平倉）
+    LOSS_ALERT_TITLE = "⚠️ 虧損警戒"
+    LOSS_STOP_TITLE = "🛑 策略已停止交易"
+    STRATEGY_ID = "策略 ID："
+    SYMBOL = "商品："
+    STOP_CONFIRM_TITLE = "確認停止策略"
+    STOP_CONFIRM_BODY = "stop_confirm_body"
+    STOP_CONFIRM_OK = "確認"
 
 
-class AccountText(Enum):
-    GET_PENDING_ORDERS_ERROR = "[Pending Orders] Error: {msg}"
-    GET_HISTORY_ORDERS_ERROR = "[History Orders] Error: {msg}"
-    GET_ORDERS_TOTAL_ERROR = "[Orders Total] Error: {msg}"
-    GET_HISTORY_ORDERS_TOTAL_ERROR = "[History Orders Total] Error: {msg}"
-
-
-class HistoryText(Enum):
-    MISSING_PARAMS = "[HistoryData] ❌ Missing 'symbol', 'from', or 'to'"
-    UNSUPPORTED_MODE = "[HistoryData] ⚠️ Unsupported mode: '{mode}', fallback to 'all'"
-    TICK_FAIL = "[HistoryData] ❌ Failed to retrieve tick data for: {symbol}"
-    NO_DATA = "[MT5] ⚠️ No data for: {symbol} {start} ~ {end}"
-    COPY_FAIL = "[MT5] ❌ Failed to fetch data: {msg}"
-    BARS_FROM_POS_MISSING_PARAMS = "[HistoryData] ❌ Missing 'symbol', 'timeframe', or 'count'"
-    BARS_FROM_POS_FAIL = "[HistoryData] ❌ Failed to fetch bars from pos: {msg}"
-
-
-class MarketText(Enum):
-    TICK_ALL_STOP = "❎ All Tick subscriptions stopped"
-    BAR_ALL_STOP = "❎ All Bar subscriptions stopped"
-    TICK_NO_SYMBOL = "❌ Tick subscription failed: missing symbol"
-    TICK_ALREADY_SUBSCRIBED = "⚠️ {symbol} already subscribed for Tick. Ignored."
-    TICK_SUBSCRIBED = "✅ Subscribed Tick: {symbol}, interval = {interval}ms"
-    TICK_READ_ERROR = "❌ Tick read error: {msg}"
-    TICK_UNSUB_NO_SYMBOL = "❌ Tick unsubscribe failed: missing symbol"
-    TICK_UNSUB_NOT_EXIST = "⚠️ No valid subscription found: {symbol}"
-    TICK_UNSUB_SUCCESS = "❎ Unsubscribed Tick: {symbol}"
-
-    BAR_NO_SYMBOL = "❌ Bar subscription failed: missing symbol or timeframe"
-    BAR_UNSUPPORTED_TF = "❌ Unsupported timeframe: {timeframe}"
-    BAR_ALREADY_SUBSCRIBED = "⚠️ {key_name} already subscribed. Ignored."
-    BAR_INIT_FAIL = "❌ MT5 initialize failed"
-    BAR_SUB_ERROR = "❌ Bar subscription error: {msg}"
-    BAR_SUBSCRIBED = "✅ Subscribed: {symbol} / {timeframe}"
-    BAR_UNSUB_NO_SYMBOL = "❌ Bar unsubscribe failed: missing symbol or timeframe"
-    BAR_UNSUB_NOT_EXIST = "⚠️ No valid subscription found: {key_name}"
-    BAR_UNSUB_SUCCESS = "❎ Unsubscribed Bar: {key_name}"
-
-    MARKET_BOOK_NO_SYMBOL = "❌ Market book failed: missing symbol"
-    MARKET_BOOK_SUBSCRIBED = "✅ Market book subscribed: {symbol}"
-    MARKET_BOOK_RELEASED = "❎ Market book released: {symbol}"
-    MARKET_BOOK_NOT_SUBSCRIBED = "⚠️ Market book not subscribed: {symbol}"
-    MARKET_BOOK_GET_FAIL = "❌ Market book get failed: {symbol}"
-
-
-class TradeText(Enum):
-    MISSING_ORDER_PARAMS = "Missing required fields: symbol/order_type/volume"
-    INIT_FAILED = "Initialization failed"
-    NOT_LOGGED_IN = "MT5 not logged in"
-    NO_TICK_INFO = "Cannot get tick info"
-    UNSUPPORTED_ORDER_TYPE = "Unsupported order_type: {order_type}"
-    ORDER_FAILED = "Order failed: {msg}"
-    MODIFY_MISSING_PARAMS = "Please provide order_id and price"
-    MODIFY_NO_RESPONSE = "No response, please check initialization/login"
-    MODIFY_FAILED = "Modify failed: {msg}"
-    MODIFY_SUCCESS = "Modify success: {msg}"
-    CANCEL_MISSING_ORDER_ID = "Please provide order_id"
-    CANCEL_NO_RESPONSE = "No response, check MT5 login/init"
-    CANCEL_FAILED = "Cancel failed: {msg}"
-    CANCEL_SUCCESS = "Successfully canceled order: {order_id}"
-    EXCEPTION_ERROR = "Exception error: {error}"
-    SLTP_MISSING_PARAMS = "Please provide position_id and at least sl or tp"
-    SLTP_SUCCESS = "✅ SL/TP modified successfully: {order_id}"
-    SLTP_FAILED = "❌ SL/TP modify failed: {msg}"
-    ORDER_CHECK_MISSING_PARAMS = "Please provide symbol, order_type, and volume for order check"
-    ORDER_CHECK_FAIL = "❌ Order check failed: {msg}"
-    CALC_MARGIN_MISSING_PARAMS = "Please provide action, symbol, volume, and price for margin calculation"
-    CALC_MARGIN_FAIL = "❌ Margin calculation failed: {msg}"
-    CALC_PROFIT_MISSING_PARAMS = "Please provide action, symbol, volume, price_open, and price_close for profit calculation"
-    CALC_PROFIT_FAIL = "❌ Profit calculation failed: {msg}"
-
-
-class VirtualTradeText(Enum):
-    MISSING_SYMBOL = "Missing 'symbol' parameter"
-    NO_CURRENT_BAR = "No current K-bar, cannot record order time"
-    MODIFY_MISSING_ORDER_ID = "Missing 'order_id', cannot modify order"
-    ORDER_ID_NOT_FOUND = "Order not found: order_id={order_id}"
-    CANCEL_MISSING_PARAMS = "Missing 'symbol' or 'order_id'"
-    CANCEL_SUCCESS = "Successfully cancelled virtual order {order_id}"
-    CANCEL_NOT_FOUND = "Cannot find virtual order {order_id}, cancel failed"
-
-# 中英文訊息對照表，每種語言對應一組 Enum 的翻譯
-# A dictionary mapping Enum message keys to translations in different languages
-i18n_map = {
-    "zh-tw": {
-        ClientText.SERVER_ERROR: "❌ 無法連線到 mas 伺服器，請確認是否已開啟 soft。",
-        ClientText.DOWNLOAD_HINT: "或者去 mindaismart.com 下載 mas soft",
-        ClientText.TRADE_SUCCESS: "✅ 成功產生買賣點報表",
-        ClientText.KPI_SUCCESS: "✅ 成功產生 KPI 報表",
-        ClientText.DATA_SUCCESS: "✅ 成功產生完整報表",
-        ClientText.UNKNOWN_ERROR: "❌ 錯誤：{msg}",
-
-        ConnectText.LOGIN_ERROR: "[登入錯誤] 登入失敗：{msg}",
-        ConnectText.INIT_ERROR: "[初始化錯誤] MT5初始化失敗：{msg}",
-        ConnectText.SHUTDOWN_EXCEPTION: "⚠️ MT5 shutdown 發生例外：{msg}",
-        ConnectText.CONNECTION_NONE: "[連線檢查] 尚未連線到MT5",
-        ConnectText.CONNECTION_OK: "[連線檢查] MT5連線正常",
-        ConnectText.SHUTDOWN_MSG: "[關閉] MT5已關閉",
-        ConnectText.REQUIRED_PARAM_MISSING: "{param} 為必要參數",
-        ConnectText.SWITCH_ACCOUNT_MISSING: "account、password、server 為切換帳戶的必要參數",
-        ConnectText.SWITCH_ACCOUNT_SUCCESS: "✅ 帳戶已切換：{account}",
-        ConnectText.SWITCH_ACCOUNT_ERROR: "[切換帳戶] 失敗：{msg}",
-
-        AccountText.GET_PENDING_ORDERS_ERROR: "[掛單查詢] 錯誤：{msg}",
-        AccountText.GET_HISTORY_ORDERS_ERROR: "[歷史訂單查詢] 錯誤：{msg}",
-        AccountText.GET_ORDERS_TOTAL_ERROR: "[訂單總數] 錯誤：{msg}",
-        AccountText.GET_HISTORY_ORDERS_TOTAL_ERROR: "[歷史訂單總數] 錯誤：{msg}",
-
-        HistoryText.MISSING_PARAMS: "[歷史資料] ❌ 缺少 symbol、from 或 to 參數",
-        HistoryText.UNSUPPORTED_MODE: "[歷史資料] ⚠️ 不支援的模式：'{mode}'，改為 'all'",
-        HistoryText.TICK_FAIL: "[歷史資料] ❌ 無法取得 Tick 資料：{symbol}",
-        HistoryText.NO_DATA: "[MT5] ⚠️ 無資料：{symbol} {start} ~ {end}",
-        HistoryText.COPY_FAIL: "[MT5] ❌ 擷取資料失敗：{msg}",
-        HistoryText.BARS_FROM_POS_MISSING_PARAMS: "[歷史資料] ❌ 缺少 symbol、timeframe 或 count 參數",
-        HistoryText.BARS_FROM_POS_FAIL: "[歷史資料] ❌ 從位置取得 Bar 資料失敗：{msg}",
-
-        MarketText.TICK_ALL_STOP: "❎ 所有 Tick 訂閱已取消",
-        MarketText.BAR_ALL_STOP: "❎ 所有 Bar 訂閱已取消",
-        MarketText.TICK_NO_SYMBOL: "❌ 訂閱 Tick 失敗：缺少 symbol",
-        MarketText.TICK_ALREADY_SUBSCRIBED: "⚠️ {symbol} 已訂閱 Tick，忽略重複訂閱。",
-        MarketText.TICK_SUBSCRIBED: "✅ 成功訂閱 Tick：{symbol}，每 {interval}ms 檢查一次",
-        MarketText.TICK_READ_ERROR: "❌ Tick 讀取錯誤：{msg}",
-        MarketText.TICK_UNSUB_NO_SYMBOL: "❌ 取消訂閱 Tick 失敗：缺少 symbol",
-        MarketText.TICK_UNSUB_NOT_EXIST: "⚠️ 無有效 Tick 訂閱：{symbol}",
-        MarketText.TICK_UNSUB_SUCCESS: "❎ 成功取消訂閱 Tick：{symbol}",
-        MarketText.BAR_NO_SYMBOL: "❌ 訂閱失敗：缺少 symbol 或 timeframe",
-        MarketText.BAR_UNSUPPORTED_TF: "❌ 不支援的 timeframe：{timeframe}",
-        MarketText.BAR_ALREADY_SUBSCRIBED: "⚠️ {key_name} 已訂閱，忽略重複訂閱",
-        MarketText.BAR_INIT_FAIL: "❌ MT5 初始化失敗",
-        MarketText.BAR_SUB_ERROR: "❌ Bar 訂閱錯誤：{msg}",
-        MarketText.BAR_SUBSCRIBED: "✅ 已訂閱：{symbol} / {timeframe}",
-        MarketText.BAR_UNSUB_NO_SYMBOL: "❌ 取消訂閱 Bar 失敗：缺少 symbol 或 timeframe",
-        MarketText.BAR_UNSUB_NOT_EXIST: "⚠️ 無有效訂閱存在：{key_name}",
-        MarketText.BAR_UNSUB_SUCCESS: "❎ 成功取消訂閱 Bar：{key_name}",
-        MarketText.MARKET_BOOK_NO_SYMBOL: "❌ 市場深度訂閱失敗：缺少 symbol",
-        MarketText.MARKET_BOOK_SUBSCRIBED: "✅ 市場深度已訂閱：{symbol}",
-        MarketText.MARKET_BOOK_RELEASED: "❎ 市場深度已取消：{symbol}",
-        MarketText.MARKET_BOOK_NOT_SUBSCRIBED: "⚠️ 市場深度未訂閱：{symbol}",
-        MarketText.MARKET_BOOK_GET_FAIL: "❌ 取得市場深度失敗：{symbol}",
-
-        TradeText.MISSING_ORDER_PARAMS: "❌ 缺少必要參數 symbol/order_type/volume",
-        TradeText.INIT_FAILED: "❌ 初始化失敗",
-        TradeText.NOT_LOGGED_IN: "❌ 尚未登入 MT5",
-        TradeText.NO_TICK_INFO: "❌ 無法取得 Tick 資訊",
-        TradeText.UNSUPPORTED_ORDER_TYPE: "❌ 不支援 order_type: {order_type}",
-        TradeText.ORDER_FAILED: "❌ 下單失敗：{msg}",
-        TradeText.MODIFY_MISSING_PARAMS: "❌ 請提供 order_id 與 price",
-        TradeText.MODIFY_NO_RESPONSE: "❌ 回傳 None，請確認初始化或登入狀況",
-        TradeText.MODIFY_FAILED: "❌ 修改失敗：{msg}",
-        TradeText.MODIFY_SUCCESS: "✅ 修改成功：{msg}",
-        TradeText.CANCEL_MISSING_ORDER_ID: "❌ 請提供 order_id",
-        TradeText.CANCEL_NO_RESPONSE: "❌ 無回傳結果，請檢查初始化與登入狀態",
-        TradeText.CANCEL_FAILED: "❌ 取消失敗：{msg}",
-        TradeText.CANCEL_SUCCESS: "✅ 成功取消訂單：{order_id}",
-        TradeText.EXCEPTION_ERROR: "❌ 例外錯誤: {error}",
-        TradeText.SLTP_MISSING_PARAMS: "❌ 請提供 position_id 與至少一個 sl 或 tp",
-        TradeText.SLTP_SUCCESS: "✅ SL/TP 修改成功：{order_id}",
-        TradeText.SLTP_FAILED: "❌ SL/TP 修改失敗：{msg}",
-        TradeText.ORDER_CHECK_MISSING_PARAMS: "❌ 請提供 symbol、order_type 與 volume 進行預檢查",
-        TradeText.ORDER_CHECK_FAIL: "❌ 訂單預檢查失敗：{msg}",
-        TradeText.CALC_MARGIN_MISSING_PARAMS: "❌ 請提供 action、symbol、volume 與 price 進行保證金計算",
-        TradeText.CALC_MARGIN_FAIL: "❌ 保證金計算失敗：{msg}",
-        TradeText.CALC_PROFIT_MISSING_PARAMS: "❌ 請提供 action、symbol、volume、price_open 與 price_close 進行獲利計算",
-        TradeText.CALC_PROFIT_FAIL: "❌ 獲利計算失敗：{msg}",
-
-        VirtualTradeText.MISSING_SYMBOL: "❌ 缺少 symbol 參數",
-        VirtualTradeText.NO_CURRENT_BAR: "⚠️ 無目前 K 棒，無法記錄下單時間",
-        VirtualTradeText.MODIFY_MISSING_ORDER_ID: "❌ 缺少 order_id，無法修改訂單",
-        VirtualTradeText.ORDER_ID_NOT_FOUND: "❌ 找不到對應的掛單 order_id={order_id}",
-        VirtualTradeText.CANCEL_MISSING_PARAMS: "❌ 缺少 symbol 或 order_id",
-        VirtualTradeText.CANCEL_SUCCESS: "❎ 已取消模擬掛單 {order_id}",
-        VirtualTradeText.CANCEL_NOT_FOUND: "⚠️ 找不到掛單 {order_id}，取消失敗"
+LEVEL_LABEL = {
+    "zh": {
+        "FREE": "一般會員",
+        "STARTER": "入門會員",
+        "GROWTH": "進階會員",
+        "PRO": "專業會員"
     },
     "en": {
-        ClientText.SERVER_ERROR: "❌ Cannot connect to MAS server. Make sure the soft is running.",
-        ClientText.DOWNLOAD_HINT: "Or visit mindaismart.com to download MAS Soft.",
-        ClientText.TRADE_SUCCESS: "✅ Successfully generated trade report.",
-        ClientText.KPI_SUCCESS: "✅ Successfully generated KPI report.",
-        ClientText.DATA_SUCCESS: "✅ Successfully generated full report.",
-        ClientText.UNKNOWN_ERROR: "❌ Error: {msg}",
+        "FREE": "Free Member",
+        "STARTER": "Starter",
+        "GROWTH": "Growth",
+        "PRO": "Pro"
+    },
+    "cn": {
+        "FREE": "一般会员",
+        "STARTER": "入门会员",
+        "GROWTH": "进阶会员",
+        "PRO": "专业会员"
+    }
+}
 
-        ConnectText.LOGIN_ERROR: "[Login Error] Login failed: {msg}",
-        ConnectText.INIT_ERROR: "[Initialize Error] MT5 initialization failed: {msg}",
-        ConnectText.SHUTDOWN_EXCEPTION: "⚠️ MT5 shutdown raised exception: {msg}",
-        ConnectText.CONNECTION_NONE: "[Connection Check] MT5 is not connected",
-        ConnectText.CONNECTION_OK: "[Connection Check] MT5 connection is active",
-        ConnectText.SHUTDOWN_MSG: "[Shutdown] MT5 connection closed",
-        ConnectText.REQUIRED_PARAM_MISSING: "{param} is a required parameter",
-        ConnectText.SWITCH_ACCOUNT_MISSING: "account, password, server are required to switch account",
-        ConnectText.SWITCH_ACCOUNT_SUCCESS: "✅ Account switched: {account}",
-        ConnectText.SWITCH_ACCOUNT_ERROR: "[Switch Account] Failed: {msg}",
+LEVEL_COLOR = {
+    "FREE": "#6c757d",
+    "STARTER": "#cd7f32",
+    "GROWTH": "#c0c0c0",
+    "PRO": "goldenrod"
+}
 
-        AccountText.GET_PENDING_ORDERS_ERROR: "[Pending Orders] Error: {msg}",
-        AccountText.GET_HISTORY_ORDERS_ERROR: "[History Orders] Error: {msg}",
-        AccountText.GET_ORDERS_TOTAL_ERROR: "[Orders Total] Error: {msg}",
-        AccountText.GET_HISTORY_ORDERS_TOTAL_ERROR: "[History Orders Total] Error: {msg}",
+# NOTE: PNG 檔名尚未實體改名，path 暫時保留舊檔名；改名 PNG 後同步更新 path
+LEVEL_ICON = {
+    "FREE": "src/free.png",
+    "STARTER": "src/bronze.png",
+    "GROWTH": "src/silver.png",
+    "PRO": "src/gold.png"
+}
 
-        HistoryText.MISSING_PARAMS: "[HistoryData] ❌ Missing 'symbol', 'from', or 'to'",
-        HistoryText.UNSUPPORTED_MODE: "[HistoryData] ⚠️ Unsupported mode: '{mode}', fallback to 'all'",
-        HistoryText.TICK_FAIL: "[HistoryData] ❌ Failed to retrieve tick data for: {symbol}",
-        HistoryText.NO_DATA: "[MT5] ⚠️ No data for: {symbol} {start} ~ {end}",
-        HistoryText.COPY_FAIL: "[MT5] ❌ Failed to fetch data: {msg}",
-        HistoryText.BARS_FROM_POS_MISSING_PARAMS: "[HistoryData] ❌ Missing 'symbol', 'timeframe', or 'count'",
-        HistoryText.BARS_FROM_POS_FAIL: "[HistoryData] ❌ Failed to fetch bars from pos: {msg}",
-
-        MarketText.TICK_ALL_STOP: "❎ All Tick subscriptions stopped",
-        MarketText.BAR_ALL_STOP: "❎ All Bar subscriptions stopped",
-        MarketText.TICK_NO_SYMBOL: "❌ Tick subscription failed: missing symbol",
-        MarketText.TICK_ALREADY_SUBSCRIBED: "⚠️ {symbol} already subscribed for Tick. Ignored.",
-        MarketText.TICK_SUBSCRIBED: "✅ Subscribed Tick: {symbol}, interval = {interval}ms",
-        MarketText.TICK_READ_ERROR: "❌ Tick read error: {msg}",
-        MarketText.TICK_UNSUB_NO_SYMBOL: "❌ Tick unsubscribe failed: missing symbol",
-        MarketText.TICK_UNSUB_NOT_EXIST: "⚠️ No valid subscription found: {symbol}",
-        MarketText.TICK_UNSUB_SUCCESS: "❎ Unsubscribed Tick: {symbol}",
-        MarketText.BAR_NO_SYMBOL: "❌ Bar subscription failed: missing symbol or timeframe",
-        MarketText.BAR_UNSUPPORTED_TF: "❌ Unsupported timeframe: {timeframe}",
-        MarketText.BAR_ALREADY_SUBSCRIBED: "⚠️ {key_name} already subscribed. Ignored.",
-        MarketText.BAR_INIT_FAIL: "❌ MT5 initialize failed",
-        MarketText.BAR_SUB_ERROR: "❌ Bar subscription error: {msg}",
-        MarketText.BAR_SUBSCRIBED: "✅ Subscribed: {symbol} / {timeframe}",
-        MarketText.BAR_UNSUB_NO_SYMBOL: "❌ Bar unsubscribe failed: missing symbol or timeframe",
-        MarketText.BAR_UNSUB_NOT_EXIST: "⚠️ No valid subscription found: {key_name}",
-        MarketText.BAR_UNSUB_SUCCESS: "❎ Unsubscribed Bar: {key_name}",
-        MarketText.MARKET_BOOK_NO_SYMBOL: "❌ Market book failed: missing symbol",
-        MarketText.MARKET_BOOK_SUBSCRIBED: "✅ Market book subscribed: {symbol}",
-        MarketText.MARKET_BOOK_RELEASED: "❎ Market book released: {symbol}",
-        MarketText.MARKET_BOOK_NOT_SUBSCRIBED: "⚠️ Market book not subscribed: {symbol}",
-        MarketText.MARKET_BOOK_GET_FAIL: "❌ Market book get failed: {symbol}",
-
-        TradeText.MISSING_ORDER_PARAMS: "❌ Missing required fields: symbol/order_type/volume",
-        TradeText.INIT_FAILED: "❌ Initialization failed",
-        TradeText.NOT_LOGGED_IN: "❌ MT5 not logged in",
-        TradeText.NO_TICK_INFO: "❌ Cannot get tick info",
-        TradeText.UNSUPPORTED_ORDER_TYPE: "❌ Unsupported order_type: {order_type}",
-        TradeText.ORDER_FAILED: "❌ Order failed: {msg}",
-        TradeText.MODIFY_MISSING_PARAMS: "❌ Please provide order_id and price",
-        TradeText.MODIFY_NO_RESPONSE: "❌ No response, please check initialization/login",
-        TradeText.MODIFY_FAILED: "❌ Modify failed: {msg}",
-        TradeText.MODIFY_SUCCESS: "✅ Modify success: {msg}",
-        TradeText.CANCEL_MISSING_ORDER_ID: "❌ Please provide order_id",
-        TradeText.CANCEL_NO_RESPONSE: "❌ No response, check MT5 login/init",
-        TradeText.CANCEL_FAILED: "❌ Cancel failed: {msg}",
-        TradeText.CANCEL_SUCCESS: "✅ Successfully canceled order: {order_id}",
-        TradeText.EXCEPTION_ERROR: "❌ Exception error: {error}",
-        TradeText.SLTP_MISSING_PARAMS: "❌ Please provide position_id and at least sl or tp",
-        TradeText.SLTP_SUCCESS: "✅ SL/TP modified successfully: {order_id}",
-        TradeText.SLTP_FAILED: "❌ SL/TP modify failed: {msg}",
-        TradeText.ORDER_CHECK_MISSING_PARAMS: "❌ Please provide symbol, order_type, and volume for order check",
-        TradeText.ORDER_CHECK_FAIL: "❌ Order check failed: {msg}",
-        TradeText.CALC_MARGIN_MISSING_PARAMS: "❌ Please provide action, symbol, volume, and price for margin calculation",
-        TradeText.CALC_MARGIN_FAIL: "❌ Margin calculation failed: {msg}",
-        TradeText.CALC_PROFIT_MISSING_PARAMS: "❌ Please provide action, symbol, volume, price_open, and price_close for profit calculation",
-        TradeText.CALC_PROFIT_FAIL: "❌ Profit calculation failed: {msg}",
-
-        VirtualTradeText.MISSING_SYMBOL: "❌ Missing 'symbol' parameter",
-        VirtualTradeText.NO_CURRENT_BAR: "⚠️ No current K-bar, cannot record order time",
-        VirtualTradeText.MODIFY_MISSING_ORDER_ID: "❌ Missing 'order_id', cannot modify order",
-        VirtualTradeText.ORDER_ID_NOT_FOUND: "❌ Order not found: order_id={order_id}",
-        VirtualTradeText.CANCEL_MISSING_PARAMS: "❌ Missing 'symbol' or 'order_id'",
-        VirtualTradeText.CANCEL_SUCCESS: "❎ Successfully cancelled virtual order {order_id}",
-        VirtualTradeText.CANCEL_NOT_FOUND: "⚠️ Cannot find virtual order {order_id}, cancel failed"
+i18n_map = {
+    "zh": {
+        MainWindowText.TITLE: "MasQuant 交易系統",
+        MainWindowText.VERSION_PREFIX: "版本：v",
+        MainWindowText.PROCESS_LOG_LABEL: "📝 流程 Log",
+        MainWindowText.BACKTEST_LOG_LABEL: "📊 交易訊號 Log",
+        MainWindowText.BACKTEST_LOG_PLACEHOLDER: "這裡顯示進出場與市價訊號...",
+        LoginText.TITLE: "MasQuant 交易系統",
+        LoginText.USERNAME: "帳號：",
+        LoginText.PASSWORD: "密碼：",
+        LoginText.LOGIN_BUTTON: "登入",
+        LoginText.REGISTER_BUTTON: "註冊",
+        LoginText.FORGOT_PASSWORD: "忘記密碼？",
+        LoginText.TERMS_HTML: LoginText.TERMS_HTML.value,
+        LoginText.ERROR_TITLE: "錯誤",
+        LoginText.REMEBER :"記住我",
+        LoginText.ERROR_TERMS_REQUIRED: "請先確認MT5設定才能執行策略。",
+        CheckText.VERSION_ALERT_TITLE: "版本更新提醒",
+        CheckText.VERSION_ALERT_BODY: "發現新版本 {latest}，您目前使用的是 {current}\n請至官網下載最新版！",
+        CheckText.LOGIN_FAILED_TITLE: "登錄失敗",
+        CheckText.LOGIN_FAILED_BODY: "請重新確認帳號密碼！",
+        CheckText.SERVER_ERROR_BODY: "無法連線伺服器或伺服器發生錯誤（{detail}），請稍後再試，或確認您的網路連線。",
+        CheckText.LOGIN_NOTICE_TITLE: "提醒",
+        CheckText.HEALTH_ALERT_TITLE: "策略健康度提醒",
+        CheckText.HEALTH_ALERT_BODY: f'系統偵測到您目前的策略健康度為「{{level}}」。<br>為維護您的投資績效與資產穩健成長，建議盡快前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官網</a> 的策略精靈，更新至最新版本的策略。',
+        CheckText.HEALTH_LEVEL_LOW: "低",
+        CheckText.HEALTH_LEVEL_MEDIUM: "中",
+        CheckText.HEALTH_LEVEL_HIGH: "高",
+        CheckText.STRATEGY_HEALTH_LABEL: "策略健康度：",
+        CheckText.HEALTH_INFO_TITLE: "策略健康度說明",
+        CheckText.HEALTH_INFO_BODY: f'<span style="color:#28a745; font-size:16px;">●</span> <b>高</b>：策略狀態良好，可放心繼續使用。<br><br><span style="color:#ff9800; font-size:16px;">●</span> <b>中</b>：部分策略已開始過時，建議盡快更新以維持績效。<br><br><span style="color:#dc3545; font-size:16px;">●</span> <b>低</b>：策略已過時，績效可能受影響，請立即更新。<br><br>請前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官網</a> 的策略精靈更新最新策略，以保護您的投資。',
+        CheckText.UPGRADE_REQUIRED_TITLE: "需要升級會員",
+        CheckText.UPGRADE_REQUIRED_BODY: f'您目前的會員等級無法使用此功能。<br>請前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官網</a> 升級會員，解鎖完整功能與專業策略。',
+        CheckText.SUBSCRIPTION_EXPIRED_TITLE: "訂閱已過期",
+        CheckText.SUBSCRIPTION_EXPIRED_BODY: f'您的訂閱已過期，目前無法使用付費功能。<br>請前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官網</a> 續訂方案，繼續享有完整服務。',
+        CheckText.SESSION_DUPLICATE_TITLE: "重複登入",
+        CheckText.SESSION_DUPLICATE_BODY: f'本機已開啟此帳號的 MasQuant 交易系統。<br><br>為避免策略衝突與重複下單風險，目前同一帳號在同一台電腦上僅能開啟一個視窗。<br>請先關閉現有視窗後再試一次。<br><br>若您需要同時部署多個視窗執行策略，請前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官網</a> 升級會員等級以解鎖此功能。',
+        StrategyText.TITLE: "策略設定",
+        StrategyText.LOGIN_ID: "MT5登入帳號：",
+        StrategyText.PASSWORD: "MT5登入密碼：",
+        StrategyText.SERVER: "MT5券商伺服器：",
+        StrategyText.START: "開始執行",
+        StrategyText.STOP: "停止",
+        StrategyText.STATUS_IDLE: "狀態：未執行",
+        StrategyText.ERROR_TITLE: "錯誤",
+        StrategyText.ERROR_INPUT_REQUIRED: "請填寫所有設定值！",
+        StrategyText.ERROR_TERMS_REQUIRED: "請先勾選同意條款與政策才能執行策略。",
+        StrategyText.DIALOG_TITLE: "確認交易設定",
+        StrategyText.DIALOG_CONFIRM: "確認執行",
+        StrategyText.DIALOG_CANCEL: "取消",
+        StrategyText.DIALOG_RISK_HTML: '<span style="font-size:13px; color:#333;">我已了解：當程式關閉、網路斷線、電腦關機或斷電時，程式交易將自動停止，未平倉部位需自行處理。</span>',
+        StrategyText.LOG_OPENED: "🛠 開啟策略設定畫面",
+        StrategyText.LOG_DIALOG: "📌 顯示交易確認視窗",
+        StrategyText.LOG_STARTED: "🚀 策略開始執行",
+        StrategyText.LOG_STOPPED: "⏹️ 策略已停止",
+        StrategyText.STATUS_RUNNING: "策略執行中...",
+        StrategyText.STATUS_DONE: "❗ 策略執行完成，策略執行中，請勿關閉視窗，關閉視窗則程式交易也會停止！",
+        StrategyText.STATUS_FAILED: "❌ 策略執行失敗！",
+        StrategyText.LOG_SUCCESS: "✅ 策略執行中！",
+        StrategyText.LOG_FAILED: "❌ 策略失敗：{error}",
+        StrategyText.ERROR_SYMBOL_NOT_FOUND: "商品代碼錯誤，請依照您的券商商品代碼進行輸入",
+        StrategyText.ERROR_TRADE_EXPERT_DISABLED: "MT5 尚未開啟「允許算法交易」，請先至 MT5 開啟設定後再執行策略。",
+        StrategyText.ERROR_TRADE_EXPERT_DISABLED_HTML: f'MT5 尚未開啟「允許算法交易」，請先至 MT5 開啟設定後再執行策略。<br>操作設定請參考：<a href="{url.terms_ea_setting.value}">操作設定</a>',
+        StrategyText.CAPITAL: "本金：",
+        StrategyText.VOLUME: "手數：",
+        StrategyText.CAPITAL_LOTS_LABEL: "資金規模：",
+        StrategyText.CAPITAL_LOTS_OPTION: "本金 {capital} USD / 手數 {lots}",
+        StrategyText.CAPITAL_LOTS_OPTION_CAPPED: "本金 {capital} USD / 手數 {lots}（已達上限）",
+        StrategyText.LOSS_ALERT_TITLE: "⚠️ 虧損警戒",
+        StrategyText.LOSS_STOP_TITLE: "🛑 策略已停止交易",
+        StrategyText.STRATEGY_ID: "策略 ID：",
+        StrategyText.SYMBOL: "商品：",
+        StrategyText.STOP_CONFIRM_TITLE: "確認停止策略",
+        StrategyText.STOP_CONFIRM_BODY: '⚠️ 重要：停止策略後，程式 <b>不會自動平倉</b>。<br>您 MT5 中所有未平倉部位將維持原狀，<b>繼續承受市場波動風險</b>。<br><br>請於停止後立即至 MT5 手動處理未平倉部位，以避免損失擴大。<br><br>確定要停止策略嗎？',
+        StrategyText.STOP_CONFIRM_OK: "確認",
+        StrategyText.TERMS_HTML: StrategyText.TERMS_HTML.value,
+        StrategyText.FOOTER: StrategyText.FOOTER.value,
+        StrategyText.DIALOG_HTML_PREFIX: StrategyText.DIALOG_HTML_PREFIX.value
+    },
+    "en": {
+        MainWindowText.TITLE: "MasQuant Trading System",
+        MainWindowText.VERSION_PREFIX: "Version: v",
+        MainWindowText.PROCESS_LOG_LABEL: "📝 Process Log",
+        MainWindowText.BACKTEST_LOG_LABEL: "📊 Trading Signals",
+        MainWindowText.BACKTEST_LOG_PLACEHOLDER: "Entry/exit and market signals shown here...",
+        LoginText.TITLE: "MasQuant Trading System",
+        LoginText.USERNAME: "Account:",
+        LoginText.PASSWORD: "Password:",
+        LoginText.LOGIN_BUTTON: "Login",
+        LoginText.REGISTER_BUTTON: "Register",
+        LoginText.FORGOT_PASSWORD: "Forgot Password?",
+        LoginText.TERMS_HTML: f'''
+        <span style="font-size:13px; color:#333;">
+Before starting automated trading, please review your MT5 EA settings in the 
+<a href="{url.terms_ea_setting.value}" style="color:#d2691e; text-decoration:none;">Setup Guide</a>.
+</span>''',
+        LoginText.REMEBER :"Remember me",
+        LoginText.ERROR_TITLE: "Error",
+        LoginText.ERROR_TERMS_REQUIRED: "Please confirm your MT5 settings before running the strategy.",
+        CheckText.VERSION_ALERT_TITLE: "Update Notice",
+        CheckText.VERSION_ALERT_BODY: "New version {latest} found. You are using {current}.\nPlease visit the official site to download the latest version!",
+        CheckText.LOGIN_FAILED_TITLE: "Login Failed",
+        CheckText.LOGIN_FAILED_BODY: "Please check your username or password again!",
+        CheckText.SERVER_ERROR_BODY: "Unable to reach the server, or the server returned an error ({detail}). Please check your connection and try again.",
+        CheckText.LOGIN_NOTICE_TITLE: "Notice",
+        CheckText.HEALTH_ALERT_TITLE: "Strategy Health Notice",
+        CheckText.HEALTH_ALERT_BODY: f'Your current strategy health is "{{level}}".<br>To safeguard your investment performance and the steady growth of your assets, we recommend visiting the Strategy Wizard on our <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">official website</a> and updating to the latest strategy.',
+        CheckText.HEALTH_LEVEL_LOW: "Low",
+        CheckText.HEALTH_LEVEL_MEDIUM: "Medium",
+        CheckText.HEALTH_LEVEL_HIGH: "High",
+        CheckText.STRATEGY_HEALTH_LABEL: "Strategy Health: ",
+        CheckText.HEALTH_INFO_TITLE: "About Strategy Health",
+        CheckText.HEALTH_INFO_BODY: f'<span style="color:#28a745; font-size:16px;">●</span> <b>High</b>: Your strategy is in good condition. You may continue trading as usual.<br><br><span style="color:#ff9800; font-size:16px;">●</span> <b>Medium</b>: Some strategies are becoming outdated. We recommend updating them soon to maintain performance.<br><br><span style="color:#dc3545; font-size:16px;">●</span> <b>Low</b>: Your strategies are outdated and performance may be affected. Please update immediately.<br><br>Please visit the Strategy Wizard on our <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">official website</a> to update to the latest strategies and protect your investment.',
+        CheckText.UPGRADE_REQUIRED_TITLE: "Upgrade Required",
+        CheckText.UPGRADE_REQUIRED_BODY: f'Your current membership does not include this feature.<br>Please visit the <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">official website</a> to upgrade and unlock the full features and professional strategies.',
+        CheckText.SUBSCRIPTION_EXPIRED_TITLE: "Subscription Expired",
+        CheckText.SUBSCRIPTION_EXPIRED_BODY: f'Your subscription has expired and paid features are currently unavailable.<br>Please visit the <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">official website</a> to renew your plan and continue enjoying the full service.',
+        CheckText.SESSION_DUPLICATE_TITLE: "Duplicate Login Detected",
+        CheckText.SESSION_DUPLICATE_BODY: f'MasQuant Trading System is already open with this account on this machine.<br><br>To prevent strategy conflicts and duplicate orders, only one window per account is currently allowed on the same computer.<br>Please close the existing window and try again.<br><br>If you need to run multiple windows simultaneously, please visit the <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">official website</a> to upgrade your membership and unlock this feature.',
+        StrategyText.TITLE: "Strategy Settings",
+        StrategyText.LOGIN_ID: "MT5 Login Account:",
+        StrategyText.PASSWORD: "MT5 Login Password:",
+        StrategyText.SERVER: "MT5 Broker Server:",
+        StrategyText.START: "Start",
+        StrategyText.STOP: "Stop",
+        StrategyText.STATUS_IDLE: "Status: Idle",
+        StrategyText.ERROR_TITLE: "Error",
+        StrategyText.ERROR_INPUT_REQUIRED: "Please fill in all required fields!",
+        StrategyText.ERROR_TERMS_REQUIRED: "You must agree to the terms and policies before executing.",
+        StrategyText.DIALOG_TITLE: "Confirm Strategy Execution",
+        StrategyText.DIALOG_CONFIRM: "Confirm",
+        StrategyText.DIALOG_CANCEL: "Cancel",
+        StrategyText.DIALOG_RISK_HTML: '<span style="font-size:13px; color:#333;">I understand that automated trading will stop if the application is closed, the network is disconnected, or the computer shuts down. Any open positions must be managed manually.</span>',
+        StrategyText.LOG_OPENED: "🛠 Opened Strategy Settings",
+        StrategyText.LOG_DIALOG: "📌 Showing strategy confirmation dialog",
+        StrategyText.LOG_STARTED: "🚀 Strategy execution started",
+        StrategyText.LOG_STOPPED: "⏹️ Strategy stopped",
+        StrategyText.STATUS_RUNNING: "Strategy running...",
+        StrategyText.STATUS_DONE: "❗ Strategy finished. Do not close the window while running!",
+        StrategyText.STATUS_FAILED: "❌ Strategy failed!",
+        StrategyText.LOG_SUCCESS: "✅ Strategy is running!",
+        StrategyText.LOG_FAILED: "❌ Strategy failed: {error}",
+        StrategyText.ERROR_SYMBOL_NOT_FOUND: "Invalid symbol. Please enter the symbol as listed by your broker.",
+        StrategyText.ERROR_TRADE_EXPERT_DISABLED: "MT5 'Algo Trading' is not enabled. Please enable it in MT5 settings before running the strategy.",
+        StrategyText.ERROR_TRADE_EXPERT_DISABLED_HTML: f'MT5 "Algo Trading" is not enabled. Please enable it in MT5 settings before running the strategy.<br>Setup guide: <a href="{url.terms_ea_setting.value}">Setup Guide</a>',
+        StrategyText.CAPITAL: "Capital:",
+        StrategyText.VOLUME: "Volume (Lots):",
+        StrategyText.CAPITAL_LOTS_LABEL: "Account Size: ",
+        StrategyText.CAPITAL_LOTS_OPTION: "Capital {capital} USD / Lots {lots}",
+        StrategyText.CAPITAL_LOTS_OPTION_CAPPED: "Capital {capital} USD / Lots {lots} (at cap)",
+        StrategyText.LOSS_ALERT_TITLE: "⚠️ Drawdown Warning",
+        StrategyText.LOSS_STOP_TITLE: "🛑 Trading Halted",
+        StrategyText.STRATEGY_ID: "Strategy ID: ",
+        StrategyText.SYMBOL: "Symbol: ",
+        StrategyText.STOP_CONFIRM_TITLE: "Confirm Stop Strategy",
+        StrategyText.STOP_CONFIRM_BODY: '⚠️ Important: Stopping the strategy will <b>NOT auto-close your positions</b>.<br>All open positions in MT5 will remain and <b>continue to be exposed to market risk</b>.<br><br>Please close any open positions manually in MT5 immediately after stopping, to prevent further losses.<br><br>Are you sure you want to stop?',
+        StrategyText.STOP_CONFIRM_OK: "Confirm",
+        StrategyText.TERMS_HTML: f'''
+        <span style="font-size:13px; color:#333;">
+        I have read and agree to the <a href="{url.terms_api.value}" style="color:#d2691e; text-decoration:none;">Terms of Use</a> and 
+        <a href="{url.terms_disclaimer.value}" style="color:#d2691e; text-decoration:none;">Disclaimer</a>
+        </span>
+        ''',
+        StrategyText.FOOTER: f'''<span style="font-size:13px; color:#666;">🚀 Upgrade to MasQuant for more professional strategies: <a href="{url.upgrade.value}" style="color:#0078D7;">Upgrade Now</a></span>''',
+        StrategyText.DIALOG_HTML_PREFIX: '''
+        <b>Please confirm strategy settings:</b><br>
+        <b>Account:</b> {account}<br>
+        <b>Server:</b> {server}<br>
+        '''
+    },
+    "cn": {
+        MainWindowText.TITLE: "MasQuant 交易系统",
+        MainWindowText.VERSION_PREFIX: "版本：v",
+        MainWindowText.PROCESS_LOG_LABEL: "📝 流程 Log",
+        MainWindowText.BACKTEST_LOG_LABEL: "📊 交易信号 Log",
+        MainWindowText.BACKTEST_LOG_PLACEHOLDER: "这里显示进出场与市价信号...",
+        LoginText.TITLE: "MasQuant 交易系统",
+        LoginText.USERNAME: "账号：",
+        LoginText.PASSWORD: "密码：",
+        LoginText.LOGIN_BUTTON: "登录",
+        LoginText.REGISTER_BUTTON: "注册",
+        LoginText.FORGOT_PASSWORD: "忘记密码？",
+        LoginText.TERMS_HTML: f'''
+        <span style="font-size:13px; color:#333;">
+        自动化交易前，请先确认MT5 EA设置 <a href="{url.terms_ea_setting.value}" style="color:#d2691e; text-decoration:none;">操作设置</a>
+        </span>
+    ''',
+        LoginText.ERROR_TITLE: "错误",
+        LoginText.REMEBER: "记住我",
+        LoginText.ERROR_TERMS_REQUIRED: "请先确认MT5设置才能执行策略。",
+        CheckText.VERSION_ALERT_TITLE: "版本更新提醒",
+        CheckText.VERSION_ALERT_BODY: "发现新版本 {latest}，您当前使用的是 {current}\n请至官网下载最新版！",
+        CheckText.LOGIN_FAILED_TITLE: "登录失败",
+        CheckText.LOGIN_FAILED_BODY: "请重新确认账号密码！",
+        CheckText.SERVER_ERROR_BODY: "无法连接服务器或服务器发生错误（{detail}），请稍后再试，或确认您的网络连接。",
+        CheckText.LOGIN_NOTICE_TITLE: "提醒",
+        CheckText.HEALTH_ALERT_TITLE: "策略健康度提醒",
+        CheckText.HEALTH_ALERT_BODY: f'系统检测到您当前的策略健康度为「{{level}}」。<br>为维护您的投资绩效与资产稳健成长，建议尽快前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官网</a> 的策略向导，更新至最新版本的策略。',
+        CheckText.HEALTH_LEVEL_LOW: "低",
+        CheckText.HEALTH_LEVEL_MEDIUM: "中",
+        CheckText.HEALTH_LEVEL_HIGH: "高",
+        CheckText.STRATEGY_HEALTH_LABEL: "策略健康度：",
+        CheckText.HEALTH_INFO_TITLE: "策略健康度说明",
+        CheckText.HEALTH_INFO_BODY: f'<span style="color:#28a745; font-size:16px;">●</span> <b>高</b>：策略状态良好，可放心继续使用。<br><br><span style="color:#ff9800; font-size:16px;">●</span> <b>中</b>：部分策略已开始过时，建议尽快更新以维持绩效。<br><br><span style="color:#dc3545; font-size:16px;">●</span> <b>低</b>：策略已过时，绩效可能受影响，请立即更新。<br><br>请前往 <a href="{url.strategy_wizard.value}" style="color:#0078D7; text-decoration:none;">官网</a> 的策略向导更新最新策略，以保护您的投资。',
+        CheckText.UPGRADE_REQUIRED_TITLE: "需要升级会员",
+        CheckText.UPGRADE_REQUIRED_BODY: f'您当前的会员等级无法使用此功能。<br>请前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官网</a> 升级会员，解锁完整功能与专业策略。',
+        CheckText.SUBSCRIPTION_EXPIRED_TITLE: "订阅已过期",
+        CheckText.SUBSCRIPTION_EXPIRED_BODY: f'您的订阅已过期，当前无法使用付费功能。<br>请前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官网</a> 续订方案，继续享有完整服务。',
+        CheckText.SESSION_DUPLICATE_TITLE: "重复登录",
+        CheckText.SESSION_DUPLICATE_BODY: f'本机已打开此账号的 MasQuant 交易系统。<br><br>为避免策略冲突与重复下单风险，当前同一账号在同一台电脑上仅能打开一个窗口。<br>请先关闭现有窗口后再试一次。<br><br>若您需要同时部署多个窗口执行策略，请前往 <a href="{url.upgrade.value}" style="color:#0078D7; text-decoration:none;">官网</a> 升级会员等级以解锁此功能。',
+        StrategyText.TITLE: "策略设置",
+        StrategyText.LOGIN_ID: "MT5登录账号：",
+        StrategyText.PASSWORD: "MT5登录密码：",
+        StrategyText.SERVER: "MT5券商服务器：",
+        StrategyText.START: "开始执行",
+        StrategyText.STOP: "停止",
+        StrategyText.STATUS_IDLE: "状态：未执行",
+        StrategyText.ERROR_TITLE: "错误",
+        StrategyText.ERROR_INPUT_REQUIRED: "请填写所有设置值！",
+        StrategyText.ERROR_TERMS_REQUIRED: "请先勾选同意条款与政策才能执行策略。",
+        StrategyText.DIALOG_TITLE: "确认交易设置",
+        StrategyText.DIALOG_CONFIRM: "确认执行",
+        StrategyText.DIALOG_CANCEL: "取消",
+        StrategyText.DIALOG_RISK_HTML: '<span style="font-size:13px; color:#333;">我已了解：当程序关闭、网络断线、电脑关机或断电时，程序交易将自动停止，未平仓仓位需自行处理。</span>',
+        StrategyText.LOG_OPENED: "🛠 打开策略设置界面",
+        StrategyText.LOG_DIALOG: "📌 显示交易确认窗口",
+        StrategyText.LOG_STARTED: "🚀 策略开始执行",
+        StrategyText.LOG_STOPPED: "⏹️ 策略已停止",
+        StrategyText.STATUS_RUNNING: "策略执行中...",
+        StrategyText.STATUS_DONE: "❗ 策略执行完成，策略执行中，请勿关闭窗口，关闭窗口则程序交易也会停止！",
+        StrategyText.STATUS_FAILED: "❌ 策略执行失败！",
+        StrategyText.LOG_SUCCESS: "✅ 策略执行中！",
+        StrategyText.LOG_FAILED: "❌ 策略失败：{error}",
+        StrategyText.ERROR_SYMBOL_NOT_FOUND: "商品代码错误，请依照您的券商商品代码进行输入",
+        StrategyText.ERROR_TRADE_EXPERT_DISABLED: "MT5 尚未开启「允许算法交易」，请先至 MT5 开启设置后再执行策略。",
+        StrategyText.ERROR_TRADE_EXPERT_DISABLED_HTML: f'MT5 尚未开启「允许算法交易」，请先至 MT5 开启设置后再执行策略。<br>操作设置请参考：<a href="{url.terms_ea_setting.value}">操作设置</a>',
+        StrategyText.CAPITAL: "本金：",
+        StrategyText.VOLUME: "手数：",
+        StrategyText.CAPITAL_LOTS_LABEL: "资金规模：",
+        StrategyText.CAPITAL_LOTS_OPTION: "本金 {capital} USD / 手数 {lots}",
+        StrategyText.CAPITAL_LOTS_OPTION_CAPPED: "本金 {capital} USD / 手数 {lots}（已达上限）",
+        StrategyText.LOSS_ALERT_TITLE: "⚠️ 亏损警戒",
+        StrategyText.LOSS_STOP_TITLE: "🛑 策略已停止交易",
+        StrategyText.STRATEGY_ID: "策略 ID：",
+        StrategyText.SYMBOL: "商品：",
+        StrategyText.STOP_CONFIRM_TITLE: "确认停止策略",
+        StrategyText.STOP_CONFIRM_BODY: '⚠️ 重要：停止策略后，程序 <b>不会自动平仓</b>。<br>您 MT5 中所有未平仓仓位将维持原状，<b>继续承受市场波动风险</b>。<br><br>请于停止后立即至 MT5 手动处理未平仓仓位，以避免损失扩大。<br><br>确定要停止策略吗？',
+        StrategyText.STOP_CONFIRM_OK: "确认",
+        StrategyText.TERMS_HTML: f'''
+        <span style="font-size:13px; color:#333;">
+        我已阅读及同意以上使用条款 <a href="{url.terms_api.value}" style="color:#d2691e; text-decoration:none;">使用条款</a> 和
+        <a href="{url.terms_disclaimer.value}" style="color:#d2691e; text-decoration:none;">免责声明</a>
+        </span>
+    ''',
+        StrategyText.FOOTER: f'''<span style="font-size:13px; color:#666;">🚀 点我升级 MasQuant，立即创造更多专业策略：<a href="{url.upgrade.value}" style="color:#0078D7;">前往升级</a></span>''',
+        StrategyText.DIALOG_HTML_PREFIX: '''
+        <b>请确认交易设置：</b><br>
+        <b>券商账号：</b> {account}<br>
+        <b>券商服务器：</b> {server}<br>
+    '''
     }
 }
 
 
-def get_text(key: Enum, lang: str = None, **kwargs) -> str:
-    """
-    根據目前語系或指定語系，取得對應的多語系訊息，支援格式化參數（如 {msg}, {symbol} 等）。
-
-    Args:
-        key (Enum): Enum 成員，例如 ClientText.SERVER_ERROR。
-        lang (str, optional): 語系代碼（預設使用目前語系），支援 'zh' 或 'en'。
-        **kwargs: 可填入訊息模板中的動態變數。
-
-    Returns:
-        str: 對應語系的文字訊息，若翻譯不存在則回傳原始 Enum value。
-
-    Retrieve a localized string based on the current or specified language.
-    Supports dynamic string formatting via template variables (e.g., {msg}, {symbol}).
-
-    Args:
-        key (Enum): Enum member, such as ClientText.SERVER_ERROR.
-        lang (str, optional): Language code, defaults to current language. Supports 'zh' or 'en'.
-        **kwargs: Keyword arguments used to populate message templates.
-
-    Returns:
-        str: The localized message. Falls back to Enum's default value if translation not found.
-    """
+def get_text(key: Enum, lang: str = None) -> str:
     if lang is None:
-        lang = get_current_lang()  # ✅ 你的語系切換邏輯
-    template = i18n_map.get(lang, {}).get(key, key.value)
-    return template.format(**kwargs)  # ✅ 支援 {error}, {msg}, {order_id} 等變數
+        lang = get_current_lang()
+    return i18n_map.get(lang, {}).get(key, key.value)
 
+
+def get_level_label(level: str) -> str:
+    lang = get_current_lang()
+    return LEVEL_LABEL.get(lang, {}).get(level, level)
+
+
+def get_level_color(level: str) -> str:
+    return LEVEL_COLOR.get(level, "#000")
+
+
+def get_level_icon(level: str) -> str:
+    return LEVEL_ICON.get(level, "")

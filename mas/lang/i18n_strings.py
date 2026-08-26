@@ -58,7 +58,7 @@ def set_lang(lang: str = "en") -> None:
 
 class ClientText(Enum):
     SERVER_ERROR = "❌ Cannot connect to MAS server. Make sure the soft is running."
-    DOWNLOAD_HINT = "Or visit mindaismart.com to download MAS Soft."
+    DOWNLOAD_HINT = "Or visit trade.masquant.com to download MAS Soft."
     TRADE_SUCCESS = "✅ Successfully generated trade report."
     KPI_SUCCESS = "✅ Successfully generated KPI report."
     DATA_SUCCESS = "✅ Successfully generated full report."
@@ -164,7 +164,7 @@ class VirtualTradeText(Enum):
 i18n_map = {
     "zh-tw": {
         ClientText.SERVER_ERROR: "❌ 無法連線到 mas 伺服器，請確認是否已開啟 soft。",
-        ClientText.DOWNLOAD_HINT: "或者去 mindaismart.com 下載 mas soft",
+        ClientText.DOWNLOAD_HINT: "或者去 trade.masquant.com 下載 mas soft",
         ClientText.TRADE_SUCCESS: "✅ 成功產生買賣點報表",
         ClientText.KPI_SUCCESS: "✅ 成功產生 KPI 報表",
         ClientText.DATA_SUCCESS: "✅ 成功產生完整報表",
@@ -253,7 +253,7 @@ i18n_map = {
     },
     "en": {
         ClientText.SERVER_ERROR: "❌ Cannot connect to MAS server. Make sure the soft is running.",
-        ClientText.DOWNLOAD_HINT: "Or visit mindaismart.com to download MAS Soft.",
+        ClientText.DOWNLOAD_HINT: "Or visit trade.masquant.com to download MAS Soft.",
         ClientText.TRADE_SUCCESS: "✅ Successfully generated trade report.",
         ClientText.KPI_SUCCESS: "✅ Successfully generated KPI report.",
         ClientText.DATA_SUCCESS: "✅ Successfully generated full report.",

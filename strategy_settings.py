@@ -16,6 +16,7 @@ class StrategyWorker(QThread):
     progress_signal = Signal(str)
     result_signal = Signal(object)
     backtest_log_signal = Signal(str)
+    alert_signal = Signal(str, str)   # 2026-08-25：虧損警戒彈窗（title, message）
 
     def __init__(self, account, password, server, symbol, capital=10000, volume=1, on_stop_callback=None):
         super().__init__()
@@ -33,6 +34,8 @@ class StrategyWorker(QThread):
         
         thread_safe_log = lambda m: self.progress_signal.emit(str(m))
         thread_safe_backtest_log = lambda m: self.backtest_log_signal.emit(str(m))
+        # 策略跑在這個 QThread 裡，不能直接開 Qt 對話框 → 一律走 Signal 回 UI 執行緒
+        thread_safe_alert = lambda t, m: self.alert_signal.emit(str(t), str(m))
         res = strategy.main(
             account=self.account,
             password=self.password,
@@ -42,7 +45,8 @@ class StrategyWorker(QThread):
             volume=self.volume,
             toggle=False,
             log = thread_safe_log,
-            backtest_log = thread_safe_backtest_log
+            backtest_log = thread_safe_backtest_log,
+            alert = thread_safe_alert
         )
 
         if not self.isInterruptionRequested():
@@ -288,17 +292,46 @@ class StrategySettingsForm(QWidget):
         )
 
     def _populate_capital_lots_combo(self):
-        """填入 10 個 (capital, lots) 選項；預設 index 對應 backend 的 default。"""
+        """填入 (capital, lots) 選項；預設 index 對應 backend 的預設本金。
+
+        2026-08-25：手數改由**策略本人**回答（strategy.preview_volume），顯示值因此
+        恆等於實際下單量。舊版打包的 EXE 沒有那支函式 → 自動退回線性推算。
+        預設項改用**本金**比對（手數已不再等於 backend 送來的建議值）。"""
         default_capital = getattr(self.main_window, "default_capital", None) or 10000
         default_lots = getattr(self.main_window, "default_lots", None) or 0.1
+        self._warn_volume_drift(default_lots)
         options = self._build_capital_lots_options(default_capital, default_lots)
+        # 天花板判定：最大手數若在多列重複出現，代表「本金再加也不會變大」→ 那些列全部標註
+        # （只出現一列＝單純是階梯頂端，不是撞到上限，不標）
+        cap_lot = max((l for _, l in options), default=None)
+        n_at_cap = sum(1 for _, l in options if cap_lot is not None and abs(l - cap_lot) < 1e-9)
         default_idx = 0
         for idx, (cap, lots) in enumerate(options):
-            text = self._format_capital_lots_option(cap, lots)
+            capped = (n_at_cap > 1 and abs(lots - cap_lot) < 1e-9)
+            text = self._format_capital_lots_option(cap, lots, capped=capped)
             self.combo_capital_lots.addItem(text, (cap, lots))
-            if abs(cap - default_capital) < 1 and abs(lots - default_lots) < 1e-4:
+            if abs(cap - default_capital) < 1:
                 default_idx = idx
         self.combo_capital_lots.setCurrentIndex(default_idx)
+
+    def _warn_volume_drift(self, backend_lots):
+        """EXE 裡烘死的基礎手數 vs 後端目前的建議值，不符就講明白。
+
+        兩者是**兩份各自維護的資料**：base_volume 在打包當下寫進 EXE，之後改後端
+        改不到。實測就踩過：後端回 0.02、EXE 裡是 0.03 → 顯示與實際差 1.5 倍。
+        這裡不擋執行（舊 EXE 仍可正常交易），只把差異講清楚，提示重新下載。"""
+        try:
+            baked = strategy.preview_base_volume()
+        except Exception:
+            return
+        if baked is None or not backend_lots:
+            return
+        if abs(baked - float(backend_lots)) > 1e-9:
+            self.main_window.update_process_log(
+                f"ℹ️ 本執行檔打包時的基礎手數為 {baked:g}，與伺服器目前建議的 "
+                f"{float(backend_lots):g} 不同。下拉顯示的是「本執行檔實際會下的手數」；"
+                f"若要套用新的建議值，請重新下載執行檔。"
+            )
 
     def _build_capital_lots_options(self, default_capital, default_lots):
         """回傳 (capital, lots) 選項：以預設為中心 ×0.1 ~ ×32 等比縮放。
@@ -313,8 +346,28 @@ class StrategySettingsForm(QWidget):
             default=(10000, 0.03) → 8 項，最小 (1000, 0.01)、含預設 (10000, 0.03)。
         """
         MIN_LOTS = 0.01
-        default_lots = max(round(default_lots, 2), MIN_LOTS)
         factors = [0.1, 0.2, 0.4, 0.6, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0]
+
+        # ── 首選：問策略本人（liveTransformer 1.4+ 注入 preview_volume）──
+        #   顯示值 = 實際下單量（含地板 base×0.5 與天花板 base×mult），不再各自推算。
+        caps = sorted({max(1, round(default_capital * f)) for f in factors}
+                      | {max(1, round(default_capital))})
+        true_opts = []
+        for cap in caps:
+            v = None
+            try:
+                v = strategy.preview_volume(cap)
+            except Exception:
+                v = None
+            if v is None:
+                true_opts = None
+                break
+            true_opts.append((cap, max(round(float(v), 2), MIN_LOTS)))
+        if true_opts:
+            return true_opts
+
+        # ── 退回：舊版打包的 EXE 沒有 preview_volume → 線性推算（會與實際不符，已知限制）──
+        default_lots = max(round(default_lots, 2), MIN_LOTS)
         by_lots = {}  # lots -> capital；setdefault 讓同一手數保留第一個（最小本金）
         for f in factors:
             lots = max(round(default_lots * f, 2), MIN_LOTS)
@@ -323,9 +376,13 @@ class StrategySettingsForm(QWidget):
         by_lots[default_lots] = round(default_capital)
         return [(by_lots[lots], lots) for lots in sorted(by_lots)]
 
-    def _format_capital_lots_option(self, capital, lots):
-        """套用 i18n 模板輸出 combo item 顯示字串。"""
-        return get_text(StrategyText.CAPITAL_LOTS_OPTION).format(
+    def _format_capital_lots_option(self, capital, lots, capped=False):
+        """套用 i18n 模板輸出 combo item 顯示字串。
+
+        capped=True：手數已達策略設計上限（本金再往上加也不會變大）→ 用標註變體，
+        避免使用者看到「本金翻倍但手數沒變」以為壞掉。"""
+        key = StrategyText.CAPITAL_LOTS_OPTION_CAPPED if capped else StrategyText.CAPITAL_LOTS_OPTION
+        return get_text(key).format(
             capital=f"{int(capital):,}",
             lots=f"{lots:.2f}",
         )
@@ -481,6 +538,7 @@ class StrategySettingsForm(QWidget):
         self.worker.progress_signal.connect(self.handle_worker_progress)
         self.worker.result_signal.connect(self.handle_worker_result)
         self.worker.backtest_log_signal.connect(self.handle_backtest_log)
+        self.worker.alert_signal.connect(self.handle_loss_alert)
         self.worker.start()
 
         self.main_window.update_process_log(get_text(StrategyText.LOG_STARTED))
@@ -520,6 +578,20 @@ class StrategySettingsForm(QWidget):
 
     def handle_worker_progress(self, msg):
         self.main_window.update_process_log(f"📄 {msg}")
+
+    def handle_loss_alert(self, title, message):
+        """虧損警戒彈窗（在 UI 執行緒執行）。
+
+        30% 示警：只提示，策略繼續跑。
+        50% 停止：策略端已自行平倉並停止開新倉，這裡只負責告知 + 更新狀態列。
+        兩種都同時寫進流程 Log，避免使用者關掉彈窗後找不到紀錄。"""
+        self.main_window.update_process_log(f"{title} {message}")
+        is_stop = get_text(StrategyText.LOSS_STOP_TITLE) in title
+        if is_stop:
+            QMessageBox.critical(self, title, message)
+            self.lbl_status.setText(title)
+        else:
+            QMessageBox.warning(self, title, message)
 
     def handle_worker_result(self, res):
         if res.get('status'):

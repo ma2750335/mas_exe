@@ -81,7 +81,6 @@ def post_request(url, payload):
     detail 帶上 HTTP 狀態碼/錯誤類型（如 HTTP 404、timeout），方便排查。
     """
     from i18n_strings import get_text, CheckText
-
     def _err(detail):
         return {
             "result": False,
@@ -90,7 +89,7 @@ def post_request(url, payload):
         }
 
     try:
-        response = requests.post(url, data=payload, verify=False, timeout=10)
+        response = requests.post(url, data=payload, verify=True, timeout=10)
         response.raise_for_status()  # 4xx/5xx（含 404）→ HTTPError
         return response.json()
     except requests.exceptions.HTTPError as http_err:
@@ -180,7 +179,7 @@ def mock_rsp():
     rsp = {
         'result': False,
         'msg_toggle': True,
-        'msg': '此帳號已被停用。<br>請至 <a href="https://mas.mindaismart.com/support" style="color:#0078D7;">客服中心</a> 申訴。',
+        'msg': '此帳號已被停用。<br>請至 <a href="https://trade.masquant.com/" style="color:#0078D7;">客服中心</a> 申訴。',
     }
     # 行為：跳「登入失敗」彈窗，msg 內的連結可點擊（HTML 正常渲染）
     return rsp
@@ -237,7 +236,7 @@ def get_strategy_health(strategy_id=None, health_token=None):
         response = requests.get(
             url,
             headers={"X-Health-Token": health_token, "X-Default-Lang": get_current_lang()},
-            verify=False,
+            verify=True,
             timeout=10,
         )
         response.raise_for_status()  # 4xx/5xx（含 404）→ HTTPError → None

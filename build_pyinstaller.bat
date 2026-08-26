@@ -8,8 +8,8 @@ REM Strip trailing backslash (PyInstaller flags don't tolerate it well).
 if "%PROJECT_ROOT:~-1%"=="\" set "PROJECT_ROOT=%PROJECT_ROOT:~0,-1%"
 
 REM Optional: output exe name.
-set "APP_NAME=strategy_bf6bbd37-a354-4689-91ad-e4c060ef504b"
-
+REM set "APP_NAME=genie_strategy_eef10c78-174e-4d50-874d-3f7061b3d36c"
+set "APP_NAME=genie_strategy_5609ea94-4fc0-4e7f-9fe3-0bdedebcec27" 
 set "MAIN_PY=%PROJECT_ROOT%\main.py"
 set "VERSION_FILE=%PROJECT_ROOT%\static\version.txt"
 set "DIST_PATH=%PROJECT_ROOT%\dist"

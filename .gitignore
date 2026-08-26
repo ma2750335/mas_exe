@@ -9,3 +9,9 @@ demo-user/
 *.spec
 dist/
 settings.local.json
+
+# --- MASQuant build pipeline outputs (packaging/) — scripts ARE tracked ---
+packaging/Dist/
+packaging/Release/
+packaging/Logs/
+packaging/build/
